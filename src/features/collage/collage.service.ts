@@ -10,4 +10,7 @@ export const collageService = {
 	create(data: CreateCollageDTO) {
 		return apiClient.post<CollageCreateResponse>(COLLAGE.CREATE, data);
 	},
+	delete(id:number,endPoint:string){
+		return apiClient.delete(`/${endPoint}/${id}`)
+	}
 };
