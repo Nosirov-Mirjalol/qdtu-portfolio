@@ -5,61 +5,59 @@ import { FileInput } from "@/components/file-input/file-input";
 import { Modal } from "@/components/modal/modal";
 import { TableToolbar } from "@/components/table-toolbar/table-toolbar";
 import { useModalActions, useModalEditData, useModalIsOpen } from "@/store/modalStore";
+import { useCreateCollage } from "@/hooks/collage/useCreateCollage";
+import { useCollage } from "@/hooks/collage/useCollage";
+import { useDeleteCollage } from "@/hooks/collage/useDeleteCollage";
+import { useUpdateCollage } from "@/hooks/collage/useEditCollage";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
 import { Pencil, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
 import { Controller, useForm } from "react-hook-form";
+import type { Collage } from "@/features/collage/collage.type";
 
 type FacultyFormValues = {
 	name: string;
 	image: File | null;
 };
 
-type Faculty = {
-	id: number;
-	name: string;
-	image: string | null;
-};
-
-const FACULTIES: Faculty[] = [
-	{ id: 1, name: "Davolash fakulteti", image: null },
-	{ id: 2, name: "Pediatriya fakulteti", image: null },
-	{ id: 3, name: "Stomatologiya va Farmatsiya fakulteti", image: null },
-	{ id: 4, name: "Tibbiy profilaktika fakulteti", image: null },
-	{ id: 5, name: "Tibbiy biologiya fakulteti", image: null },
-	{ id: 6, name: "Oliy hamshiralik ishi fakulteti", image: null },
-	{ id: 7, name: "Magistratura va doktorantura", image: null },
-];
-
 function createColumns(
-	onEdit: (row: Faculty) => void,
-	onDelete: (row: Faculty) => void,
-): ColumnDef<Faculty>[] {
+	onEdit: (row: Collage) => void,
+	onDelete: (row: Collage) => void,
+	page: number,
+	onImageClick: (imageUrl: string) => void,
+): ColumnDef<Collage>[] {
 	return [
 		{
 			accessorKey: "id",
 			header: "#",
-			cell: ({ row }) => (
-				<span className="text-muted-foreground">{row.getValue("id")}</span>
-			),
+			cell: ({ row }) => <span className="text-muted-foreground">{page * 10 + row.index + 1}</span>,
 		},
 		{
-			accessorKey: "image",
+			accessorKey: "imgUrl",
 			header: "Rasm",
-			cell: ({ row }) => (
-				<div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-[13px]">
-					{row.original.name.charAt(0).toUpperCase()}
-				</div>
-			),
+			cell: ({ row }) => {
+				const imgUrl = row.original.imgUrl;
+				return imgUrl ? (
+					<img
+						src={imgUrl}
+						alt={row.original.name}
+						className="w-9 h-9 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+						onClick={() => onImageClick(imgUrl)}
+					/>
+				) : (
+					<div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-[13px]">
+						{row.original.name.charAt(0).toUpperCase()}
+					</div>
+				);
+			},
 		},
 		{
 			accessorKey: "name",
 			header: "Fakultet",
-			cell: ({ row }) => (
-				<span className="font-medium">{row.getValue("name")}</span>
-			),
+			cell: ({ row }) => <span className="font-medium">{row.getValue("name")}</span>,
 		},
 		{
 			id: "actions",
@@ -90,35 +88,69 @@ function createColumns(
 }
 
 export default function Faculties() {
-	const [search, setSearch] = useState("");
+	const [previewImage, setPreviewImage] = useState<string | boolean>(false);
+	const [searchParams, setSearchParams] = useSearchParams();
+	const page = Number(searchParams.get("page") ?? 0);
+	const search = searchParams.get("name") ?? "";
+
+	const setPage = (newPage: number) => {
+		setSearchParams((prev) => {
+			const next = new URLSearchParams(prev);
+			next.set("page", String(newPage));
+			return next;
+		});
+	};
+
+	const setSearch = (value: string) => {
+		setSearchParams((prev) => {
+			const next = new URLSearchParams(prev);
+			if (value) next.set("name", value);
+			else next.delete("name");
+			next.set("page", "0");
+			return next;
+		});
+	};
+
 	const isOpen = useModalIsOpen();
-	const editData = useModalEditData() as Faculty | null;
+	const editData = useModalEditData() as Collage | null;
 	const { open, close } = useModalActions();
 	const isEdit = editData !== null;
 
-	const { register, handleSubmit, reset, control, formState: { errors } } = useForm<FacultyFormValues>({
+	const { data: collageResponse, isLoading, refetch } = useCollage();
+	const { mutate: createCollage, isPending: isCreating } = useCreateCollage();
+	const { mutate: deleteCollage } = useDeleteCollage();
+	const { mutate: updateCollage, isPending: isUpdating } = useUpdateCollage();
+	const isPending = isCreating || isUpdating;
+
+	const collages: Collage[] = collageResponse?.data ?? [];
+	const filteredCollages = collages.filter((f) => f.name.toLowerCase().includes(search.toLowerCase()));
+	const totalElements = filteredCollages.length;
+	const totalPage = Math.ceil(totalElements / 10);
+
+	const {
+		register,
+		handleSubmit,
+		reset,
+		control,
+		formState: { errors },
+	} = useForm<FacultyFormValues>({
 		defaultValues: { name: "", image: null },
 	});
 
 	useEffect(() => {
-		if (editData) {
-			reset({ name: editData.name, image: null });
-		}
+		if (editData) reset({ name: editData.name, image: null });
+		else reset({ name: "", image: null });
 	}, [editData, reset]);
 
-	const filtered = useMemo(
-		() => FACULTIES.filter((f) =>
-			f.name.toLowerCase().includes(search.toLowerCase()),
-		),
-		[search],
-	);
-
 	const columns = useMemo(
-		() => createColumns(
-			(row) => open(row),
-			(row) => console.log("O'chirish:", row),
-		),
-		[open],
+		() =>
+			createColumns(
+				(row) => open(row),
+				(row) => deleteCollage(row.id, { onSuccess: () => refetch() }),
+				page,
+				setPreviewImage,
+			),
+		[open, deleteCollage, page, refetch],
 	);
 
 	const handleClose = () => {
@@ -127,42 +159,77 @@ export default function Faculties() {
 	};
 
 	const onSubmit = (values: FacultyFormValues) => {
-		if (isEdit) {
-			console.log("Fakultet tahrirlandi:", { id: editData.id, ...values });
-		} else {
-			console.log("Yangi fakultet:", values);
+		if (isEdit && editData) {
+			const data: any = { name: values.name };
+			if (values.image) data.image = values.image;
+			updateCollage(
+				{ id: editData.id, data },
+				{
+					onSuccess: () => {
+						handleClose();
+						refetch();
+					},
+				},
+			);
+			return;
 		}
-		handleClose();
+		if (!values.image) return;
+		createCollage(values, {
+			onSuccess: () => {
+				handleClose();
+				refetch();
+			},
+		});
 	};
 
 	return (
 		<div className="flex flex-col gap-4">
 			<TableToolbar
 				countLabel="Fakultetlar soni"
-				count={FACULTIES.length}
+				count={totalElements}
 				searchValue={search}
 				onSearchChange={setSearch}
 				onAdd={() => open()}
 				addLabel="Fakultet qo'shish"
 			/>
 
-			<DataTable columns={columns} data={filtered} />
+			<DataTable
+				columns={columns}
+				data={filteredCollages.slice(page * 10, page * 10 + 10)}
+				isLoading={isLoading}
+				page={page}
+				totalPage={totalPage}
+				onPageChange={setPage}
+			/>
 
-			<Modal
-				open={isOpen}
-				onClose={handleClose}
-				title={isEdit ? "Fakultet tahrirlash" : "Fakultet qo'shish"}
-			>
+			{previewImage && (
+				<div
+					className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 cursor-pointer"
+					onClick={() => setPreviewImage(false)}
+				>
+					<div
+						role="dialog"
+						aria-modal="true"
+						aria-label="Image preview"
+						className="relative flex items-center justify-center"
+						onClick={(e) => e.stopPropagation()}
+					>
+						<img src={previewImage} alt="Preview" className="w-96 h-96 rounded-full object-cover shadow-lg" />
+					</div>
+				</div>
+			)}
+
+			<Modal open={isOpen} onClose={handleClose} title={isEdit ? "Fakultet tahrirlash" : "Fakultet qo'shish"}>
 				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-2">
 					<div className="flex flex-col gap-2">
 						<Label>Rasm</Label>
 						<Controller
 							name="image"
 							control={control}
-							render={({ field }) => (
-								<FileInput type="image" value={field.value} onChange={field.onChange} />
-							)}
+							rules={{ required: !isEdit && "Rasm tanlanishi shart" }}
+							render={({ field }) => <FileInput type="image" value={field.value} onChange={field.onChange} />}
 						/>
+						{errors.image && <span className="text-[12px] text-red-500">{errors.image.message}</span>}
 					</div>
 
 					<div className="flex flex-col gap-2">
@@ -172,14 +239,16 @@ export default function Faculties() {
 							placeholder="Masalan: Davolash fakulteti"
 							{...register("name", { required: "Fakultet nomi kiritilishi shart" })}
 						/>
-						{errors.name && (
-							<span className="text-[12px] text-red-500">{errors.name.message}</span>
-						)}
+						{errors.name && <span className="text-[12px] text-red-500">{errors.name.message}</span>}
 					</div>
 
 					<div className="flex justify-end gap-2">
-						<Button type="button" variant="outline" onClick={handleClose}>Bekor qilish</Button>
-						<Button type="submit">{isEdit ? "Saqlash" : "Qo'shish"}</Button>
+						<Button type="button" variant="outline" onClick={handleClose} disabled={isPending}>
+							Bekor qilish
+						</Button>
+						<Button type="submit" disabled={isPending}>
+							{isPending ? "Yuklanmoqda..." : isEdit ? "Saqlash" : "Qo'shish"}
+						</Button>
 					</div>
 				</form>
 			</Modal>

@@ -10,6 +10,8 @@ const API_ENDPOINTS = {
 	COLLAGE: {
 		GETALL: "/college",
 		CREATE: "college",
+		DELETE:"/college",
+		UPDATE:'/college'
 	},
 };
 

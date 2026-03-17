@@ -10,7 +10,10 @@ export const collageService = {
 	create(data: CreateCollageDTO) {
 		return apiClient.post<CollageCreateResponse>(COLLAGE.CREATE, data);
 	},
-	delete(id:number){
-		return apiClient.delete(`/college/${id}`)
-	}
+	delete(id: number) {
+		return apiClient.delete(`/college/${id}`);
+	},
+	update(id: number, data: Partial<Collage>) {
+		return apiClient.put<{ success: boolean; message: string }>(`${COLLAGE.UPDATE}/${id}`, data);
+	},
 };
