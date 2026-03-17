@@ -88,7 +88,7 @@ function createColumns(
 }
 
 export default function Faculties() {
-	const [previewImage, setPreviewImage] = useState<string | boolean>(false);
+	const [previewImage, setPreviewImage] = useState<string | null>(null);
 	const [searchParams, setSearchParams] = useSearchParams();
 	const page = Number(searchParams.get("page") ?? 0);
 	const search = searchParams.get("name") ?? "";
@@ -203,9 +203,10 @@ export default function Faculties() {
 			/>
 
 			{previewImage && (
-				<div
-					className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 cursor-pointer"
-					onClick={() => setPreviewImage(false)}
+				<button
+					type="button"
+					className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 cursor-pointer w-full border-0"
+					onClick={() => setPreviewImage(null)}
 				>
 					<div
 						role="dialog"
@@ -216,7 +217,7 @@ export default function Faculties() {
 					>
 						<img src={previewImage} alt="Preview" className="w-96 h-96 rounded-full object-cover shadow-lg" />
 					</div>
-				</div>
+				</button>
 			)}
 
 			<Modal open={isOpen} onClose={handleClose} title={isEdit ? "Fakultet tahrirlash" : "Fakultet qo'shish"}>
