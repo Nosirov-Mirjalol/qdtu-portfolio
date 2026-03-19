@@ -15,7 +15,7 @@ const API_ENDPOINTS = {
 	},
 	DEPARTMENT:{
 		GETALL: "/department",
-		CREATE: "department",
+		CREATE: "/department",
 		DELETE:"/department",
 		UPDATE:'/department',
 		PAGE:"/department/page",

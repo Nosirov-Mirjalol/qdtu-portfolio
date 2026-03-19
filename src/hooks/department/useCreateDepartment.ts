@@ -9,7 +9,7 @@ interface CreateDepartmentInput {
 	image: File;
 }
 
-export function useCreateCollage() {
+export function useCreateDepartment() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: async (input: CreateDepartmentInput) => {
@@ -23,10 +23,10 @@ export function useCreateCollage() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["departments"] });
-			toast.success("Fakultet muvaffaqiyatli qo'shildi");
+			toast.success("Kafedra muvaffaqiyatli qo'shildi");
 		},
 		onError: (error: { message: string }) => {
-			toast.success(error.message || "Fakultet qo'shishda xatolik");
+			toast.success(error.message || "Kafedra qo'shishda xatolik");
 		},
 	});
 }

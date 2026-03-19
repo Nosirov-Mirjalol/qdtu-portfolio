@@ -4,7 +4,7 @@ import { DEPARTMENT } from "@/constants/apiEndpoint";
 
 export const departmentService = {
 	getAll() {
-		return apiClient.get<DepartmentListResponse>(DEPARTMENT.GETALL);
+		return apiClient.get<DepartmentListResponse>(DEPARTMENT.LIST);
 	},
 	create(data: CreateDepartmentDTO) {
 		return apiClient.post<DepartmentCreateResponse>(DEPARTMENT.CREATE, data);

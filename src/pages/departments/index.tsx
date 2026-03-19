@@ -6,69 +6,56 @@ import { Modal } from "@/components/modal/modal";
 import { SearchableSelect } from "@/components/searchable-select/searchable-select";
 import { TableToolbar } from "@/components/table-toolbar/table-toolbar";
 import { useModalActions, useModalIsOpen, useModalEditData } from "@/store/modalStore";
+import { useCreateDepartment } from "@/hooks/department/useCreateDepartment";
+import { useDepartment } from "@/hooks/department/useDepartment";
+import { useDeleteDepartment } from "@/hooks/department/useDeleteDepartment";
+import { useUpdateDepartment } from "@/hooks/department/useEditDepartment";
+import { useCollage } from "@/hooks/collage/useCollage";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
 import { Pencil, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
 import { Controller, useForm } from "react-hook-form";
+import type { Department } from "@/features/departments/department.type";
 
 type DepartmentFormValues = {
 	name: string;
-	facultyId: string;
+	departmentId: string;
 	image: File | null;
+	
 };
-
-type Department = {
-	id: number;
-	name: string;
-	faculty: string;
-	image: string | null;
-};
-
-const FACULTIES = [
-	{ value: "1", label: "Davolash fakulteti" },
-	{ value: "2", label: "Pediatriya fakulteti" },
-	{ value: "3", label: "Stomatologiya va Farmatsiya fakulteti" },
-	{ value: "4", label: "Tibbiy profilaktika fakulteti" },
-	{ value: "5", label: "Tibbiy biologiya fakulteti" },
-	{ value: "6", label: "Oliy hamshiralik ishi fakulteti" },
-	{ value: "7", label: "Magistratura va doktorantura" },
-];
-
-const DEPARTMENTS: Department[] = [
-	{ id: 1, name: "Farmatsiya va kimyo kafedrasi", faculty: "Stomatologiya va Farmatsiya fakulteti", image: null },
-	{ id: 2, name: "Ichki kasalliklar kafedrasi", faculty: "Davolash fakulteti", image: null },
-	{ id: 3, name: "Jarrohlik kafedrasi", faculty: "Davolash fakulteti", image: null },
-	{ id: 4, name: "Bolalar kasalliklari kafedrasi", faculty: "Pediatriya fakulteti", image: null },
-	{ id: 5, name: "Stomatologiya kafedrasi", faculty: "Stomatologiya va Farmatsiya fakulteti", image: null },
-	{ id: 6, name: "Akusherlik va ginekologiya", faculty: "Tibbiy profilaktika fakulteti", image: null },
-	{ id: 7, name: "Nevrologiya kafedrasi", faculty: "Davolash fakulteti", image: null },
-	{ id: 8, name: "Biokimyo kafedrasi", faculty: "Tibbiy biologiya fakulteti", image: null },
-	{ id: 9, name: "Fiziologiya kafedrasi", faculty: "Tibbiy biologiya fakulteti", image: null },
-	{ id: 10, name: "Hamshiralik ishi kafedrasi", faculty: "Oliy hamshiralik ishi fakulteti", image: null },
-	{ id: 11, name: "Umumiy gigiyena kafedrasi", faculty: "Tibbiy profilaktika fakulteti", image: null },
-	{ id: 12, name: "Tibbiy biologiya kafedrasi", faculty: "Magistratura va doktorantura", image: null },
-];
 
 function createColumns(
 	onEdit: (row: Department) => void,
 	onDelete: (row: Department) => void,
+	page: number,
+	onImageClick: (imageUrl: string) => void,
 ): ColumnDef<Department>[] {
 	return [
 		{
 			accessorKey: "id",
 			header: "#",
-			cell: ({ row }) => <span className="text-muted-foreground ">{row.getValue("id")}</span>,
+			cell: ({ row }) => (
+				<span className="text-muted-foreground">{page * 10 + row.index + 1}</span>
+			),
 		},
 		{
-			accessorKey: "image",
+			accessorKey: "imgUrl",
 			header: "Rasm",
 			cell: ({ row }) => {
-				const name = row.original.name;
-				return (
+				const imgUrl = row.original.imgUrl;
+				return imgUrl ? (
+					<img
+						src={imgUrl}
+						alt={row.original.name}
+						className="w-9 h-9 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+						onClick={() => onImageClick(imgUrl)}
+					/>
+				) : (
 					<div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-[13px]">
-						{name.charAt(0).toUpperCase()}
+						{row.original.name.charAt(0).toUpperCase()}
 					</div>
 				);
 			},
@@ -79,19 +66,19 @@ function createColumns(
 			cell: ({ row }) => <span className="font-medium">{row.getValue("name")}</span>,
 		},
 		{
-			accessorKey: "faculty",
+			accessorKey: "departmentName",
 			header: "Fakulteti",
-			cell: ({ row }) => <span className="font-medium">{row.getValue("faculty")}</span>,
+			cell: ({ row }) => <span className="font-medium">{row.getValue("departmentName")}</span>,
 		},
 		{
-			accessorKey: "actions",
+			id: "actions",
 			header: () => <div className="text-center">Amallar</div>,
 			cell: ({ row }) => (
-				<div className="flex justify-center items-center gap-2">
+				<div className="flex items-center justify-center gap-2">
 					<button
 						type="button"
 						onClick={() => onEdit(row.original)}
-						className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 text-[12px] font-semibold px-2 py-1 rounded-md transition-colors cursor-pointer"
+						className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
 					>
 						<Pencil className="size-3" />
 						Tahrirlash
@@ -112,20 +99,59 @@ function createColumns(
 }
 
 export default function Departments() {
+	const [previewImage, setPreviewImage] = useState<string | null>(null);
+	const [searchParams, setSearchParams] = useSearchParams();
+	const page = Number(searchParams.get("page") ?? 0);
+	const search = searchParams.get("name") ?? "";
+
+	const setPage = (newPage: number) => {
+		setSearchParams((prev) => {
+			const next = new URLSearchParams(prev);
+			next.set("page", String(newPage));
+			return next;
+		});
+	};
+
+	const setSearch = (value: string) => {
+		setSearchParams((prev) => {
+			const next = new URLSearchParams(prev);
+			if (value) next.set("name", value);
+			else next.delete("name");
+			next.set("page", "0");
+			return next;
+		});
+	};
+
 	const isOpen = useModalIsOpen();
-	const [search, setSearch] = useState("");
-	const { open, close } = useModalActions();
 	const editData = useModalEditData() as Department | null;
+	const { open, close } = useModalActions();
 	const isEdit = editData !== null;
 
-	const filtered = useMemo(
+	const { data: departmentResponse, isLoading, refetch } = useDepartment();
+	const { mutate: createDepartment, isPending: isCreating } = useCreateDepartment();
+	const { mutate: deleteDepartment } = useDeleteDepartment();
+	const { mutate: updateDepartment, isPending: isUpdating } = useUpdateDepartment();
+	const isPending = isCreating || isUpdating;
+
+	// Fakultetlar ro'yxatini API dan olish
+	const { data: collageResponse } = useCollage();
+	const facultyOptions = useMemo(
 		() =>
-			DEPARTMENTS.filter(
-				(d) =>
-					d.name.toLowerCase().includes(search.toLowerCase()) || d.faculty.toLowerCase().includes(search.toLowerCase()),
-			),
-		[search],
+			(collageResponse?.data ?? []).map((f) => ({
+				value: String(f.id),
+				label: f.name,
+			})),
+		[collageResponse],
 	);
+
+	const departments: Department[] = departmentResponse?.data ?? [];
+	const filteredDepartments = departments.filter(
+		(d) =>
+			d.name.toLowerCase().includes(search.toLowerCase()) ||
+			d.imgUrl?.toLowerCase().includes(search.toLowerCase()),
+	);
+	const totalElements = filteredDepartments.length;
+	const totalPage = Math.ceil(totalElements / 10);
 
 	const {
 		register,
@@ -134,16 +160,30 @@ export default function Departments() {
 		control,
 		formState: { errors },
 	} = useForm<DepartmentFormValues>({
-		defaultValues: { name: "", image: null },
+		defaultValues: { name: "", departmentId: "", image: null },
 	});
+
+	useEffect(() => {
+		if (editData) {
+			reset({
+				name: editData.name,
+				departmentId: editData.id ? String(editData.id) : "",
+				image: null,
+			});
+		} else {
+			reset({ name: "", departmentId: "", image: null });
+		}
+	}, [editData, reset]);
 
 	const columns = useMemo(
 		() =>
 			createColumns(
 				(row) => open(row),
-				(row) => console.log("O'chirish:", row),
+				(row) => deleteDepartment(row.id, { onSuccess: () => refetch() }),
+				page,
+				setPreviewImage,
 			),
-		[open],
+		[open, deleteDepartment, page, refetch],
 	);
 
 	const handleClose = () => {
@@ -151,60 +191,98 @@ export default function Departments() {
 		close();
 	};
 
-	useEffect(() => {
-		if (editData) {
-			const faculty = FACULTIES.find((f) => f.label === editData.faculty);
-			reset({ name: editData.name, facultyId: faculty?.value ?? "", image: null });
-		}
-	}, [editData, reset]);
-
 	const onSubmit = (values: DepartmentFormValues) => {
-		const faculty = FACULTIES.find((f) => f.value === values.facultyId);
-		if (isEdit) {
-			console.log("Kafedra tahrirlandi:", {
-				id: editData.id,
-				name: values.name,
-				faculty: faculty?.label,
-				image: values.image,
-			});
-		} else {
-			console.log("Yangi kafedra:", { name: values.name, faculty: faculty?.label, image: values.image });
+		if (isEdit && editData) {
+			const data: any = { name: values.name, departmentId: Number(values.departmentId) };
+			if (values.image) data.image = values.image;
+			updateDepartment(
+				{ id: editData.id, data },
+				{
+					onSuccess: () => {
+						handleClose();
+						refetch();
+					},
+				},
+			);
+			return;
 		}
-		handleClose();
+		if (!values.image) return;
+		createDepartment(values, {
+			onSuccess: () => {
+				handleClose();
+				refetch();
+			},
+		});
 	};
 
 	return (
 		<div className="flex flex-col gap-4">
 			<TableToolbar
 				countLabel="Kafedralar soni"
-				count={filtered.length}
+				count={totalElements}
 				searchValue={search}
 				onSearchChange={setSearch}
 				onAdd={() => open()}
 				addLabel="Kafedra qo'shish"
 			/>
 
-			<DataTable columns={columns} data={filtered} />
+			<DataTable
+				columns={columns}
+				data={filteredDepartments.slice(page * 10, page * 10 + 10)}
+				isLoading={isLoading}
+				page={page}
+				totalPage={totalPage}
+				onPageChange={setPage}
+			/>
 
-			<Modal open={isOpen} onClose={handleClose} title={isEdit ? "Fakultetni tahrirlash" : "Fakultet qo'shish"}>
+			{previewImage && (
+				<button
+					type="button"
+					className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 cursor-pointer w-full border-0"
+					onClick={() => setPreviewImage(null)}
+				>
+					<div
+						role="dialog"
+						aria-modal="true"
+						aria-label="Image preview"
+						className="relative flex items-center justify-center"
+						onClick={(e) => e.stopPropagation()}
+					>
+						<img src={previewImage} alt="Preview" className="w-96 h-96 rounded-full object-cover shadow-lg" />
+					</div>
+				</button>
+			)}
+
+			<Modal
+				open={isOpen}
+				onClose={handleClose}
+				title={isEdit ? "Kafedrani tahrirlash" : "Kafedra qo'shish"}
+			>
 				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-2">
-					<Label>Rasm</Label>
-					<Controller
-						name="image"
-						control={control}
-						render={({ field }) => <FileInput type="image" value={field.value} onChange={field.onChange} />}
-					/>
-					{/* Fakultet select */}
+					<div className="flex flex-col gap-2">
+						<Label>Rasm</Label>
+						<Controller
+							name="image"
+							control={control}
+							rules={{ required: !isEdit && "Rasm tanlanishi shart" }}
+							render={({ field }) => (
+								<FileInput type="image" value={field.value} onChange={field.onChange} />
+							)}
+						/>
+						{errors.image && (
+							<span className="text-[12px] text-red-500">{errors.image.message}</span>
+						)}
+					</div>
 
 					<div className="flex flex-col gap-2">
 						<Label>Fakultet</Label>
 						<Controller
-							name="facultyId"
+							name="departmentId"
 							control={control}
 							rules={{ required: "Fakultet tanlanishi shart" }}
 							render={({ field }) => (
 								<SearchableSelect
-									options={FACULTIES}
+									options={facultyOptions}
 									value={field.value}
 									onChange={field.onChange}
 									placeholder="Fakultetni tanlang"
@@ -212,24 +290,30 @@ export default function Departments() {
 								/>
 							)}
 						/>
-						{errors.facultyId && <span className="text-[12px] text-red-500">{errors.facultyId.message}</span>}
+						{errors.departmentId && (
+							<span className="text-[12px] text-red-500">{errors.departmentId.message}</span>
+						)}
 					</div>
 
 					<div className="flex flex-col gap-2">
-						<Label htmlFor="faculty-name">Kafedra nomi</Label>
+						<Label htmlFor="department-name">Kafedra nomi</Label>
 						<Input
 							id="department-name"
-							placeholder="Masalan: Kompyuter kafedrasi"
+							placeholder="Masalan: Farmatsiya va kimyo kafedrasi"
 							{...register("name", { required: "Kafedra nomi kiritilishi shart" })}
 						/>
-						{errors.name && <span className="text-[12px] text-red-500">{errors.name.message}</span>}
+						{errors.name && (
+							<span className="text-[12px] text-red-500">{errors.name.message}</span>
+						)}
 					</div>
 
 					<div className="flex justify-end gap-2">
-						<Button type="button" variant="outline" onClick={handleClose}>
+						<Button type="button" variant="outline" onClick={handleClose} disabled={isPending}>
 							Bekor qilish
 						</Button>
-						<Button type="submit">{isEdit ? "Tahrirlash" : "Qo'shish"}</Button>
+						<Button type="submit" disabled={isPending}>
+							{isPending ? "Yuklanmoqda..." : isEdit ? "Saqlash" : "Qo'shish"}
+						</Button>
 					</div>
 				</form>
 			</Modal>

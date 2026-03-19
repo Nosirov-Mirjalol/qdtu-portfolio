@@ -2,7 +2,7 @@ import { departmentService } from "@/features/departments/department.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-export function useDeleteCollage() {
+export function useDeleteDepartment() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: async (id: number) => {
