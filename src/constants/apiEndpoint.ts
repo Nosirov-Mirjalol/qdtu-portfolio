@@ -13,6 +13,14 @@ const API_ENDPOINTS = {
 		DELETE:"/college",
 		UPDATE:'/college'
 	},
+	DEPARTMENT:{
+		GETALL: "/department",
+		CREATE: "department",
+		DELETE:"/department",
+		UPDATE:'/department',
+		PAGE:"/department/page",
+		LIST:"/department/list"
+	}
 };
 
-export const { LOGIN, USER, FILE, COLLAGE } = API_ENDPOINTS;
+export const { LOGIN, USER, FILE, COLLAGE,DEPARTMENT } = API_ENDPOINTS;

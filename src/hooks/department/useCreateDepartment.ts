@@ -1,0 +1,32 @@
+import { departmentService } from "@/features/departments/department.service";
+import { CreateDepartmentDTO } from "@/features/departments/department.type";
+import { fileService } from "@/features/file/file.service";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+interface CreateDepartmentInput {
+	name: string;
+	image: File;
+}
+
+export function useCreateCollage() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (input: CreateDepartmentInput) => {
+			const imgUrl = await fileService.uploadImage(input.image);
+			const departmentData: CreateDepartmentDTO = {
+				name: input.name,
+				imgUrl,
+			};
+
+			return departmentService.create(departmentData);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["departments"] });
+			toast.success("Fakultet muvaffaqiyatli qo'shildi");
+		},
+		onError: (error: { message: string }) => {
+			toast.success(error.message || "Fakultet qo'shishda xatolik");
+		},
+	});
+}
