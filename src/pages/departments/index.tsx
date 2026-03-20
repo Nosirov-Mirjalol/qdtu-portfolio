@@ -199,7 +199,7 @@ export default function Departments() {
 		};
 		if (values.image) data.image = values.image;
 		updateDepartment(
-			{ id: editData.id, data },
+			{ collegeId: Number(values.departmentId), data },
 			{
 				onSuccess: () => {
 					handleClose();

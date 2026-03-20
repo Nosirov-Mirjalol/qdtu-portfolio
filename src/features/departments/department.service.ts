@@ -10,7 +10,7 @@ export const departmentService = {
 		return apiClient.post<DepartmentCreateResponse>(DEPARTMENT.CREATE, data);
 	},
 	delete(id: number) {
-		return apiClient.delete(`/college/${id}`);
+		return apiClient.delete(`/department/${id}`);
 	},
 	update(id: number, data: Partial<Department>) {
 		return apiClient.put<{ success: boolean; message: string }>(`${DEPARTMENT.UPDATE}/${id}`, data);

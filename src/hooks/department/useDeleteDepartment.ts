@@ -10,7 +10,7 @@ export function useDeleteDepartment() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["departments"] });
-			toast.success("Department muvaffaqiyatli o'chirildi");
+			toast.success("Kafedra muvaffaqiyatli o'chirildi");
 		},
 		onError: (error: { message: string }) => {
 			toast.error(error.message || "Departmentni o'chirishda xatolik");
