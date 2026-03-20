@@ -1,6 +1,7 @@
 export interface CreateDepartmentDTO {
 	name: string;
 	imgUrl: string;
+	collegeId:string | number;
 }
 export interface Department {
 	id: number;

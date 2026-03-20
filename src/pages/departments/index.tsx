@@ -22,7 +22,7 @@ import type { Department } from "@/features/departments/department.type";
 
 type DepartmentFormValues = {
 	name: string;
-	departmentId: string;
+	departmentId: string | number;
 	image: File | null;
 	
 };
@@ -192,28 +192,42 @@ export default function Departments() {
 	};
 
 	const onSubmit = (values: DepartmentFormValues) => {
-		if (isEdit && editData) {
-			const data: any = { name: values.name, departmentId: Number(values.departmentId) };
-			if (values.image) data.image = values.image;
-			updateDepartment(
-				{ id: editData.id, data },
-				{
-					onSuccess: () => {
-						handleClose();
-						refetch();
-					},
+	if (isEdit && editData) {
+		const data: any = { 
+			name: values.name, 
+			departmentId: Number(values.departmentId) 
+		};
+		if (values.image) data.image = values.image;
+		updateDepartment(
+			{ id: editData.id, data },
+			{
+				onSuccess: () => {
+					handleClose();
+					refetch();
 				},
-			);
-			return;
-		}
-		if (!values.image) return;
-		createDepartment(values, {
+			},
+		);
+		return;
+	}
+
+	// ✅ image va departmentId ni tekshirish
+	if (!values.image) return;
+	if (!values.departmentId) return; // ← bu qo'shildi
+
+	createDepartment(
+		{
+			name: values.name,
+			collegeId: Number(values.departmentId),
+			image: values.image,
+		},
+		{
 			onSuccess: () => {
 				handleClose();
 				refetch();
 			},
-		});
-	};
+		},
+	);
+};
 
 	return (
 		<div className="flex flex-col gap-4">
