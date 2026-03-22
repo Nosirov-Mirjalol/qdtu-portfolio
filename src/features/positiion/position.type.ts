@@ -5,6 +5,7 @@ export interface CreatePositionDTO {
 export interface Position {
 	id: number;
 	name: string;
+	totalEmployees: number;
 }
 export interface PositionCreateResponse {
 	success: boolean;

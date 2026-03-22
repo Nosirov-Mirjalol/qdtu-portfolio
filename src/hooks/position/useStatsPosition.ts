@@ -1,9 +1,9 @@
 import { PositionService } from "@/features/positiion/position.service";
 import { useQuery } from "@tanstack/react-query";
 
-export function usePosition() {
+export function useStatsPosition() {
 	return useQuery({
 		queryKey: ["positions"],
-		queryFn: () => PositionService.getAll(),
+		queryFn: () => PositionService.getStatistik(),
 	});
 }

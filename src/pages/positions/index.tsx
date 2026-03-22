@@ -1,6 +1,6 @@
 import { TableToolbar } from "@/components/table-toolbar/table-toolbar";
 import { Card, CardContent } from "@/ui/card";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Users, Briefcase } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useModalActions, useModalIsOpen, useModalEditData } from "@/store/modalStore";
 import { Modal } from "@/components/modal/modal";
@@ -9,12 +9,12 @@ import { useForm } from "react-hook-form";
 import { Label } from "@/ui/label";
 import { Input } from "@/ui/input";
 import { ConfirmPopover } from "@/components/confirm-popover/confirm-popover";
-
-type Position = {
-	id: number;
-	name: string;
-	count: number;
-};
+import { usePosition } from "@/hooks/position/usePosition";
+import { useCreatePosition } from "@/hooks/position/useCreatePosition";
+import { useUpdatePosition } from "@/hooks/position/useEditPosition";
+import { useDeletePosition } from "@/hooks/position/useDeletePosition";
+import { useStatsPosition } from "@/hooks/position/useStatsPosition";
+import type { Position } from "@/features/positiion/position.type";
 
 type PositionFormValues = {
 	name: string;
@@ -27,11 +27,20 @@ export default function Positions() {
 	const editData = useModalEditData() as Position | null;
 	const isEdit = editData !== null;
 
-	const positions: Position[] = [];
+	const { data: positionResponse, refetch } = usePosition();
+	const { data: statsResponse } = useStatsPosition();
+
+	const { mutate: createPosition, isPending: isCreating } = useCreatePosition();
+	const { mutate: updatePosition, isPending: isUpdating } = useUpdatePosition();
+	const { mutate: deletePosition } = useDeletePosition();
+	const isPending = isCreating || isUpdating;
+
+	const positions: Position[] = positionResponse?.data ?? [];
+	const stats = statsResponse?.data;
 
 	const filtered = useMemo(
 		() => positions.filter((f) => f.name.toLowerCase().includes(search.toLowerCase())),
-		[search],
+		[positions, search],
 	);
 
 	const {
@@ -44,26 +53,70 @@ export default function Positions() {
 	});
 
 	function handleClose() {
+		reset();
 		close();
 	}
 
 	useEffect(() => {
 		if (editData) {
 			reset({ name: editData.name });
+		} else {
+			reset({ name: "" });
 		}
 	}, [editData, reset]);
 
 	const onSubmit = (values: PositionFormValues) => {
-		if (isEdit) {
-			console.log("Lavozim tahrirlandi:", { id: editData.id, ...values });
-		} else {
-			console.log("Yangi lavozim:", values);
+		if (isEdit && editData) {
+			updatePosition(
+				{ id: editData.id, data: { name: values.name } },
+				{
+					onSuccess: () => {
+						handleClose();
+						refetch();
+					},
+				},
+			);
+			return;
 		}
-		handleClose();
+
+		createPosition(values.name, {
+			onSuccess: () => {
+				handleClose();
+				refetch();
+			},
+		});
 	};
 
 	return (
 		<div className="flex flex-col gap-4">
+			{/* Statistika kartalar */}
+			{stats && (
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<Card className="py-0">
+						<CardContent className="flex items-center gap-4 px-5 py-4">
+							<div className="flex items-center justify-center size-10 rounded-full bg-blue-50">
+								<Briefcase className="size-5 text-blue-600" />
+							</div>
+							<div className="flex flex-col gap-0.5">
+								<span className="text-[12px] text-muted-foreground">Jami lavozimlar</span>
+								<span className="text-[20px] font-bold leading-tight">{stats.totalPositions}</span>
+							</div>
+						</CardContent>
+					</Card>
+					<Card className="py-0">
+						<CardContent className="flex items-center gap-4 px-5 py-4">
+							<div className="flex items-center justify-center size-10 rounded-full bg-green-50">
+								<Users className="size-5 text-green-600" />
+							</div>
+							<div className="flex flex-col gap-0.5">
+								<span className="text-[12px] text-muted-foreground">Jami xodimlar</span>
+								<span className="text-[20px] font-bold leading-tight">{stats.totalEmployees}</span>
+							</div>
+						</CardContent>
+					</Card>
+				</div>
+			)}
+
 			<TableToolbar
 				countLabel="Lavozimlar soni"
 				count={filtered.length}
@@ -80,7 +133,7 @@ export default function Positions() {
 							<CardContent className="flex flex-col gap-4 px-5 py-5">
 								<div className="flex flex-col gap-0.5">
 									<span className="text-[15px] font-semibold leading-tight">{position.name}</span>
-									<span className="text-[12px] text-muted-foreground">{position.count} ta xodim</span>
+									<span className="text-[12px] text-muted-foreground">{position.totalEmployees} ta xodim</span>
 								</div>
 								<div className="flex justify-center items-center gap-2">
 									<button
@@ -91,7 +144,7 @@ export default function Positions() {
 										<Pencil className="size-3" />
 										Tahrirlash
 									</button>
-									<ConfirmPopover onConfirm={() => console.log("Hey")}>
+									<ConfirmPopover onConfirm={() => deletePosition(position.id, { onSuccess: () => refetch() })}>
 										<button
 											type="button"
 											className="inline-flex items-center gap-1.5 bg-red-50 text-red-700 hover:bg-red-100 text-[12px] font-semibold px-2 py-1 rounded-md transition-colors cursor-pointer"
@@ -122,10 +175,12 @@ export default function Positions() {
 					</div>
 
 					<div className="flex justify-end gap-2">
-						<Button type="button" variant="outline" onClick={handleClose}>
+						<Button type="button" variant="outline" onClick={handleClose} disabled={isPending}>
 							Bekor qilish
 						</Button>
-						<Button type="submit">{isEdit ? "Saqlash" : "Qo'shish"}</Button>
+						<Button type="submit" disabled={isPending}>
+							{isPending ? "Yuklanmoqda..." : isEdit ? "Saqlash" : "Qo'shish"}
+						</Button>
 					</div>
 				</form>
 			</Modal>

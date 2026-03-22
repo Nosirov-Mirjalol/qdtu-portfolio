@@ -16,4 +16,7 @@ export const PositionService = {
 	update(id: number, data: Partial<Position>) {
 		return apiClient.put<{ success: boolean; message: string }>(`${POSITION.LAVOZIM}/${id}`, data);
 	},
+	getStatistik(){
+		return apiClient.get(`${POSITION.STATISTIC}`)
+	}
 };
