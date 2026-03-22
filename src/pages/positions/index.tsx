@@ -20,14 +20,6 @@ type PositionFormValues = {
 	name: string;
 };
 
-const POSITIONS: Position[] = [
-	{ id: 1, name: "Professor", count: 18 },
-	{ id: 2, name: "Dotsent", count: 45 },
-	{ id: 3, name: "Katta o'qituvchi", count: 97 },
-	{ id: 4, name: "Assistent", count: 88 },
-	{ id: 5, name: "O'qituvchi", count: 0 },
-];
-
 export default function Positions() {
 	const [search, setSearch] = useState("");
 	const isOpen = useModalIsOpen();
@@ -35,8 +27,10 @@ export default function Positions() {
 	const editData = useModalEditData() as Position | null;
 	const isEdit = editData !== null;
 
+	const positions: Position[] = [];
+
 	const filtered = useMemo(
-		() => POSITIONS.filter((f) => f.name.toLowerCase().includes(search.toLowerCase())),
+		() => positions.filter((f) => f.name.toLowerCase().includes(search.toLowerCase())),
 		[search],
 	);
 
@@ -48,9 +42,11 @@ export default function Positions() {
 	} = useForm<PositionFormValues>({
 		defaultValues: { name: "" },
 	});
+
 	function handleClose() {
 		close();
 	}
+
 	useEffect(() => {
 		if (editData) {
 			reset({ name: editData.name });
@@ -113,7 +109,7 @@ export default function Positions() {
 				)}
 			</div>
 
-			<Modal open={isOpen} onClose={handleClose} title="Lavozim qo'shish">
+			<Modal open={isOpen} onClose={handleClose} title={isEdit ? "Lavozimni tahrirlash" : "Lavozim qo'shish"}>
 				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-2">
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="position-name">Lavozim nomi</Label>
@@ -129,7 +125,7 @@ export default function Positions() {
 						<Button type="button" variant="outline" onClick={handleClose}>
 							Bekor qilish
 						</Button>
-						<Button type="submit">{"Qo'shish"}</Button>
+						<Button type="submit">{isEdit ? "Saqlash" : "Qo'shish"}</Button>
 					</div>
 				</form>
 			</Modal>
