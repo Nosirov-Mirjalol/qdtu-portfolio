@@ -19,7 +19,11 @@ const API_ENDPOINTS = {
 		UPDATE:'/department',
 		PAGE:"/department/page",
 		LIST:"/department/list"
+	},
+	POSITION:{
+		LAVOZIM:"/lavozim",
+		STATISTIC:"/lavozim/get-lavozim-statistiks"
 	}
 };
 
-export const { LOGIN, USER, FILE, COLLAGE,DEPARTMENT } = API_ENDPOINTS;
+export const { LOGIN, USER, FILE, COLLAGE,DEPARTMENT,POSITION } = API_ENDPOINTS;
