@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 interface UpdateDepartmentDto {
+  id: number;
   collegeId: number;
   data: {
     name: string;
@@ -15,15 +16,15 @@ export function useUpdateDepartment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ collegeId, data }: UpdateDepartmentDto) => {
-      let updateData: any = { name: data.name };
+    mutationFn: async ({ id, collegeId, data }: UpdateDepartmentDto) => {
+      let updateData: any = { name: data.name, collegeId };
       
       if (data.image) {
         const imgUrl = await fileService.uploadImage(data.image);
         updateData.imgUrl = imgUrl;
       }
       
-      return departmentService.update(collegeId, updateData);
+      return departmentService.update(id, updateData); // ✅ id path'ga uzatiladi
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["departments"] });
