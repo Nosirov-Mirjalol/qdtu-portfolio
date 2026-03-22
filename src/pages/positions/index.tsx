@@ -36,12 +36,15 @@ export default function Positions() {
 	const isPending = isCreating || isUpdating;
 
 	const positions: Position[] = positionResponse?.data ?? [];
+
 	const stats = statsResponse?.data;
+	const totalEmployees = stats?.data?.reduce((sum: number, item: { totalEmployees: number }) => sum + item.totalEmployees, 0) ?? 0;
 
 	const filtered = useMemo(
 		() => positions.filter((f) => f.name.toLowerCase().includes(search.toLowerCase())),
 		[positions, search],
 	);
+	console.log(filtered);
 
 	const {
 		register,
@@ -89,7 +92,6 @@ export default function Positions() {
 
 	return (
 		<div className="flex flex-col gap-4">
-			{/* Statistika kartalar */}
 			{stats && (
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<Card className="py-0">
@@ -99,7 +101,7 @@ export default function Positions() {
 							</div>
 							<div className="flex flex-col gap-0.5">
 								<span className="text-[12px] text-muted-foreground">Jami lavozimlar</span>
-								<span className="text-[20px] font-bold leading-tight">{stats.totalPositions}</span>
+								<span className="text-[20px] font-bold leading-tight">{stats.total}</span>
 							</div>
 						</CardContent>
 					</Card>
@@ -110,7 +112,7 @@ export default function Positions() {
 							</div>
 							<div className="flex flex-col gap-0.5">
 								<span className="text-[12px] text-muted-foreground">Jami xodimlar</span>
-								<span className="text-[20px] font-bold leading-tight">{stats.totalEmployees}</span>
+								<span className="text-[20px] font-bold leading-tight">{totalEmployees}</span>
 							</div>
 						</CardContent>
 					</Card>
@@ -144,7 +146,7 @@ export default function Positions() {
 										<Pencil className="size-3" />
 										Tahrirlash
 									</button>
-									<ConfirmPopover onConfirm={() => deletePosition(position.id, { onSuccess: () => refetch() })}>
+									<ConfirmPopover onConfirm={() => deletePosition(Number(position.id))}>
 										<button
 											type="button"
 											className="inline-flex items-center gap-1.5 bg-red-50 text-red-700 hover:bg-red-100 text-[12px] font-semibold px-2 py-1 rounded-md transition-colors cursor-pointer"

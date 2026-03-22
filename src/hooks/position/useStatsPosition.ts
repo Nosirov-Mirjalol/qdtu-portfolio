@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 export function useStatsPosition() {
 	return useQuery({
-		queryKey: ["positions"],
+		queryKey: ["positions-stats"],
 		queryFn: () => PositionService.getStatistik(),
 	});
 }
