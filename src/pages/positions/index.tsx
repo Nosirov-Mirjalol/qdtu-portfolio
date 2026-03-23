@@ -44,7 +44,6 @@ export default function Positions() {
 		() => positions.filter((f) => f.name.toLowerCase().includes(search.toLowerCase())),
 		[positions, search],
 	);
-	console.log(filtered);
 
 	const {
 		register,
@@ -146,7 +145,7 @@ export default function Positions() {
 										<Pencil className="size-3" />
 										Tahrirlash
 									</button>
-									<ConfirmPopover onConfirm={() => deletePosition(Number(position.id))}>
+									<ConfirmPopover onConfirm={() => deletePosition(position.id)}>
 										<button
 											type="button"
 											className="inline-flex items-center gap-1.5 bg-red-50 text-red-700 hover:bg-red-100 text-[12px] font-semibold px-2 py-1 rounded-md transition-colors cursor-pointer"

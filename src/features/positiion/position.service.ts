@@ -11,7 +11,7 @@ export const PositionService = {
 		return apiClient.post<PositionCreateResponse>(POSITION.LAVOZIM, data);
 	},
 	delete(id: number) {
-		return apiClient.delete(`/${POSITION.LAVOZIM}/${id}`);
+		return apiClient.delete(`/lavozim/${id}`);
 	},
 	update(id: number, data: Partial<Position>) {
 		return apiClient.put<{ success: boolean; message: string }>(`${POSITION.LAVOZIM}/${id}`, data);
