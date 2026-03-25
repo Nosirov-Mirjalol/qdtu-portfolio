@@ -12,6 +12,11 @@ export function useDeletePosition() {
       toast.success("Lavozim muvaffaqiyatli o'chirildi");
     },
     onError: (error: any) => {
+      if(error.status===500){
+        toast.warning("bu lavozimda xodimlar bor !")
+        return
+      }
+      
       toast.error(error?.response?.data?.message || "Lavozimni o'chirishda xatolik");
     },
   });

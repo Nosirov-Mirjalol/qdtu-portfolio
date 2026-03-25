@@ -134,7 +134,7 @@ export default function Positions() {
 							<CardContent className="flex flex-col gap-4 px-5 py-5">
 								<div className="flex flex-col gap-0.5">
 									<span className="text-[15px] font-semibold leading-tight">{position.name}</span>
-									<span className="text-[12px] text-muted-foreground">{position.totalEmployees} ta xodim</span>
+									<span className="text-[12px] text-muted-foreground">{position.totalEmployees || 0} ta xodim</span>
 								</div>
 								<div className="flex justify-center items-center gap-2">
 									<button
