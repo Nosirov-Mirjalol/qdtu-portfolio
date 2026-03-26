@@ -23,7 +23,11 @@ const API_ENDPOINTS = {
 	POSITION:{
 		LAVOZIM:"/lavozim",
 		STATISTIC:"/lavozim/get-lavozim-statistiks"
+	},
+	TEACHER:{
+		SEARCH:"/teacher/search",
+		
 	}
 };
 
-export const { LOGIN, USER, FILE, COLLAGE,DEPARTMENT,POSITION } = API_ENDPOINTS;
+export const { LOGIN, USER, FILE, COLLAGE,DEPARTMENT,POSITION ,TEACHER} = API_ENDPOINTS;
