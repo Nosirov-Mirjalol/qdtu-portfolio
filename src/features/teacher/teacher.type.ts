@@ -80,7 +80,7 @@ export interface CreateTeacherResponse {
 export interface EditTeacherDTO {
   fullName: string;
   phoneNumber: string;
-  imgUrl: string;
+  imgUrl: string | null;
   fileUrl: string;
   lavozmId: number;
   gender: boolean;

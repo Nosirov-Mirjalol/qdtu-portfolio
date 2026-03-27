@@ -19,15 +19,18 @@ export type TeacherFormValues = {
 	confirmPassword: string;
 };
 
-export const FACULTIES = [
-	{ value: "1", label: "Davolash fakulteti" },
-	{ value: "2", label: "Pediatriya fakulteti" },
-	{ value: "3", label: "Stomatologiya va Farmatsiya fakulteti" },
-	{ value: "4", label: "Tibbiy profilaktika fakulteti" },
-	{ value: "5", label: "Tibbiy biologiya fakulteti" },
-	{ value: "6", label: "Oliy hamshiralik ishi fakulteti" },
-	{ value: "7", label: "Magistratura va doktorantura" },
-];
+export type TeacherCreateValues={
+	fullName: string;
+  phoneNumber: string;
+  imgUrl: string | null;
+  fileUrl: string;
+  lavozmId: number;
+  gender: boolean;
+  password: string;
+  departmentId: number;
+}
+
+
 
 export const DEPARTMENTS = [
 	{ value: "1", label: "Farmatsiya va kimyo kafedrasi", facultyId: "3" },

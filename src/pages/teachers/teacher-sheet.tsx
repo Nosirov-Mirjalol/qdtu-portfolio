@@ -9,8 +9,13 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/sheet";
 import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { DEPARTMENTS, FACULTIES, POSITIONS, type TeacherFormValues } from "./data";
+import { TeacherCreateValues, } from "./data";
+import type { TeacherFormValues } from "./data";
 import { useTeacherSheetActions, useTeacherSheetEditData, useTeacherSheetIsOpen } from "@/store/teacherSheet";
+import { useCreateTeacher } from "@/hooks/teacher/useCreateTeacher";
+import { useCollage } from "@/hooks/collage/useCollage";
+import { useDepartment } from "@/hooks/department/useDepartment";
+import { usePosition } from "@/hooks/position/usePosition";
 
 // ─── Phone mask ───────────────────────────────────────────────────────────────
 
@@ -47,6 +52,38 @@ export function TeacherSheet() {
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirm, setShowConfirm] = useState(false);
 
+	const { data: collageResponse } = useCollage();
+	const { data: departmentResponse } = useDepartment();
+	const {data:positionResponse}=usePosition()
+
+	const FACULTIES = useMemo(
+		() =>
+			(collageResponse?.data ?? []).map((f) => ({
+				value: String(f.id),
+				label: f.name,
+			})),
+		[collageResponse],
+	);
+
+	const POSITIONS = useMemo(
+		() =>
+			(positionResponse?.data ?? []).map((f) => ({
+				value: String(f.id),
+				label: f.name,
+			})),
+		[positionResponse],
+	);
+
+	const DEPARTMENTS = useMemo(
+		() =>
+			(departmentResponse?.data ?? []).map((d) => ({
+				value: String(d.id),
+				label: d.name,
+				facultyId: String(d.collegeId), // ← collegeId ishlatildi
+			})),
+		[departmentResponse],
+	);
+
 	const {
 		register,
 		handleSubmit,
@@ -75,7 +112,7 @@ export function TeacherSheet() {
 		if (editData) {
 			const faculty = FACULTIES.find((f) => f.label === editData.faculty);
 			const department = DEPARTMENTS.find((d) => d.label === editData.department);
-			const position = POSITIONS.find((p) => p.label === editData.position);
+			const position = POSITIONS.find((p) => p.name === editData.position);
 			reset({
 				fullName: editData.name,
 				phone: "+998",
@@ -90,8 +127,11 @@ export function TeacherSheet() {
 	}, [editData, reset]);
 
 	const availableDepartments = useMemo(
-		() => (watchedFacultyId ? DEPARTMENTS.filter((d) => d.facultyId === watchedFacultyId) : DEPARTMENTS),
-		[watchedFacultyId],
+		() =>
+			watchedFacultyId
+				? DEPARTMENTS.filter((d) => d.facultyId === watchedFacultyId)
+				: DEPARTMENTS,
+		[watchedFacultyId, DEPARTMENTS],
 	);
 
 	const handleFacultyChange = (value: string) => {
@@ -119,23 +159,29 @@ export function TeacherSheet() {
 		close();
 	};
 
-	const onSubmit = (values: TeacherFormValues) => {
-		const result = {
-			fullName: values.fullName,
-			phone: values.phone,
-			faculty: FACULTIES.find((f) => f.value === values.facultyId)?.label ?? "",
-			department: DEPARTMENTS.find((d) => d.value === values.departmentId)?.label ?? "",
-			position: POSITIONS.find((p) => p.value === values.positionId)?.label ?? "",
-			image: values.image,
-			password: values.password,
-		};
+	const createTeacher = useCreateTeacher();
 
+	const onSubmit = (values: TeacherCreateValues) => {
 		if (isEdit) {
-			console.log("O'qituvchi tahrirlandi:", { id: editData.id, ...result });
-		} else {
-			console.log("Yangi o'qituvchi:", result);
+			console.log("edit...");
+			handleClose();
+			return;
 		}
-		handleClose();
+
+		createTeacher.mutate(
+			{
+				fullName: values.fullName,
+				phoneNumber: values.phoneNumber,
+				imgUrl: values.imgUrl ?? null,
+				lavozmId: values.lavozmId,
+				gender: true,
+				password: values.password,
+				departmentId: Number(values.departmentId),
+			},
+			{
+				onSuccess: handleClose,
+			},
+		);
 	};
 
 	return (
