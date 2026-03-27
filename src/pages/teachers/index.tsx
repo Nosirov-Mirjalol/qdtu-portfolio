@@ -1,14 +1,15 @@
-import { DataTable } from "@/components/data-table/data-table";
-import type { ColumnDef } from "@/components/data-table/data-table";
-import { ConfirmPopover } from "@/components/confirm-popover/confirm-popover";
 import { FilePenLine, UserPlus, UserX } from "lucide-react";
 import { useMemo } from "react";
 import { useNavigate } from "react-router";
-import type { Teacher } from "./data";
-import { useTeacherSheetActions } from "@/store/teacherSheet";
-import { TeacherSheet } from "./teacher-sheet";
-import { Button } from "@/ui/button";
+import { ConfirmPopover } from "@/components/confirm-popover/confirm-popover";
+import type { ColumnDef } from "@/components/data-table/data-table";
+import { DataTable } from "@/components/data-table/data-table";
 import { useTeacher } from "@/hooks/teacher/useTeacher";
+import { useTeacherSheetActions } from "@/store/teacherSheet";
+import { Button } from "@/ui/button";
+import type { Teacher } from "./data";
+import { TeacherSheet } from "./teacher-sheet";
+import { useDeleteTeacher } from "@/hooks/teacher/useDeleteTeacher";
 
 function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) => void): ColumnDef<Teacher>[] {
 	return [
@@ -21,15 +22,11 @@ function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) 
 			accessorKey: "fullName",
 			header: "F.I.Sh.",
 			cell: ({ row }) => {
-				const teacher = row.original;				
+				const teacher = row.original;
 				return (
 					<div className="flex items-center gap-2">
 						{teacher.imgUrl ? (
-							<img
-								src={teacher.imgUrl}
-								alt={teacher.fullName}
-								className="w-7 h-7 rounded-full object-cover shrink-0"
-							/>
+							<img src={teacher.imgUrl} alt={teacher.fullName} className="w-7 h-7 rounded-full object-cover shrink-0" />
 						) : (
 							<div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-[12px] shrink-0">
 								{teacher.fullName.charAt(0).toUpperCase()}
@@ -87,12 +84,13 @@ export default function Teachers() {
 	const navigate = useNavigate();
 	const { data: response, isLoading } = useTeacher();
 	const data = response?.data;
+	const {mutate:deleteTeacher}=useDeleteTeacher()
 
 	const columns = useMemo(
 		() =>
 			createColumns(
 				(row) => open(row),
-				(row) => console.log("O'chirish:", row),
+				(row) => deleteTeacher(row.id),
 			),
 		[open],
 	);
