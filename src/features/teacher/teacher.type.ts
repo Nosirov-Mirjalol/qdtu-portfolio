@@ -15,7 +15,26 @@ export interface Teachers {
   fileUrl: string;
   profession: string;
 }
-
+export interface Teacher {
+  id: number;
+  fullName: string;
+  lavozim: string;
+  email: string | null;
+  age: number;
+  gender: boolean;
+  profession: string | null;
+  imgUrl: string;
+  input: string | null;
+  phoneNumber: string;
+  departmentName: string;
+}
+export interface SearchParams{
+  name:string;
+  college:string;
+  lavozim:string;
+  page:number;
+  size:number
+}
 // GET: Teacher by ID
 export interface GetTeacherIdResponse {
   success: boolean;
@@ -29,7 +48,7 @@ export interface TeacherSearchData {
   size: number;
   totalPage: number;
   totalElements: number;
-  body: Teachers[];
+  body: Teacher[];
 }
 
 export interface GetTeacherSearchResponse {

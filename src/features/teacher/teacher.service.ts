@@ -1,9 +1,9 @@
 import { apiClient } from "@/api/client";
 import { TEACHER } from "@/constants/apiEndpoint";
-import { GetTeacherSearchResponse } from "./teacher.type";
+import type { GetTeacherSearchResponse, SearchParams } from "./teacher.type";
 
 export const TeacherService = {
-  getAll() {
-    return apiClient.get<GetTeacherSearchResponse>(TEACHER.SEARCH,);
+  getAll(params?:SearchParams) {
+    return apiClient.get<GetTeacherSearchResponse>(TEACHER.SEARCH,{params});
   },
 };
