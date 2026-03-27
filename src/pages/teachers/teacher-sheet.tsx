@@ -158,39 +158,43 @@ export function TeacherSheet() {
 	const createTeacher = useCreateTeacher();
 
 	const onSubmit = (values: TeacherFormValues) => {
-		const phoneDigits = values.phone.replace(/\D/g, "");
-		const phoneNumber = `+${phoneDigits}`;
+	const phoneDigits = values.phone.replace(/\D/g, "");
+	const phoneNumber = `+${phoneDigits}`;
 
-		if (isEdit) {
-			editTeacher.mutate(
-				{
-					fullName: values.fullName,
-					phoneNumber: phoneNumber,
-					gender: values.gender,
-					imgUrl: values.image ?? null,
-					fileUrl: "",
-					lavozmId: Number(values.positionId),
-					password: values.password || undefined,
-					departmentId: Number(values.departmentId),
-				},
-				{ onSuccess: handleClose },
-			);
-			return;
+	if (isEdit) {
+		const editData: Partial<TeacherFormValues> & { id?: number } = {
+			fullName: values.fullName,
+			phone: phoneNumber,
+			gender: values.gender,
+			image: values.image,
+			positionId: values.positionId,
+			departmentId: values.departmentId,
+		};
+		
+		if (values.password && values.password.trim() !== "") {
+			editData.password = values.password;
+			editData.confirmPassword = values.confirmPassword;
 		}
+				
+		editTeacher.mutate(editData as any, { onSuccess: handleClose });
+		return;
+	}
 
-		createTeacher.mutate(
-			{
-				fullName: values.fullName,
-				phoneNumber: phoneNumber,
-				gender: values.gender,
-				imgUrl: values.image ?? null,
-				lavozmId: Number(values.positionId),
-				password: values.password,
-				departmentId: Number(values.departmentId),
-			},
-			{ onSuccess: handleClose },
-		);
-	};
+	// Create qilish
+	createTeacher.mutate(
+		{
+			fullName: values.fullName,
+			phoneNumber: phoneNumber,
+			gender: values.gender,
+			imgUrl: values.image ?? null,
+			fileUrl: "",
+			lavozmId: Number(values.positionId),
+			password: values.password,
+			departmentId: Number(values.departmentId),
+		},
+		{ onSuccess: handleClose }
+	);
+};
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(v) => !v && handleClose()}>

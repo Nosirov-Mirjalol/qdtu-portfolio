@@ -1,5 +1,5 @@
-import { FilePenLine, UserPlus, UserX } from "lucide-react";
-import { useMemo } from "react";
+import { FilePenLine, Search, UserPlus, UserX, X } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { ConfirmPopover } from "@/components/confirm-popover/confirm-popover";
 import type { ColumnDef } from "@/components/data-table/data-table";
@@ -7,9 +7,20 @@ import { DataTable } from "@/components/data-table/data-table";
 import { useTeacher } from "@/hooks/teacher/useTeacher";
 import { useTeacherSheetActions } from "@/store/teacherSheet";
 import { Button } from "@/ui/button";
+import { Input } from "@/ui/input";
+import { Label } from "@/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/ui/select";
 import type { Teacher } from "./data";
 import { TeacherSheet } from "./teacher-sheet";
 import { useDeleteTeacher } from "@/hooks/teacher/useDeleteTeacher";
+import { useDepartment } from "@/hooks/department/useDepartment";
+import { usePosition } from "@/hooks/position/usePosition";
 
 function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) => void): ColumnDef<Teacher>[] {
 	return [
@@ -52,6 +63,13 @@ function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) 
 			),
 		},
 		{
+			accessorKey: "department",
+			header: "Kafedra",
+			cell: ({ row }) => (
+				<span className="text-muted-foreground text-[12px]">{row.getValue("department")}</span>
+			),
+		},
+		{
 			id: "actions",
 			header: () => <div className="text-center text-[12px]">Amallar</div>,
 			cell: ({ row }) => (
@@ -83,8 +101,80 @@ export default function Teachers() {
 	const { open } = useTeacherSheetActions();
 	const navigate = useNavigate();
 	const { data: response, isLoading } = useTeacher();
-	const data = response?.data;
-	const {mutate:deleteTeacher}=useDeleteTeacher()
+	const { data: departmentData } = useDepartment();
+	const { data: positionData } = usePosition();
+	const { mutate: deleteTeacher } = useDeleteTeacher();
+
+	const [searchName, setSearchName] = useState("");
+	const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
+	const [selectedPosition, setSelectedPosition] = useState<string>("all");
+
+	const teachers = response?.data?.body ?? [];
+	
+	// Teacher tipini kengaytirish (agar hook'dan kelayotgan ma'lumotlarda bu maydonlar bo'lmasa)
+	// Agar Teacher tipida departmentId va lavozmId bo'lmasa, ularni qo'shimcha ravishda olish kerak
+	const teachersWithFilters = useMemo(() => {
+		return teachers.map((teacher: Teacher) => ({
+			...teacher,
+			departmentId: teacher.departmentId || (teacher.department ? String(teacher.department) : ""),
+			lavozmId: teacher.lavozmId || (teacher.lavozim ? String(teacher.lavozim) : ""),
+		}));
+	}, [teachers]);
+
+	// Kafedra variantlari
+	const departments = useMemo(() => {
+		const depts = [{ value: "all", label: "Barcha kafedralar" }];
+		if (departmentData?.data) {
+			departmentData.data.forEach((d: any) => {
+				depts.push({ value: String(d.id), label: d.name });
+			});
+		}
+		return depts;
+	}, [departmentData]);
+
+	// Lavozim variantlari
+	const positions = useMemo(() => {
+		const pos = [{ value: "all", label: "Barcha lavozimlar" }];
+		if (positionData?.data) {
+			positionData.data.forEach((p: any) => {
+				pos.push({ value: String(p.id), label: p.name });
+			});
+		}
+		return pos;
+	}, [positionData]);
+
+	// Filtrlangan ma'lumotlar
+	const filteredData = useMemo(() => {
+		if (!teachersWithFilters.length) return [];
+
+		return teachersWithFilters.filter((teacher: any) => {
+			// Ism bo'yicha qidirish
+			const matchesName = teacher.fullName
+				?.toLowerCase()
+				.includes(searchName.toLowerCase()) ?? false;
+
+			// Kafedra bo'yicha filtr
+			const matchesDepartment =
+				selectedDepartment === "all" ||
+				String(teacher.departmentId) === selectedDepartment;
+
+			// Lavozim bo'yicha filtr
+			const matchesPosition =
+				selectedPosition === "all" ||
+				String(teacher.lavozmId) === selectedPosition;
+
+			return matchesName && matchesDepartment && matchesPosition;
+		});
+	}, [teachersWithFilters, searchName, selectedDepartment, selectedPosition]);
+
+	// Filterlarni tozalash
+	const clearFilters = () => {
+		setSearchName("");
+		setSelectedDepartment("all");
+		setSelectedPosition("all");
+	};
+
+	const hasActiveFilters = searchName !== "" || selectedDepartment !== "all" || selectedPosition !== "all";
 
 	const columns = useMemo(
 		() =>
@@ -92,17 +182,27 @@ export default function Teachers() {
 				(row) => open(row),
 				(row) => deleteTeacher(row.id),
 			),
-		[open],
+		[open, deleteTeacher],
 	);
 
 	return (
-		<div className="flex flex-col gap-3">
+		<div className="flex flex-col gap-4">
+			{/* Header qismi */}
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-1.5">
 					<span className="text-[13px] font-semibold text-foreground">O'qituvchilar soni:</span>
 					<span className="bg-green-100 text-green-700 text-[12px] font-bold px-2 py-0.5 rounded-full">
-						{data?.totalElements ?? 0}
+						{filteredData.length}
 					</span>
+					{hasActiveFilters && (
+						<button
+							onClick={clearFilters}
+							className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors ml-2"
+						>
+							<X className="size-3" />
+							Filtrlarni tozalash
+						</button>
+					)}
 				</div>
 				<Button
 					size="sm"
@@ -114,9 +214,68 @@ export default function Teachers() {
 				</Button>
 			</div>
 
+			{/* Search va Filter qismi */}
+			<div className="flex flex-wrap items-end gap-3 p-4 bg-muted/30 rounded-lg border">
+				{/* Ism bo'yicha qidirish */}
+				<div className="flex-1 min-w-[200px]">
+					<Label htmlFor="search-name" className="text-[11px] font-medium text-muted-foreground mb-1 block">
+						Ism bo'yicha qidirish
+					</Label>
+					<div className="relative">
+						<Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+						<Input
+							id="search-name"
+							placeholder="Ism yoki familiya..."
+							value={searchName}
+							onChange={(e) => setSearchName(e.target.value)}
+							className="pl-9 h-9 text-[13px]"
+						/>
+					</div>
+				</div>
+
+				{/* Kafedra bo'yicha filter */}
+				<div className="w-[200px]">
+					<Label htmlFor="department-filter" className="text-[11px] font-medium text-muted-foreground mb-1 block">
+						Kafedra bo'yicha
+					</Label>
+					<Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+						<SelectTrigger id="department-filter" className="h-9 text-[13px]">
+							<SelectValue placeholder="Kafedra tanlang" />
+						</SelectTrigger>
+						<SelectContent>
+							{departments.map((dept) => (
+								<SelectItem key={dept.value} value={dept.value} className="text-[13px]">
+									{dept.label}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</div>
+
+				{/* Lavozim bo'yicha filter */}
+				<div className="w-[200px]">
+					<Label htmlFor="position-filter" className="text-[11px] font-medium text-muted-foreground mb-1 block">
+						Lavozim bo'yicha
+					</Label>
+					<Select value={selectedPosition} onValueChange={setSelectedPosition}>
+						<SelectTrigger id="position-filter" className="h-9 text-[13px]">
+							<SelectValue placeholder="Lavozim tanlang" />
+						</SelectTrigger>
+						<SelectContent>
+							{positions.map((pos) => (
+								<SelectItem key={pos.value} value={pos.value} className="text-[13px]">
+									{pos.label}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</div>
+			</div>
+
+			{/* Data Table */}
 			<DataTable
 				columns={columns}
-				data={data?.body ?? []}
+				data={filteredData}
 				isLoading={isLoading}
 				onRowClick={(row) => navigate(`/teacher/${row.id}`)}
 			/>
