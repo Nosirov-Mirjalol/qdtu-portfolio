@@ -118,7 +118,7 @@ export default function Teachers() {
 				columns={columns}
 				data={data?.body ?? []}
 				isLoading={isLoading}
-				onRowClick={(row) => navigate(`/teachers/${row.id}`)}
+				onRowClick={(row) => navigate(`/teacher/${row.id}`)}
 			/>
 
 			<TeacherSheet />

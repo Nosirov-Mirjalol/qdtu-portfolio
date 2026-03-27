@@ -27,8 +27,8 @@ const API_ENDPOINTS = {
 	TEACHER:{
 		SEARCH:"/teacher/search",
 		DELETE:"/teacher",
-		CREATE:"/teacher/saveUser"
-		
+		CREATE:"/teacher/saveUser",
+		EDIT:"/teacher/edit"		
 	}
 };
 

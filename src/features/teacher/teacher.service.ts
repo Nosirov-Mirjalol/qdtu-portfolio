@@ -1,6 +1,6 @@
 import { apiClient } from "@/api/client";
 import { TEACHER } from "@/constants/apiEndpoint";
-import type { CreateTeacherParam, DeleteTeacherResponse, EditTeacherDTO, GetTeacherSearchResponse, SearchParams } from "./teacher.type";
+import type { EditTeacherResponse, CreateTeacherParam, DeleteTeacherResponse, GetTeacherSearchResponse, SearchParams, Teacher } from "./teacher.type";
 
 export const TeacherService = {
   getAll(params?:SearchParams) {
@@ -11,5 +11,8 @@ export const TeacherService = {
   },
   create(params:CreateTeacherParam){
     return apiClient.post(TEACHER.CREATE,params)
+  },
+  edit(params:Teacher){
+    return apiClient.put<EditTeacherResponse>(TEACHER.EDIT,params)
   }
 };

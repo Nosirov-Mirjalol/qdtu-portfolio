@@ -13,6 +13,8 @@ export type TeacherFormValues = {
 	phone: string;
 	facultyId: string;
 	departmentId: string;
+	email:string;
+	gender:boolean;
 	positionId: string;
 	image: File | null;
 	password: string;

@@ -9,15 +9,13 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/sheet";
 import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { TeacherCreateValues } from "./data";
 import type { TeacherFormValues } from "./data";
 import { useTeacherSheetActions, useTeacherSheetEditData, useTeacherSheetIsOpen } from "@/store/teacherSheet";
 import { useCreateTeacher } from "@/hooks/teacher/useCreateTeacher";
 import { useCollage } from "@/hooks/collage/useCollage";
 import { useDepartment } from "@/hooks/department/useDepartment";
 import { usePosition } from "@/hooks/position/usePosition";
-
-// ─── Phone mask ───────────────────────────────────────────────────────────────
+import { useEditTeacher } from "@/hooks/teacher/useEditTeacher";
 
 function formatPhone(digits: string): string {
 	const d = digits.slice(0, 9);
@@ -41,8 +39,6 @@ function extractDigits(formatted: string): string {
 	return all.startsWith("998") ? all.slice(3) : all;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function TeacherSheet() {
 	const isOpen = useTeacherSheetIsOpen();
 	const editData = useTeacherSheetEditData();
@@ -55,6 +51,7 @@ export function TeacherSheet() {
 	const { data: collageResponse } = useCollage();
 	const { data: departmentResponse } = useDepartment();
 	const { data: positionResponse } = usePosition();
+	const editTeacher = useEditTeacher();
 
 	const FACULTIES = useMemo(
 		() =>
@@ -96,6 +93,7 @@ export function TeacherSheet() {
 		defaultValues: {
 			fullName: "",
 			phone: "+998",
+			gender: true,
 			facultyId: "",
 			departmentId: "",
 			positionId: "",
@@ -116,6 +114,7 @@ export function TeacherSheet() {
 			reset({
 				fullName: editData.name,
 				phone: "+998",
+				gender: editData.gender ?? true,
 				facultyId: faculty?.value ?? "",
 				departmentId: department?.value ?? "",
 				positionId: position?.value ?? "",
@@ -159,28 +158,37 @@ export function TeacherSheet() {
 	const createTeacher = useCreateTeacher();
 
 	const onSubmit = (values: TeacherFormValues) => {
-		if (isEdit) {
-			console.log("edit...");
-			handleClose();
-			return;
-		}
-
 		const phoneDigits = values.phone.replace(/\D/g, "");
 		const phoneNumber = `+${phoneDigits}`;
+
+		if (isEdit) {
+			editTeacher.mutate(
+				{
+					fullName: values.fullName,
+					phoneNumber: phoneNumber,
+					gender: values.gender,
+					imgUrl: values.image ?? null,
+					fileUrl: "",
+					lavozmId: Number(values.positionId),
+					password: values.password || undefined,
+					departmentId: Number(values.departmentId),
+				},
+				{ onSuccess: handleClose },
+			);
+			return;
+		}
 
 		createTeacher.mutate(
 			{
 				fullName: values.fullName,
 				phoneNumber: phoneNumber,
+				gender: values.gender,
 				imgUrl: values.image ?? null,
 				lavozmId: Number(values.positionId),
-				gender: true,
 				password: values.password,
 				departmentId: Number(values.departmentId),
 			},
-			{
-				onSuccess: handleClose,
-			},
+			{ onSuccess: handleClose },
 		);
 	};
 
@@ -242,6 +250,29 @@ export function TeacherSheet() {
 								)}
 							/>
 							{errors.phone && <span className="text-[12px] text-red-500">{errors.phone.message}</span>}
+						</div>
+
+						{/* Jinsi */}
+						<div className="flex flex-col gap-2">
+							<Label>Jinsi</Label>
+							<Controller
+								name="gender"
+								control={control}
+								rules={{ required: "Jinsi tanlanishi shart" }}
+								render={({ field }) => (
+									<SearchableSelect
+										options={[
+											{ value: "true", label: "Erkak" },
+											{ value: "false", label: "Ayol" },
+										]}
+										value={String(field.value)}
+										onChange={(val) => field.onChange(val === "true")}
+										placeholder="Jinsni tanlang"
+										searchPlaceholder="Qidirish..."
+									/>
+								)}
+							/>
+							{errors.gender && <span className="text-[12px] text-red-500">{errors.gender.message}</span>}
 						</div>
 
 						<Separator />
