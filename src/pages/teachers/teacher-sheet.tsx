@@ -9,7 +9,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/sheet";
 import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { TeacherCreateValues, } from "./data";
+import { TeacherCreateValues } from "./data";
 import type { TeacherFormValues } from "./data";
 import { useTeacherSheetActions, useTeacherSheetEditData, useTeacherSheetIsOpen } from "@/store/teacherSheet";
 import { useCreateTeacher } from "@/hooks/teacher/useCreateTeacher";
@@ -54,7 +54,7 @@ export function TeacherSheet() {
 
 	const { data: collageResponse } = useCollage();
 	const { data: departmentResponse } = useDepartment();
-	const {data:positionResponse}=usePosition()
+	const { data: positionResponse } = usePosition();
 
 	const FACULTIES = useMemo(
 		() =>
@@ -79,7 +79,7 @@ export function TeacherSheet() {
 			(departmentResponse?.data ?? []).map((d) => ({
 				value: String(d.id),
 				label: d.name,
-				facultyId: String(d.collegeId), // ← collegeId ishlatildi
+				facultyId: String(d.collegeId),
 			})),
 		[departmentResponse],
 	);
@@ -127,10 +127,7 @@ export function TeacherSheet() {
 	}, [editData, reset]);
 
 	const availableDepartments = useMemo(
-		() =>
-			watchedFacultyId
-				? DEPARTMENTS.filter((d) => d.facultyId === watchedFacultyId)
-				: DEPARTMENTS,
+		() => (watchedFacultyId ? DEPARTMENTS.filter((d) => d.facultyId === watchedFacultyId) : DEPARTMENTS),
 		[watchedFacultyId, DEPARTMENTS],
 	);
 
@@ -161,19 +158,22 @@ export function TeacherSheet() {
 
 	const createTeacher = useCreateTeacher();
 
-	const onSubmit = (values: TeacherCreateValues) => {
+	const onSubmit = (values: TeacherFormValues) => {
 		if (isEdit) {
 			console.log("edit...");
 			handleClose();
 			return;
 		}
 
+		const phoneDigits = values.phone.replace(/\D/g, "");
+		const phoneNumber = `+${phoneDigits}`;
+
 		createTeacher.mutate(
 			{
 				fullName: values.fullName,
-				phoneNumber: values.phoneNumber,
-				imgUrl: values.imgUrl ?? null,
-				lavozmId: values.lavozmId,
+				phoneNumber: phoneNumber,
+				imgUrl: values.image ?? null,
+				lavozmId: Number(values.positionId),
 				gender: true,
 				password: values.password,
 				departmentId: Number(values.departmentId),

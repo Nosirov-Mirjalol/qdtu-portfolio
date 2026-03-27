@@ -1,6 +1,6 @@
 import { apiClient } from "@/api/client";
 import { TEACHER } from "@/constants/apiEndpoint";
-import type { DeleteTeacherResponse, EditTeacherDTO, GetTeacherSearchResponse, SearchParams } from "./teacher.type";
+import type { CreateTeacherParam, DeleteTeacherResponse, EditTeacherDTO, GetTeacherSearchResponse, SearchParams } from "./teacher.type";
 
 export const TeacherService = {
   getAll(params?:SearchParams) {
@@ -9,7 +9,7 @@ export const TeacherService = {
   delete(id:number){
     return apiClient.delete<DeleteTeacherResponse>(`${TEACHER.DELETE}/${id}`)
   },
-  create(params:EditTeacherDTO){
+  create(params:CreateTeacherParam){
     return apiClient.post(TEACHER.CREATE,params)
   }
 };

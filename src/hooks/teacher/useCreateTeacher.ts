@@ -7,7 +7,6 @@ interface CreateTeacherInput {
   fullName: string;
   phoneNumber: string;
   imgUrl?: File | null;
-  fileUrl: string;
   lavozmId: number;
   gender: boolean;
   password: string;
@@ -27,7 +26,6 @@ export function useCreateTeacher() {
         fullName: input.fullName,
         phoneNumber: input.phoneNumber,
         imgUrl,
-        fileUrl: input.fileUrl,
         lavozmId: input.lavozmId,
         gender: input.gender,
         password: input.password,

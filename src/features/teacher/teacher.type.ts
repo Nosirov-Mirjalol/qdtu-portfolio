@@ -87,7 +87,15 @@ export interface EditTeacherDTO {
   password: string;
   departmentId: number;
 }
-
+export interface CreateTeacherParam {
+  fullName: string;
+  phoneNumber: string;
+  imgUrl?: File | null;
+  lavozmId: number;
+  gender: boolean;
+  password: string;
+  departmentId: number;
+}
 export interface EditTeacherResponse {
   success: boolean;
   message: string;
