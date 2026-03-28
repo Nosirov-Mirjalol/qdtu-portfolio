@@ -7,7 +7,6 @@ interface EditTeacherInput {
   fullName: string;
   phoneNumber: string;
   imgUrl?: File | null;
-  fileUrl:string
   lavozmId: number;
   gender: boolean;
   password?: string;
@@ -26,8 +25,8 @@ export function useEditTeacher() {
       return TeacherService.edit({
         fullName: input.fullName,
         phoneNumber: input.phoneNumber,
-        imgUrl: imgUrl ?? "",
-        fileUrl: input.fileUrl,
+        imgUrl: imgUrl ?? null,
+        fileUrl: "",
         lavozmId: input.lavozmId,
         gender: input.gender,
         password: input.password ?? "",

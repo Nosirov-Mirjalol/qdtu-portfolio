@@ -28,8 +28,9 @@ const API_ENDPOINTS = {
 		SEARCH:"/teacher/search",
 		DELETE:"/teacher",
 		CREATE:"/teacher/saveUser",
-		EDIT:"/teacher/edit"		
-	}
+		EDIT:"/teacher/edit",
+	},
+	USER_STATISTICS: "/user/statistics",
 };
 
-export const { LOGIN, USER, FILE, COLLAGE,DEPARTMENT,POSITION ,TEACHER} = API_ENDPOINTS;
+export const { LOGIN, USER, FILE, COLLAGE,DEPARTMENT,POSITION ,TEACHER,USER_STATISTICS} = API_ENDPOINTS;

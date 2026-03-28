@@ -10,13 +10,16 @@ import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
-import type { Teacher } from "./data";
+import type { Teacher } from "./teacher.type";
 import { TeacherSheet } from "./teacher-sheet";
 import { useDeleteTeacher } from "@/hooks/teacher/useDeleteTeacher";
 import { useDepartment } from "@/hooks/department/useDepartment";
 import { usePosition } from "@/hooks/position/usePosition";
 
-function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) => void): ColumnDef<Teacher>[] {
+function createColumns(
+	onEdit: (row: Teacher) => void,
+	onDelete: (row: Teacher) => void
+): ColumnDef<Teacher>[] {
 	return [
 		{
 			accessorKey: "id",
@@ -31,13 +34,17 @@ function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) 
 				return (
 					<div className="flex items-center gap-2">
 						{teacher.imgUrl ? (
-							<img src={teacher.imgUrl} alt={teacher.fullName} className="w-7 h-7 rounded-full object-cover shrink-0" />
+							<img
+								src={teacher.imgUrl}
+								alt={teacher.fullName}
+								className="w-7 h-7 rounded-full object-cover shrink-0"
+							/>
 						) : (
 							<div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-[12px] shrink-0">
 								{teacher.fullName.charAt(0).toUpperCase()}
 							</div>
 						)}
-						<span className="font-medium text-[12px]">{teacher.fullName}</span>
+						<span className="font-medium text-[12px] truncate">{teacher.fullName}</span>
 					</div>
 				);
 			},
@@ -45,21 +52,25 @@ function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) 
 		{
 			accessorKey: "phoneNumber",
 			header: "Telefon",
-			cell: ({ row }) => <span className="text-muted-foreground text-[12px]">{row.getValue("phoneNumber")}</span>,
+			cell: ({ row }) => (
+				<span className="text-muted-foreground text-[12px]">{row.getValue("phoneNumber")}</span>
+			),
 		},
 		{
 			accessorKey: "lavozim",
 			header: "Lavozim",
 			cell: ({ row }) => (
-				<span className="inline-flex items-center bg-green-50 text-green-700 text-[11px] font-medium px-2 py-0.5 rounded-full">
+				<span className="inline-flex items-center bg-green-50 text-green-700 text-[11px] font-medium px-2 py-0.5 rounded-full truncate">
 					{row.getValue("lavozim")}
 				</span>
 			),
 		},
 		{
-			accessorKey: "department",
+			accessorKey: "departmentName",
 			header: "Kafedra",
-			cell: ({ row }) => <span className="text-muted-foreground text-[12px]">{row.getValue("department")}</span>,
+			cell: ({ row }) => (
+				<span className="text-muted-foreground text-[12px] truncate">{row.getValue("departmentName")}</span>
+			),
 		},
 		{
 			id: "actions",
@@ -103,14 +114,6 @@ export default function Teachers() {
 
 	const teachers: Teacher[] = response?.data?.body ?? [];
 
-	const teachersWithFilters = useMemo(() => {
-		return teachers.map((teacher) => ({
-			...teacher,
-			departmentId: teacher.departmentId || (teacher.department ? String(teacher.department) : ""),
-			lavozmId: teacher.lavozmId || (teacher.lavozim ? String(teacher.lavozim) : ""),
-		})) as Teacher[];
-	}, [teachers]);
-
 	const departments = useMemo(() => {
 		const depts = [{ value: "all", label: "Barcha kafedralar" }];
 		if (departmentData?.data && Array.isArray(departmentData.data)) {
@@ -132,18 +135,21 @@ export default function Teachers() {
 	}, [positionData]);
 
 	const filteredData = useMemo(() => {
-		if (!teachersWithFilters.length) return [];
+		if (!teachers.length) return [];
 
-		return teachersWithFilters.filter((teacher) => {
-			const matchesName = teacher.fullName?.toLowerCase().includes(searchName.toLowerCase()) ?? false;
+		return teachers.filter((teacher) => {
+			const matchesName =
+				teacher.fullName?.toLowerCase().includes(searchName.toLowerCase()) ?? false;
 
-			const matchesDepartment = selectedDepartment === "all" || String(teacher.departmentId) === selectedDepartment;
+			const matchesDepartment =
+				selectedDepartment === "all" || String(teacher.departmentId) === selectedDepartment;
 
-			const matchesPosition = selectedPosition === "all" || String(teacher.lavozmId) === selectedPosition;
+			const matchesPosition =
+				selectedPosition === "all" || String(teacher.lavozmId) === selectedPosition;
 
 			return matchesName && matchesDepartment && matchesPosition;
 		});
-	}, [teachersWithFilters, searchName, selectedDepartment, selectedPosition]);
+	}, [teachers, searchName, selectedDepartment, selectedPosition]);
 
 	const clearFilters = () => {
 		setSearchName("");
@@ -151,15 +157,16 @@ export default function Teachers() {
 		setSelectedPosition("all");
 	};
 
-	const hasActiveFilters = searchName !== "" || selectedDepartment !== "all" || selectedPosition !== "all";
+	const hasActiveFilters =
+		searchName !== "" || selectedDepartment !== "all" || selectedPosition !== "all";
 
 	const columns = useMemo(
 		() =>
 			createColumns(
-				(row) => open(row as any),
-				(row) => deleteTeacher(row.id),
+				(row) => open(row),
+				(row) => deleteTeacher(row.id)
 			),
-		[open, deleteTeacher],
+		[open, deleteTeacher]
 	);
 
 	return (
@@ -191,7 +198,7 @@ export default function Teachers() {
 			</div>
 
 			<div className="flex flex-wrap items-end gap-3 p-4 bg-muted/30 rounded-lg border">
-				<div className="flex-1 min-w-50">
+				<div className="flex-1 min-w-[200px]">
 					<Label htmlFor="search-name" className="text-[11px] font-medium text-muted-foreground mb-1 block">
 						Ism bo'yicha qidirish
 					</Label>
@@ -207,7 +214,7 @@ export default function Teachers() {
 					</div>
 				</div>
 
-				<div className="w-50">
+				<div className="w-[200px]">
 					<Label htmlFor="department-filter" className="text-[11px] font-medium text-muted-foreground mb-1 block">
 						Kafedra bo'yicha
 					</Label>
@@ -217,8 +224,8 @@ export default function Teachers() {
 						</SelectTrigger>
 						<SelectContent>
 							{departments.map((dept) => (
-								<SelectItem key={dept.value} value={dept.value} className="label text-[13px]">
-									{dept.label.slice(0,20)}
+								<SelectItem key={dept.value} value={dept.value} className="text-[13px]">
+									{dept.label}
 								</SelectItem>
 							))}
 						</SelectContent>
@@ -248,7 +255,7 @@ export default function Teachers() {
 				columns={columns}
 				data={filteredData}
 				isLoading={isLoading}
-				onRowClick={(row) => navigate(`/teacher/${row.id}`)}
+				onRowClick={(row) => navigate(`/teacher/${row.id}`,{state:{teacher:row}})}
 			/>
 
 			<TeacherSheet />

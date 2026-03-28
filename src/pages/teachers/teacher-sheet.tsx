@@ -9,13 +9,26 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/sheet";
 import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import type { TeacherFormValues } from "./data";
+import type { CreateTeacherParams, EditTeacherParams, Teacher } from "./teacher.type";
 import { useTeacherSheetActions, useTeacherSheetEditData, useTeacherSheetIsOpen } from "@/store/teacherSheet";
 import { useCreateTeacher } from "@/hooks/teacher/useCreateTeacher";
-import { useCollage } from "@/hooks/collage/useCollage";
 import { useDepartment } from "@/hooks/department/useDepartment";
 import { usePosition } from "@/hooks/position/usePosition";
 import { useEditTeacher } from "@/hooks/teacher/useEditTeacher";
+import { useCollage } from "@/hooks/collage/useCollage";
+
+interface TeacherFormValues {
+	fullName: string;
+	phoneNumber: string;
+	email: string;
+	gender: boolean;
+	collegeId: string;
+	departmentId: string;
+	positionId: string;
+	imgUrl: File | null;
+	password: string;
+	confirmPassword: string;
+}
 
 function formatPhone(digits: string): string {
 	const d = digits.slice(0, 9);
@@ -48,25 +61,27 @@ export function TeacherSheet() {
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirm, setShowConfirm] = useState(false);
 
-	const { data: collageResponse } = useCollage();
+	const { data: collegeResponse } = useCollage();
 	const { data: departmentResponse } = useDepartment();
 	const { data: positionResponse } = usePosition();
-	const editTeacher = useEditTeacher();
 
-	const FACULTIES = useMemo(
+	const { mutate: createTeacher } = useCreateTeacher();
+	const { mutate: editTeacher } = useEditTeacher();
+
+	const COLLEGES = useMemo(
 		() =>
-			(collageResponse?.data ?? []).map((f) => ({
-				value: String(f.id),
-				label: f.name,
+			(collegeResponse?.data ?? []).map((c) => ({
+				value: String(c.id),
+				label: c.name,
 			})),
-		[collageResponse],
+		[collegeResponse],
 	);
 
 	const POSITIONS = useMemo(
 		() =>
-			(positionResponse?.data ?? []).map((f) => ({
-				value: String(f.id),
-				label: f.name,
+			(positionResponse?.data ?? []).map((p: { id: number; name: string }) => ({
+				value: String(p.id),
+				label: p.name,
 			})),
 		[positionResponse],
 	);
@@ -76,7 +91,7 @@ export function TeacherSheet() {
 			(departmentResponse?.data ?? []).map((d) => ({
 				value: String(d.id),
 				label: d.name,
-				facultyId: String(d.collegeId),
+				collegeId: String(d.collegeId),
 			})),
 		[departmentResponse],
 	);
@@ -92,59 +107,62 @@ export function TeacherSheet() {
 	} = useForm<TeacherFormValues>({
 		defaultValues: {
 			fullName: "",
-			phone: "+998",
+			phoneNumber: "998",
+			email: "",
 			gender: true,
-			facultyId: "",
+			collegeId: "",
 			departmentId: "",
 			positionId: "",
-			image: null,
+			imgUrl: null,
 			password: "",
 			confirmPassword: "",
 		},
 	});
 
-	const watchedFacultyId = watch("facultyId");
+	const watchedCollegeId = watch("collegeId");
 	const watchedPassword = watch("password");
 
 	useEffect(() => {
 		if (editData) {
-			const faculty = FACULTIES.find((f) => f.label === editData.faculty);
+			const college = COLLEGES.find((c) => c.label === editData.faculty);
 			const department = DEPARTMENTS.find((d) => d.label === editData.department);
-			const position = POSITIONS.find((p) => p.name === editData.position);
+			const position = POSITIONS.find((p) => p.label === editData.position);
+
 			reset({
 				fullName: editData.name,
-				phone: "+998",
+				phoneNumber: editData.phoneNumber,
+				email: editData.email ?? "",
 				gender: editData.gender ?? true,
-				facultyId: faculty?.value ?? "",
+				collegeId: college?.value ?? "",
 				departmentId: department?.value ?? "",
 				positionId: position?.value ?? "",
-				image: null,
+				imgUrl: null,
 				password: "",
 				confirmPassword: "",
 			});
 		}
-	}, [editData, reset]);
+	}, [editData, reset, COLLEGES, DEPARTMENTS, POSITIONS]);
 
 	const availableDepartments = useMemo(
-		() => (watchedFacultyId ? DEPARTMENTS.filter((d) => d.facultyId === watchedFacultyId) : DEPARTMENTS),
-		[watchedFacultyId, DEPARTMENTS],
+		() => (watchedCollegeId ? DEPARTMENTS.filter((d) => d.collegeId === watchedCollegeId) : DEPARTMENTS),
+		[watchedCollegeId, DEPARTMENTS],
 	);
 
-	const handleFacultyChange = (value: string) => {
-		setValue("facultyId", value);
+	const handleCollegeChange = (value: string) => {
+		setValue("collegeId", value);
 		setValue("departmentId", "");
 	};
 
 	const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const digits = extractDigits(e.target.value);
-		setValue("phone", formatPhone(digits), { shouldValidate: true });
+		setValue("phoneNumber", formatPhone(digits), { shouldValidate: true });
 	};
 
 	const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, currentValue: string) => {
 		if (e.key === "Backspace") {
 			e.preventDefault();
 			const digits = extractDigits(currentValue);
-			setValue("phone", digits.length > 0 ? formatPhone(digits.slice(0, -1)) : "+998", { shouldValidate: true });
+			setValue("phoneNumber", digits.length > 0 ? formatPhone(digits.slice(0, -1)) : "+998", { shouldValidate: true });
 		}
 	};
 
@@ -155,46 +173,39 @@ export function TeacherSheet() {
 		close();
 	};
 
-	const createTeacher = useCreateTeacher();
-
 	const onSubmit = (values: TeacherFormValues) => {
-	const phoneDigits = values.phone.replace(/\D/g, "");
-	const phoneNumber = `+${phoneDigits}`;
+		const phoneDigits = values.phoneNumber.replace(/\D/g, "");
+		const phoneNumber = `${phoneDigits}`;
 
-	if (isEdit) {
-		const editData: Partial<TeacherFormValues> & { id?: number } = {
-			fullName: values.fullName,
-			phone: phoneNumber,
-			gender: values.gender,
-			image: values.image,
-			positionId: values.positionId,
-			departmentId: values.departmentId,
-		};
-		
-		if (values.password && values.password.trim() !== "") {
-			editData.password = values.password;
-			editData.confirmPassword = values.confirmPassword;
+		if (isEdit && editData) {
+			const editPayload: EditTeacherParams = {
+				fullName: values.fullName,
+				phoneNumber: phoneNumber,
+				gender: values.gender,
+				imgUrl: values.imgUrl,
+				lavozmId: Number(values.positionId),
+				departmentId: Number(values.departmentId),
+				password: values.password,
+			};
+
+			editTeacher(editPayload, { onSuccess: handleClose });
+			return;
 		}
-				
-		editTeacher.mutate(editData as any, { onSuccess: handleClose });
-		return;
-	}
 
-	// Create qilish
-	createTeacher.mutate(
-		{
+		// Create
+		const createPayload: CreateTeacherParams = {
 			fullName: values.fullName,
 			phoneNumber: phoneNumber,
-			gender: values.gender,
-			imgUrl: values.image ?? null,
-			fileUrl: "",
+			email: values.email,
+			imgUrl: values.imgUrl,
 			lavozmId: Number(values.positionId),
+			gender: values.gender,
 			password: values.password,
 			departmentId: Number(values.departmentId),
-		},
-		{ onSuccess: handleClose }
-	);
-};
+		};
+
+		createTeacher(createPayload, { onSuccess: handleClose });
+	};
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(v) => !v && handleClose()}>
@@ -211,7 +222,7 @@ export function TeacherSheet() {
 								Rasm <span className="text-muted-foreground font-normal">(ixtiyoriy)</span>
 							</Label>
 							<Controller
-								name="image"
+								name="imgUrl"
 								control={control}
 								render={({ field }) => <FileInput type="image" value={field.value} onChange={field.onChange} />}
 							/>
@@ -233,18 +244,36 @@ export function TeacherSheet() {
 							{errors.fullName && <span className="text-[12px] text-red-500">{errors.fullName.message}</span>}
 						</div>
 
+						{/* Email */}
+						<div className="flex flex-col gap-2">
+							<Label htmlFor="email">Email</Label>
+							<Input
+								id="email"
+								type="email"
+								placeholder="example@domain.com"
+								{...register("email", {
+									required: "Email kiritilishi shart",
+									pattern: {
+										value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+										message: "Email noto'g'ri formatda",
+									},
+								})}
+							/>
+							{errors.email && <span className="text-[12px] text-red-500">{errors.email.message}</span>}
+						</div>
+
 						{/* Telefon */}
 						<div className="flex flex-col gap-2">
-							<Label htmlFor="phone">Telefon raqam</Label>
+							<Label htmlFor="phoneNumber">Telefon raqam</Label>
 							<Controller
-								name="phone"
+								name="phoneNumber"
 								control={control}
 								rules={{
 									validate: (val) => val.replace(/\D/g, "").length === 12 || "To'liq telefon raqam kiriting",
 								}}
 								render={({ field }) => (
 									<Input
-										id="phone"
+										id="phoneNumber"
 										inputMode="numeric"
 										placeholder="+998 (90) 000-00-00"
 										value={field.value}
@@ -253,7 +282,7 @@ export function TeacherSheet() {
 									/>
 								)}
 							/>
-							{errors.phone && <span className="text-[12px] text-red-500">{errors.phone.message}</span>}
+							{errors.phoneNumber && <span className="text-[12px] text-red-500">{errors.phoneNumber.message}</span>}
 						</div>
 
 						{/* Jinsi */}
@@ -270,7 +299,7 @@ export function TeacherSheet() {
 											{ value: "false", label: "Ayol" },
 										]}
 										value={String(field.value)}
-										onChange={(val) => field.onChange(val === "true")}
+										onChange={(val) => field.onChange(val ? true : false)}
 										placeholder="Jinsni tanlang"
 										searchPlaceholder="Qidirish..."
 									/>
@@ -281,24 +310,24 @@ export function TeacherSheet() {
 
 						<Separator />
 
-						{/* Fakultet */}
+						{/* Kollej */}
 						<div className="flex flex-col gap-2">
-							<Label>Fakultet</Label>
+							<Label>Kollej</Label>
 							<Controller
-								name="facultyId"
+								name="collegeId"
 								control={control}
-								rules={{ required: "Fakultet tanlanishi shart" }}
+								rules={{ required: "Kollej tanlanishi shart" }}
 								render={({ field }) => (
 									<SearchableSelect
-										options={FACULTIES}
+										options={COLLEGES}
 										value={field.value}
-										onChange={handleFacultyChange}
-										placeholder="Fakultetni tanlang"
-										searchPlaceholder="Fakultet qidirish..."
+										onChange={handleCollegeChange}
+										placeholder="Kollejni tanlang"
+										searchPlaceholder="Kollej qidirish..."
 									/>
 								)}
 							/>
-							{errors.facultyId && <span className="text-[12px] text-red-500">{errors.facultyId.message}</span>}
+							{errors.collegeId && <span className="text-[12px] text-red-500">{errors.collegeId.message}</span>}
 						</div>
 
 						{/* Kafedra */}
@@ -313,7 +342,7 @@ export function TeacherSheet() {
 										options={availableDepartments}
 										value={field.value}
 										onChange={field.onChange}
-										placeholder={watchedFacultyId ? "Kafedrани tanlang" : "Avval fakultetni tanlang"}
+										placeholder={watchedCollegeId ? "Kafedrani tanlang" : "Avval kollejni tanlang"}
 										searchPlaceholder="Kafedra qidirish..."
 									/>
 								)}
@@ -343,60 +372,64 @@ export function TeacherSheet() {
 
 						<Separator />
 
-						{/* Parol */}
-						<div className="flex flex-col gap-2">
-							<Label htmlFor="password">Parol</Label>
-							<div className="relative">
-								<Input
-									id="password"
-									type={showPassword ? "text" : "password"}
-									placeholder="Kamida 8 ta belgi"
-									className="pr-10"
-									{...register("password", {
-										required: "Parol kiritilishi shart",
-										minLength: {
-											value: 8,
-											message: "Parol kamida 8 ta belgidan iborat bo'lishi kerak",
-										},
-									})}
-								/>
-								<button
-									type="button"
-									onClick={() => setShowPassword((v) => !v)}
-									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-								>
-									{showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-								</button>
-							</div>
-							{errors.password && <span className="text-[12px] text-red-500">{errors.password.message}</span>}
-						</div>
+						{!isEdit && (
+							<>
+								{/* Parol */}
+								<div className="flex flex-col gap-2">
+									<Label htmlFor="password">Parol</Label>
+									<div className="relative">
+										<Input
+											id="password"
+											type={showPassword ? "text" : "password"}
+											placeholder="Kamida 8 ta belgi"
+											className="pr-10"
+											{...register("password", {
+												required: isEdit ? false : "Parol kiritilishi shart",
+												minLength: {
+													value: 8,
+													message: "Parol kamida 8 ta belgidan iborat bo'lishi kerak",
+												},
+											})}
+										/>
+										<button
+											type="button"
+											onClick={() => setShowPassword((v) => !v)}
+											className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+										>
+											{showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+										</button>
+									</div>
+									{errors.password && <span className="text-[12px] text-red-500">{errors.password.message}</span>}
+								</div>
 
-						{/* Parolni tasdiqlash */}
-						<div className="flex flex-col gap-2">
-							<Label htmlFor="confirmPassword">Parolni tasdiqlash</Label>
-							<div className="relative">
-								<Input
-									id="confirmPassword"
-									type={showConfirm ? "text" : "password"}
-									placeholder="Parolni qayta kiriting"
-									className="pr-10"
-									{...register("confirmPassword", {
-										required: "Parolni tasdiqlash shart",
-										validate: (val) => val === watchedPassword || "Parollar mos kelmadi",
-									})}
-								/>
-								<button
-									type="button"
-									onClick={() => setShowConfirm((v) => !v)}
-									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-								>
-									{showConfirm ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-								</button>
-							</div>
-							{errors.confirmPassword && (
-								<span className="text-[12px] text-red-500">{errors.confirmPassword.message}</span>
-							)}
-						</div>
+								{/* Parolni tasdiqlash */}
+								<div className="flex flex-col gap-2">
+									<Label htmlFor="confirmPassword">Parolni tasdiqlash</Label>
+									<div className="relative">
+										<Input
+											id="confirmPassword"
+											type={showConfirm ? "text" : "password"}
+											placeholder="Parolni qayta kiriting"
+											className="pr-10"
+											{...register("confirmPassword", {
+												required: isEdit ? false : "Parolni tasdiqlash shart",
+												validate: (val) => val === watchedPassword || "Parollar mos kelmadi",
+											})}
+										/>
+										<button
+											type="button"
+											onClick={() => setShowConfirm((v) => !v)}
+											className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+										>
+											{showConfirm ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+										</button>
+									</div>
+									{errors.confirmPassword && (
+										<span className="text-[12px] text-red-500">{errors.confirmPassword.message}</span>
+									)}
+								</div>
+							</>
+						)}
 					</form>
 				</ScrollArea>
 

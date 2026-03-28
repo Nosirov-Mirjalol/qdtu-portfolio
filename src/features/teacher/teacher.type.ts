@@ -1,49 +1,44 @@
-export interface Teachers {
-  id: number;
-  fullName: string;
-  phone: string;
-  email: string;
-  biography: string;
-  input: string;
-  age: number;
-  gender: boolean;
-  orcId: string;
-  scopusId: string;
-  scienceId: string;
-  researcherId: string;
-  imageUrl: string;
-  fileUrl: string;
-  profession: string;
-}
+// ============ BASE TYPES ============
 export interface Teacher {
   id: number;
   fullName: string;
-  lavozim: string;
+  phoneNumber: string;
   email: string | null;
   age: number;
   gender: boolean;
   profession: string | null;
-  imgUrl: string;
-  input: string | null;
-  phoneNumber: string;
+  imgUrl: string | null;
+  biography?: string;
+  lavozmId: number;
+  lavozim: string;
+  departmentId: number;
   departmentName: string;
-}
-export interface SearchParams{
-  name:string;
-  college:string;
-  lavozim:string;
-  page:number;
-  size:number
-}
-// GET: Teacher by ID
-export interface GetTeacherIdResponse {
-  success: boolean;
-  message: string;
-  data: Teachers;
+  orcId?: string;
+  scopusId?: string;
+  scienceId?: string;
+  researcherId?: string;
+  fileUrl?: string;
 }
 
-// GET: Teacher Search
-export interface TeacherSearchData {
+export interface TeacherDetail extends Teacher {
+  biography: string;
+  orcId: string;
+  scopusId: string;
+  scienceId: string;
+  researcherId: string;
+  fileUrl: string;
+}
+
+// ============ SEARCH & LIST ============
+export interface SearchParams {
+  name: string;
+  college: string;
+  lavozim: string;
+  page: number;
+  size: number;
+}
+
+export interface TeacherListData {
   page: number;
   size: number;
   totalPage: number;
@@ -51,18 +46,35 @@ export interface TeacherSearchData {
   body: Teacher[];
 }
 
-export interface GetTeacherSearchResponse {
+export interface GetTeacherListResponse {
   success: boolean;
   message: string;
-  data: TeacherSearchData;
+  data: TeacherListData;
 }
 
-// POST: Create Teacher
+export interface GetTeacherByIdResponse {
+  success: boolean;
+  message: string;
+  data: TeacherDetail;
+}
+
+// ============ CREATE ============
 export interface CreateTeacherRequest {
   fullName: string;
   phoneNumber: string;
+  email: string;
   imgUrl: string;
-  fileUrl: string;
+  lavozmId: number;
+  gender: boolean;
+  password: string;
+  departmentId: number;
+}
+
+export interface CreateTeacherParams {
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  imgUrl: File | null;
   lavozmId: number;
   gender: boolean;
   password: string;
@@ -75,51 +87,66 @@ export interface CreateTeacherResponse {
   data: string;
 }
 
-// PUT: Edit Teacher (short fields)
-
-export interface EditTeacherDTO {
+// ============ EDIT (short update) ============
+export interface EditTeacherRequest {
   fullName: string;
   phoneNumber: string;
+  email: string;
   imgUrl: string | null;
-  fileUrl: string;
   lavozmId: number;
   gender: boolean;
-  password: string;
   departmentId: number;
 }
-export interface CreateTeacherParam {
+
+export interface EditTeacherParams {
   fullName: string;
   phoneNumber: string;
-  imgUrl?: File | null;
+  email: string;
+  imgUrl: File | null;
   lavozmId: number;
   gender: boolean;
-  password: string;
   departmentId: number;
 }
+
 export interface EditTeacherResponse {
   success: boolean;
   message: string;
   data: string;
 }
 
-// PUT: Update Teacher (full fields)
-
-export interface UpdateTeacherDTO {
-  id: number;
+// ============ UPDATE (full update) ============
+export interface UpdateTeacherRequest {
   fullName: string;
   phoneNumber: string;
   email: string;
   biography: string;
-  input: string;
   age: number;
   orcId: string;
   scopusId: string;
   scienceId: string;
   researcherId: string;
   gender: boolean;
-  imageUrl: string;
-  fileUrl: string;
   profession: string;
+  imgUrl: string;
+  fileUrl: string;
+  lavozmId: number;
+  departmentId: number;
+}
+
+export interface UpdateTeacherParams {
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  biography: string;
+  age: number;
+  orcId: string;
+  scopusId: string;
+  scienceId: string;
+  researcherId: string;
+  gender: boolean;
+  profession: string;
+  imgUrl: File | null;
+  fileUrl: File | null;
   lavozmId: number;
   departmentId: number;
 }
@@ -130,10 +157,45 @@ export interface UpdateTeacherResponse {
   data: string;
 }
 
-// DELETE: Teacher
-
+// ============ DELETE ============
 export interface DeleteTeacherResponse {
   success: boolean;
   message: string;
   data: string;
+}
+
+export interface TeacherProfile {
+  id: number;
+  fullName: string;
+  age: number;
+  email: string | null;
+  phoneNumber: string;
+  gender: boolean;
+  departmentName: string;
+  lavozim: string;
+  profession: string | null;
+  imgUrl: string;
+  input: string | null;
+}
+export interface TeacherStatsData {
+ tadqiqotlar: number;
+ nashrlar: number;
+ maqolalar: number;
+ kitoblar: number;
+ ishYuritishlar: number;
+ boshqalar: number;
+ nazorat: number;
+ maslahatlar: number;
+ mukofotlar: number;
+ treninglar: number;
+ tahririyatAzolik: number;
+ maxsusKengash: number;
+ patentlar: number;
+ davlatMukofotlari: number;
+}
+
+export interface TeacherStatsResponse {
+ success: boolean;
+ message: string;
+ data: TeacherStatsData;
 }
