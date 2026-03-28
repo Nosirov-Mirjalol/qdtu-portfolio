@@ -9,13 +9,7 @@ import { useTeacherSheetActions } from "@/store/teacherSheet";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
 import type { Teacher } from "./data";
 import { TeacherSheet } from "./teacher-sheet";
 import { useDeleteTeacher } from "@/hooks/teacher/useDeleteTeacher";
@@ -65,9 +59,7 @@ function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) 
 		{
 			accessorKey: "department",
 			header: "Kafedra",
-			cell: ({ row }) => (
-				<span className="text-muted-foreground text-[12px]">{row.getValue("department")}</span>
-			),
+			cell: ({ row }) => <span className="text-muted-foreground text-[12px]">{row.getValue("department")}</span>,
 		},
 		{
 			id: "actions",
@@ -109,22 +101,19 @@ export default function Teachers() {
 	const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
 	const [selectedPosition, setSelectedPosition] = useState<string>("all");
 
-	const teachers = response?.data?.body ?? [];
-	
-	// Teacher tipini kengaytirish (agar hook'dan kelayotgan ma'lumotlarda bu maydonlar bo'lmasa)
-	// Agar Teacher tipida departmentId va lavozmId bo'lmasa, ularni qo'shimcha ravishda olish kerak
+	const teachers: Teacher[] = response?.data?.body ?? [];
+
 	const teachersWithFilters = useMemo(() => {
-		return teachers.map((teacher: Teacher) => ({
+		return teachers.map((teacher) => ({
 			...teacher,
 			departmentId: teacher.departmentId || (teacher.department ? String(teacher.department) : ""),
 			lavozmId: teacher.lavozmId || (teacher.lavozim ? String(teacher.lavozim) : ""),
-		}));
+		})) as Teacher[];
 	}, [teachers]);
 
-	// Kafedra variantlari
 	const departments = useMemo(() => {
 		const depts = [{ value: "all", label: "Barcha kafedralar" }];
-		if (departmentData?.data) {
+		if (departmentData?.data && Array.isArray(departmentData.data)) {
 			departmentData.data.forEach((d: any) => {
 				depts.push({ value: String(d.id), label: d.name });
 			});
@@ -132,10 +121,9 @@ export default function Teachers() {
 		return depts;
 	}, [departmentData]);
 
-	// Lavozim variantlari
 	const positions = useMemo(() => {
 		const pos = [{ value: "all", label: "Barcha lavozimlar" }];
-		if (positionData?.data) {
+		if (positionData?.data && Array.isArray(positionData.data)) {
 			positionData.data.forEach((p: any) => {
 				pos.push({ value: String(p.id), label: p.name });
 			});
@@ -143,31 +131,20 @@ export default function Teachers() {
 		return pos;
 	}, [positionData]);
 
-	// Filtrlangan ma'lumotlar
 	const filteredData = useMemo(() => {
 		if (!teachersWithFilters.length) return [];
 
-		return teachersWithFilters.filter((teacher: any) => {
-			// Ism bo'yicha qidirish
-			const matchesName = teacher.fullName
-				?.toLowerCase()
-				.includes(searchName.toLowerCase()) ?? false;
+		return teachersWithFilters.filter((teacher) => {
+			const matchesName = teacher.fullName?.toLowerCase().includes(searchName.toLowerCase()) ?? false;
 
-			// Kafedra bo'yicha filtr
-			const matchesDepartment =
-				selectedDepartment === "all" ||
-				String(teacher.departmentId) === selectedDepartment;
+			const matchesDepartment = selectedDepartment === "all" || String(teacher.departmentId) === selectedDepartment;
 
-			// Lavozim bo'yicha filtr
-			const matchesPosition =
-				selectedPosition === "all" ||
-				String(teacher.lavozmId) === selectedPosition;
+			const matchesPosition = selectedPosition === "all" || String(teacher.lavozmId) === selectedPosition;
 
 			return matchesName && matchesDepartment && matchesPosition;
 		});
 	}, [teachersWithFilters, searchName, selectedDepartment, selectedPosition]);
 
-	// Filterlarni tozalash
 	const clearFilters = () => {
 		setSearchName("");
 		setSelectedDepartment("all");
@@ -179,7 +156,7 @@ export default function Teachers() {
 	const columns = useMemo(
 		() =>
 			createColumns(
-				(row) => open(row),
+				(row) => open(row as any),
 				(row) => deleteTeacher(row.id),
 			),
 		[open, deleteTeacher],
@@ -187,7 +164,6 @@ export default function Teachers() {
 
 	return (
 		<div className="flex flex-col gap-4">
-			{/* Header qismi */}
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-1.5">
 					<span className="text-[13px] font-semibold text-foreground">O'qituvchilar soni:</span>
@@ -214,10 +190,8 @@ export default function Teachers() {
 				</Button>
 			</div>
 
-			{/* Search va Filter qismi */}
 			<div className="flex flex-wrap items-end gap-3 p-4 bg-muted/30 rounded-lg border">
-				{/* Ism bo'yicha qidirish */}
-				<div className="flex-1 min-w-[200px]">
+				<div className="flex-1 min-w-50">
 					<Label htmlFor="search-name" className="text-[11px] font-medium text-muted-foreground mb-1 block">
 						Ism bo'yicha qidirish
 					</Label>
@@ -228,37 +202,35 @@ export default function Teachers() {
 							placeholder="Ism yoki familiya..."
 							value={searchName}
 							onChange={(e) => setSearchName(e.target.value)}
-							className="pl-9 h-9 text-[13px]"
+							className="pl-9 h-9 text-[13px] truncate"
 						/>
 					</div>
 				</div>
 
-				{/* Kafedra bo'yicha filter */}
-				<div className="w-[200px]">
+				<div className="w-50">
 					<Label htmlFor="department-filter" className="text-[11px] font-medium text-muted-foreground mb-1 block">
 						Kafedra bo'yicha
 					</Label>
 					<Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-						<SelectTrigger id="department-filter" className="h-9 text-[13px]">
+						<SelectTrigger id="department-filter" className="h-9 text-[13px] truncate">
 							<SelectValue placeholder="Kafedra tanlang" />
 						</SelectTrigger>
 						<SelectContent>
 							{departments.map((dept) => (
-								<SelectItem key={dept.value} value={dept.value} className="text-[13px]">
-									{dept.label}
+								<SelectItem key={dept.value} value={dept.value} className="label text-[13px]">
+									{dept.label.slice(0,20)}
 								</SelectItem>
 							))}
 						</SelectContent>
 					</Select>
 				</div>
 
-				{/* Lavozim bo'yicha filter */}
 				<div className="w-[200px]">
 					<Label htmlFor="position-filter" className="text-[11px] font-medium text-muted-foreground mb-1 block">
 						Lavozim bo'yicha
 					</Label>
 					<Select value={selectedPosition} onValueChange={setSelectedPosition}>
-						<SelectTrigger id="position-filter" className="h-9 text-[13px]">
+						<SelectTrigger id="position-filter" className="h-9 text-[13px] truncate">
 							<SelectValue placeholder="Lavozim tanlang" />
 						</SelectTrigger>
 						<SelectContent>
@@ -272,7 +244,6 @@ export default function Teachers() {
 				</div>
 			</div>
 
-			{/* Data Table */}
 			<DataTable
 				columns={columns}
 				data={filteredData}
