@@ -24,7 +24,7 @@ type ActivityTabsProps = {
  activeTab: string;
  onTabChange: (tab: string) => void;
  researches: ResearchItem[];
- researchPage: number;
+ researchPage: number ;
  researchTotalPage: number;
  onResearchPageChange: (page: number) => void;
  researchLoading?: boolean;
@@ -77,6 +77,7 @@ export function ActivityTabs({
   <Tabs
    value={activeTab}
    onValueChange={onTabChange}
+   defaultValue="researches"
    className="gap-0 w-full rounded-xl border bg-card overflow-hidden"
   >
    <div className="border-b overflow-x-auto">
@@ -103,7 +104,6 @@ export function ActivityTabs({
      <div className="py-4 overflow-x-auto">
       <ResearchesTab
        data={researches}
-       userId={userId}
        page={researchPage}
        totalPage={researchTotalPage}
        onPageChange={onResearchPageChange}

@@ -17,40 +17,16 @@ export type Research = {
 	pdfName: string | null;
 };
 
-export const MOCK_RESEARCHES: Research[] = [
-	{
-		id: 1,
-		name: "Sun'iy intellekt va tibbiyot diagnostikasi",
-		description: "Chuqur o'rganish algoritmlarini tibbiy tasvirlashda qo'llash",
-		year: "2023",
-		organization: "Toshkent tibbiyot akademiyasi",
-		membershipType: "XALQARO",
-		status: "JARAYONDA",
-		pdfName: "research_ai_medicine.pdf",
-	},
-	{
-		id: 2,
-		name: "Yangi avlod antibibiotiklar sintezi",
-		description: "Rezistentlikka qarshi faol birikmalar sintezi va tahlili",
-		year: "2022",
-		organization: "O'zbekiston Fanlar Akademiyasi",
-		membershipType: "MILLIY",
-		status: "TUGALLANGAN",
-		pdfName: "antibiotics_synthesis.pdf",
-	},
-	{
-		id: 3,
-		name: "Nano materiallar asosida dori etkazish tizimlari",
-		description: "Maqsadli dori etkazishda nanozarralar qo'llanilishi",
-		year: "2024",
-		organization: "MIT hamkorligi",
-		membershipType: "XALQARO",
-		status: "JARAYONDA",
-		pdfName: null,
-	},
-];
+type ResearchesTabProps = {
+	data: Research[];
+	userId: number;
+	page: number;
+	totalPage: number;
+	onPageChange: (page: number) => void;
+	isLoading: boolean;
+};
 
-export function ResearchesTab() {
+export function ResearchesTab({ data, page, totalPage, onPageChange, isLoading }: ResearchesTabProps) {
 	const { open } = useModalActions();
 
 	const columns: ColumnDef<Research>[] = [
@@ -79,7 +55,8 @@ export function ResearchesTab() {
 			accessorKey: "status",
 			header: "Holati",
 			cell: ({ row }) => {
-				const status = row.getValue("status") as Research["status"];
+				const status = row.getValue("status") as Research["status"] | null | undefined;
+				if (!status) return <span className="text-[12px] text-muted-foreground">—</span>;
 				return (
 					<Badge
 						className={
@@ -98,7 +75,8 @@ export function ResearchesTab() {
 			accessorKey: "membershipType",
 			header: "A'zolik turi",
 			cell: ({ row }) => {
-				const type = row.getValue("membershipType") as Research["membershipType"];
+				const type = row.getValue("membershipType") as Research["membershipType"] | null | undefined;
+				if (!type) return <span className="text-[12px] text-muted-foreground">—</span>;
 				return (
 					<Badge
 						className={
@@ -155,5 +133,14 @@ export function ResearchesTab() {
 		},
 	];
 
-	return <DataTable columns={columns} data={MOCK_RESEARCHES} />;
+	return (
+		<DataTable
+			columns={columns}
+			data={data}
+			page={page}
+			totalPage={totalPage}
+			onPageChange={onPageChange}
+			isLoading={isLoading}
+		/>
+	);
 }
