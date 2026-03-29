@@ -1,11 +1,11 @@
-[3/28/2026 6:56 PM] Sardorbek Sayfullayev: import { BookText, FlaskConical, Star, TrendingUp, Users } from "lucide-react";
+import { BookText, FlaskConical, Star, TrendingUp, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/tabs";
 import { cn } from "@/utils";
 import { NashrlarTab } from "./detail-tabs/nashrlar-tab";
 import { PublicationsTab } from "./detail-tabs/publications-tab";
 import { ResearchesTab } from "./detail-tabs/researches-tab";
 import { MaslahatTab } from "./detail-tabs/maslahat-tab";
-import { MukofotlarTab } from "./detail-tabs/mukofotlar-tab";
+import { MukofotlarTab } from "./detail-tabs/mukofotlar-tab"
 import type { ResearchItem } from "@/features/research/research.type"; 
 import type { NazoratItem } from "@/features/nazorat/nazorat.type";
 import type { PublicationItem } from "@/features/publication/publication.type"

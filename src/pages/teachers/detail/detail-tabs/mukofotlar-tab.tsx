@@ -87,7 +87,7 @@ const STYLE_MAP: Record<string, string> = {
   Davlat_Mukofoti: "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-50",
 };
 
-export function MukofotTab() {
+export function MukofotlarTab() {
   const { open } = useModalActions();
 
   const columns: ColumnDef<Mukofot>[] = [
