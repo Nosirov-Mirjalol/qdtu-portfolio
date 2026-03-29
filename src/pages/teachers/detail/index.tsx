@@ -8,11 +8,12 @@ import { MaslahatModal } from "./detail-modals/maslahat-modal";
 import type { ProfileFormData } from "./detail-profile/profile-edit";
 import { ProfileForm } from "./detail-profile/profile-form";
 import { ProfileSidebar } from "./detail-profile/profile-sidebar";
-import { useLocation, useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { Button } from "@/ui/button";
 import { StatsGrid } from "./stats-grid";
 import { useGetTeacherStats } from "@/hooks/teacher/useGetTeacherStats";
 import { TableToolbar } from "@/components/table-toolbar/table-toolbar";
+import { ActivityTabs } from "./activity-tabs";
 
 const ADD_LABELS: Record<string, string> = {
   researches: "Tadqiqot qo'shish",
@@ -118,7 +119,7 @@ export default function TeacherDetail() {
         </div>
       </div>
       <TableToolbar addLabel="qo'shish" countLabel="Tadqiqotlar" count={2} searchValue=""onSearchChange={()=>{}} showSearch={false} onAdd={()=>{}}  />
-      
+      <ActivityTabs  />
 		<StatsGrid data={statsData} isLoading={statsLoading} />
       {/* Modallar */}
       <ResearchModal />

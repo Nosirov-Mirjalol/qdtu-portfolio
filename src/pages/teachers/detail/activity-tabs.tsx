@@ -1,4 +1,4 @@
-import { BookText, FlaskConical, Star, TrendingUp, Users } from "lucide-react";
+[3/28/2026 6:56 PM] Sardorbek Sayfullayev: import { BookText, FlaskConical, Star, TrendingUp, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/tabs";
 import { cn } from "@/utils";
 import { NashrlarTab } from "./detail-tabs/nashrlar-tab";
@@ -6,6 +6,10 @@ import { PublicationsTab } from "./detail-tabs/publications-tab";
 import { ResearchesTab } from "./detail-tabs/researches-tab";
 import { MaslahatTab } from "./detail-tabs/maslahat-tab";
 import { MukofotlarTab } from "./detail-tabs/mukofotlar-tab";
+import type { ResearchItem } from "@/features/research/research.type"; 
+import type { NazoratItem } from "@/features/nazorat/nazorat.type";
+import type { PublicationItem } from "@/features/publication/publication.type"
+import type { ConsultationItem } from "@/features/consultation/consultation.type";
 import type { Mukofot } from "./detail-tabs/mukofotlar-tab";
 
 const TABS = [
@@ -118,8 +122,7 @@ export function ActivityTabs({
        isLoading={nazoratLoading}
       />
      </div>
-    </Tabs>
-<Content>
+   </TabsContent> 
     <TabsContent value="supervision">
      <div className="py-4 overflow-x-auto">
       <NashrlarTab

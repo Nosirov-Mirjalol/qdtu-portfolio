@@ -141,7 +141,17 @@ export function MaslahatTab() {
 			id: "actions",
 			header: () => <div className="text-center">Amallar</div>,
 			cell: ({ row }) => (
-				<div className="flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
+				<div
+					className="flex items-center justify-center gap-2"
+					role="button"
+					tabIndex={0}
+					onClick={(e) => e.stopPropagation()}
+					onKeyDown={(e) => {
+						if (e.key === "Enter" || e.key === " ") {
+							e.stopPropagation();
+						}
+					}}
+				>
 					<button
 						type="button"
 						onClick={() => open({ _type: "maslahat", ...row.original })}
