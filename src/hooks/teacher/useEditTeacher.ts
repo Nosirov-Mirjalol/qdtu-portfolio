@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 interface EditTeacherInput {
+  id:number
   fullName: string;
   phoneNumber: string;
   imgUrl?: File | null;
@@ -23,6 +24,7 @@ export function useEditTeacher() {
         : null;
 
       return TeacherService.edit({
+        id:input.id,
         fullName: input.fullName,
         phoneNumber: input.phoneNumber,
         imgUrl: imgUrl ?? null,

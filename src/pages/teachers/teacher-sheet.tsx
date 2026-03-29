@@ -9,7 +9,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/sheet";
 import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import type { CreateTeacherParams, EditTeacherParams, Teacher } from "./teacher.type";
+import type { CreateTeacherParams, EditTeacherParams } from "@/features/teacher/teacher.type";
 import { useTeacherSheetActions, useTeacherSheetEditData, useTeacherSheetIsOpen } from "@/store/teacherSheet";
 import { useCreateTeacher } from "@/hooks/teacher/useCreateTeacher";
 import { useDepartment } from "@/hooks/department/useDepartment";
@@ -28,6 +28,18 @@ interface TeacherFormValues {
 	imgUrl: File | null;
 	password: string;
 	confirmPassword: string;
+}
+
+interface TeacherEditValues {
+  id: number;
+  fullName: string;
+  phoneNumber: string;
+  imgUrl: File ;
+  fileUrl: string;
+  lavozmId: number;
+  gender: boolean;
+  password: string;
+  departmentId: number;
 }
 
 function formatPhone(digits: string): string {
@@ -174,38 +186,38 @@ export function TeacherSheet() {
 	};
 
 	const onSubmit = (values: TeacherFormValues) => {
-		const phoneDigits = values.phoneNumber.replace(/\D/g, "");
-		const phoneNumber = `${phoneDigits}`;
+    const phoneDigits = values.phoneNumber.replace(/\D/g, "");
+    const phoneNumber = `${phoneDigits}`;
 
-		if (isEdit && editData) {
-			const editPayload: EditTeacherParams = {
-				fullName: values.fullName,
-				phoneNumber: phoneNumber,
-				gender: values.gender,
-				imgUrl: values.imgUrl,
-				lavozmId: Number(values.positionId),
-				departmentId: Number(values.departmentId),
-				password: values.password,
-			};
+    if (isEdit && editData) {
+        const editPayload: EditTeacherParams = {
+            id: editData.id,
+            fullName: values.fullName,
+            phoneNumber: phoneNumber,
+            gender: values.gender,
+            imgUrl: values.imgUrl,
+            lavozmId: Number(values.positionId),
+            departmentId: Number(values.departmentId),
+            password: values.password || editData.password,
+        };
 
-			editTeacher(editPayload, { onSuccess: handleClose });
-			return;
-		}
+        editTeacher(editPayload, { onSuccess: handleClose });
+        return;
+    }
 
-		// Create
-		const createPayload: CreateTeacherParams = {
-			fullName: values.fullName,
-			phoneNumber: phoneNumber,
-			email: values.email,
-			imgUrl: values.imgUrl,
-			lavozmId: Number(values.positionId),
-			gender: values.gender,
-			password: values.password,
-			departmentId: Number(values.departmentId),
-		};
+    const createPayload: CreateTeacherParams = {
+        fullName: values.fullName,
+        phoneNumber: phoneNumber,
+        email: values.email,
+        imgUrl: values.imgUrl,
+        lavozmId: Number(values.positionId),
+        gender: values.gender,
+        password: values.password,
+        departmentId: Number(values.departmentId),
+    };
 
-		createTeacher(createPayload, { onSuccess: handleClose });
-	};
+    createTeacher(createPayload, { onSuccess: handleClose });
+};
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(v) => !v && handleClose()}>

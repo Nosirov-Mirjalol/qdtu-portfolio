@@ -99,13 +99,14 @@ export interface EditTeacherRequest {
 }
 
 export interface EditTeacherParams {
+  id:number;
   fullName: string;
   phoneNumber: string;
-  email: string;
   imgUrl: File | null;
   lavozmId: number;
   gender: boolean;
   departmentId: number;
+  password:string
 }
 
 export interface EditTeacherResponse {
