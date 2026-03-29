@@ -119,7 +119,7 @@ export default function TeacherDetail() {
         </div>
       </div>
       <TableToolbar addLabel="qo'shish" countLabel="Tadqiqotlar" count={2} searchValue=""onSearchChange={()=>{}} showSearch={false} onAdd={()=>{}}  />
-      <ActivityTabs  />
+      <ActivityTabs />
 		<StatsGrid data={statsData} isLoading={statsLoading} />
       {/* Modallar */}
       <ResearchModal />

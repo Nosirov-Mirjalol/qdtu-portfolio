@@ -10,3 +10,14 @@ export type ResearchItem = {
   finished: boolean;
   memberEnum: "MILLIY" | "XALQARO";
 }
+export interface GetByIdResponse {
+  success: boolean;
+  message: string;
+  data: {
+    page: number;
+    size: number;
+    totalPage: number;
+    totalElements: number;
+    body: ResearchItem[];
+  };
+}
