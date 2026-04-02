@@ -34,6 +34,18 @@ const API_ENDPOINTS = {
 	RESEARCH: {
 		GETBYID: "/research/byUser",
 	},
+	NAZORAT:{
+		GETBYID:"/nazorat/byUser"
+	},
+	NASHR:{
+		GETBYID:"/api/publication/byUser"
+	},
+	MASLAHAT:{
+		GETBYID:"/api/consultation/byUser"
+	},
+	MUKOFOT:{
+		GETBYID:"/award/byUser"
+	}
 };
 
 export const { LOGIN, USER, FILE, COLLAGE, DEPARTMENT, POSITION, TEACHER, USER_STATISTICS, RESEARCH } = API_ENDPOINTS;
