@@ -1,16 +1,37 @@
-export type ConsultationItem = {
+interface ConsultationItem {
   id: number;
   name: string;
   description: string;
   year: number;
   fileUrl: string;
   userId: number;
-  univerName?: string;
-  researcherName?: string;
-  leader?: string;
-  level?: "quyi" | "o'rta" | "yuqori";
-  member?: boolean;
-  memberEnum?: "MILLIY" | "XALQARO";
-  finished?: boolean;
-  finishedEnum?: "COMPLETED" | "IN_PROGRESS" | "REJECTED";
+  member: boolean;
+  finishedEnum: "FINISHED" | "IN_PROGRESS" | "REJECTED";
+  leader: string;
+}
+interface ConsultationData {
+  page: number;
+  size: number;
+  totalPage: number;
+  totalElements: number;
+  body: ConsultationItem[];
+}
+
+export interface ApiResponse {
+  success: boolean;
+  message: string;
+  data: ConsultationData;
+}
+interface PaginationData<T> {
+  page: number;
+  size: number;
+  totalPage: number;
+  totalElements: number;
+  body: T;
+}
+
+export interface GetbyIdResponse {
+  success: boolean;
+  message: string;
+  data: PaginationData<ConsultationItem>;
 }

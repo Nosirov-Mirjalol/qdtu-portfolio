@@ -12,3 +12,29 @@ export type NazoratItem = {
   finished: boolean;
   member?: boolean;
 }
+interface NazoratData {
+  page: number;
+  size: number;
+  totalPage: number;
+  totalElements: number;
+  body: NazoratItem[];
+}
+
+export interface ApiResponse {
+  success: boolean;
+  message: string;
+  data: NazoratData;
+}
+interface PaginationData<T> {
+  page: number;
+  size: number;
+  totalPage: number;
+  totalElements: number;
+  body: T;
+}
+
+export interface GetbyIdResponse {
+  success: boolean;
+  message: string;
+  data: PaginationData<NazoratItem>;
+}
