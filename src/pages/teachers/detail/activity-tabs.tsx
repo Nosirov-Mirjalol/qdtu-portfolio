@@ -2,7 +2,7 @@ import { BookText, FlaskConical, Star, TrendingUp, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/tabs";
 import { cn } from "@/utils";
 import { NashrlarTab } from "./detail-tabs/nashrlar-tab";
-import { PublicationsTab } from "./detail-tabs/publications-tab";
+import { NazoratTab } from "./detail-tabs/nazorat-tab"; 
 import { ResearchesTab } from "./detail-tabs/researches-tab";
 import { MaslahatTab } from "./detail-tabs/maslahat-tab";
 import { MukofotlarTab } from "./detail-tabs/mukofotlar-tab"
@@ -113,7 +113,7 @@ export function ActivityTabs({
     </TabsContent>
     <TabsContent value="publications">
      <div className="py-4 overflow-x-auto">
-      <PublicationsTab
+      <NazoratTab
        data={nazoratlar}
        userId={userId}
        page={nazoratPage}

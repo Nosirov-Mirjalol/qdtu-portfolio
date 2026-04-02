@@ -2,6 +2,7 @@ import { ConfirmPopover } from "@/components/confirm-popover/confirm-popover";
 import { DataTable } from "@/components/data-table/data-table";
 import type { ColumnDef } from "@/components/data-table/data-table";
 import { TruncatedText } from "@/components/tooltip/truncated-text";
+import { useEditResearch } from "@/hooks/teacher/useEditResearch";
 import { useModalActions } from "@/store/modalStore";
 import { Badge } from "@/ui/badge";
 import { Eye, Pencil, Trash2 } from "lucide-react";
@@ -12,8 +13,8 @@ export type Research = {
 	description: string;
 	year: string;
 	organization: string;
-	membershipType: "MILLIY" | "XALQARO";
-	status: "JARAYONDA" | "TUGALLANGAN";
+	memberEnum: "MILLIY" | "XALQARO";
+	finished: boolean;
 	pdfName: string | null;
 };
 
@@ -28,6 +29,7 @@ type ResearchesTabProps = {
 
 export function ResearchesTab({ data, page, totalPage, onPageChange, isLoading }: ResearchesTabProps) {
 	const { open } = useModalActions();
+	const {mutate:editMutate}=useEditResearch()
 
 	const columns: ColumnDef<Research>[] = [
 		{
@@ -52,30 +54,31 @@ export function ResearchesTab({ data, page, totalPage, onPageChange, isLoading }
 			cell: ({ row }) => <span className="text-[13px] text-muted-foreground">{row.getValue("year")}</span>,
 		},
 		{
-			accessorKey: "status",
+			accessorKey: "finished",
 			header: "Holati",
 			cell: ({ row }) => {
-				const status = row.getValue("status") as Research["status"] | null | undefined;
-				if (!status) return <span className="text-[12px] text-muted-foreground">—</span>;
+				const status = row.getValue("finished") as Research["finished"] | null | undefined;
+				if (status === null || status === undefined)
+					return <span className="text-[12px] text-muted-foreground">—</span>;
 				return (
 					<Badge
 						className={
-							status === "TUGALLANGAN"
+							status === true
 								? "bg-emerald-50 text-emerald-700 border-emerald-200"
 								: "bg-amber-50 text-amber-700 border-amber-200"
 						}
 						variant="outline"
 					>
-						{status}
+						{status === true ? "TUGALLANGAN" : "JARAYONDA"}
 					</Badge>
 				);
 			},
 		},
 		{
-			accessorKey: "membershipType",
+			accessorKey: "memberEnum",
 			header: "A'zolik turi",
 			cell: ({ row }) => {
-				const type = row.getValue("membershipType") as Research["membershipType"] | null | undefined;
+				const type = row.getValue("memberEnum") as Research["memberEnum"] | null | undefined;
 				if (!type) return <span className="text-[12px] text-muted-foreground">—</span>;
 				return (
 					<Badge
@@ -120,7 +123,7 @@ export function ResearchesTab({ data, page, totalPage, onPageChange, isLoading }
 						<Pencil className="size-3" /> Tahrirlash
 					</button>
 
-					<ConfirmPopover onConfirm={() => console.log("delete", row.original.id)}>
+					<ConfirmPopover onConfirm={() =>console.log(row)}>
 						<button
 							type="button"
 							className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"

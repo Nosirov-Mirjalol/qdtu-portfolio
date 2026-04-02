@@ -52,6 +52,7 @@ export default function TeacherDetail() {
 	const { data: researchData, isLoading: researchLoading } = useResearch(teacher.id);
   const research=researchData?.data  
 
+
 	useEffect(() => {
 		if (teacher) {
 			document.title = `QDTU | ${teacher.fullName}`;

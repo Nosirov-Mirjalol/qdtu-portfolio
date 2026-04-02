@@ -3,9 +3,9 @@ import { TableToolbar } from "@/components/table-toolbar/table-toolbar";
 import { useModalActions } from "@/store/modalStore";
 import { PublicationModal } from "@/pages/teachers/detail/detail-modals/publication-modal";
 import { NashrModal } from "@/pages/teachers/detail/detail-modals/nashr-modal";
-import { PublicationsTab } from "@/pages/teachers/detail/detail-tabs/publications-tab";
+import { NazoratTab } from "@/pages/teachers/detail/detail-tabs/nazorat-tab";
 import { NashrlarTab } from "@/pages/teachers/detail/detail-tabs/nashrlar-tab";
-import type { Publication } from "@/pages/teachers/detail/detail-tabs/publications-tab";
+import type { Publication } from "@/pages/teachers/detail/detail-tabs/nazorat-tab"; 
 import type { Nashr } from "@/pages/teachers/detail/detail-tabs/nashrlar-tab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/tabs";
 import { cn } from "@/utils";
@@ -81,7 +81,7 @@ export default function TeacherPublications() {
 				<div className="px-3 sm:px-5">
 					<TabsContent value="nazoratlar">
 						<div className="py-4 overflow-x-auto">
-							<PublicationsTab data={nazoratlar} />
+							<NazoratTab data={nazoratlar} />
 						</div>
 					</TabsContent>
 					<TabsContent value="nashrlar">
