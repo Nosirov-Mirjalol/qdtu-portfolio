@@ -179,7 +179,16 @@ const columns: ColumnDef<Nashr>[] = [
 	},
 ];
 
-export function NashrlarTab() {
+type nashrsTabProps = {
+	data: Nashr[];
+	userId: number;
+	page: number;
+	totalPage: number;
+	onPageChange: (page: number) => void;
+	isLoading: boolean;
+};
+
+export function NashrlarTab({ data, page, totalPage, onPageChange, isLoading }: nashrsTabProps) {
 	const { open } = useModalActions();
 
 	const cols: ColumnDef<Nashr>[] = columns.map((col) => {
@@ -212,5 +221,5 @@ export function NashrlarTab() {
 		return col;
 	});
 
-	return <DataTable columns={cols} data={MOCK_NASHRLAR} />;
+	return <DataTable columns={cols} data={data} />;
 }

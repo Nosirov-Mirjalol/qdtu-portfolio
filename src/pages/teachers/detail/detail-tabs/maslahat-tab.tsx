@@ -73,7 +73,15 @@ const STYLE_MAP: Record<string, string> = {
 	TUGALLANGAN: "bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-50",
 };
 
-export function MaslahatTab() {
+type maslahatTabProps = {
+	data: Maslahat[];
+	userId: number;
+	page: number;
+	totalPage: number;
+	onPageChange: (page: number) => void;
+	isLoading: boolean;
+};
+export function MaslahatTab({ data, page, totalPage, onPageChange, isLoading }: maslahatTabProps) {
 	const { open } = useModalActions();
 
 	const columns: ColumnDef<Maslahat>[] = [
@@ -172,5 +180,5 @@ export function MaslahatTab() {
 		},
 	];
 
-	return <DataTable columns={columns} data={MOCK_MASLAHATLAR} />;
+	return <DataTable columns={columns} data={data} />;
 }

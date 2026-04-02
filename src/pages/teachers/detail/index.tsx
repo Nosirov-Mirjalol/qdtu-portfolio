@@ -15,6 +15,9 @@ import { useGetTeacherStats } from "@/hooks/teacher/useGetTeacherStats";
 import { TableToolbar } from "@/components/table-toolbar/table-toolbar";
 import { ActivityTabs } from "./activity-tabs";
 import { useResearch } from "@/hooks/teacher/useResearch";
+import { useNazorat } from "@/hooks/teacher/useNazorat";
+import { useNashr } from "@/hooks/teacher/useNashr";
+import { useMaslahat } from "@/hooks/teacher/useMaslahat";
 
 const ADD_LABELS: Record<string, string> = {
 	researches: "Tadqiqot qo'shish",
@@ -44,14 +47,20 @@ export default function TeacherDetail() {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { open } = useModalActions();
-  
+
 	// Teacher ma'lumotlarini olish
 	const teacher = (location.state as { teacher?: TeacherProfile } | null)?.teacher ?? null;
 	const { data: statsData, isLoading: statsLoading } = useGetTeacherStats(teacher?.id);
-  
-	const { data: researchData, isLoading: researchLoading } = useResearch(teacher.id);
-  const research=researchData?.data  
 
+	const { data: researchData, isLoading: researchLoading } = useResearch(teacher.id);
+	const { data: nazoratData, isLoading: nazoratLoading } = useNazorat(teacher.id);
+	const { data: nashrData, isLoading: nashrLoading } = useNashr(teacher.id);
+	const { data: maslahatData, isLoading: maslahatLoading } = useMaslahat(teacher.id);
+
+	const research = researchData?.data;
+	const nazorat = nazoratData?.data;
+	const nashr = nashrData?.data;
+	const maslahat = maslahatData?.data;
 
 	useEffect(() => {
 		if (teacher) {
@@ -100,9 +109,43 @@ export default function TeacherDetail() {
 		resume: null,
 	};
 
-  if(researchLoading){
-    return <div className="flex flex-col gap-4 sm:gap-5">ma'lumotlar yuklanmoqda !</div>
-  }
+	const TOOLBAR_CONFIG = {
+		researches: {
+			addLabel: "Tadqiqot qo'shish",
+			countLabel: "Tadqiqotlar",
+			count: research?.totalElements,
+			modalType: "research",
+		},
+		publications: {
+			addLabel: "Nazorat qo'shish",
+			countLabel: "Nazoratlar",
+			count: nazorat?.totalElements,
+			modalType: "nazorat",
+		},
+		supervision: {
+			addLabel: "Nashr qo'shish",
+			countLabel: "Nashrlar",
+			count: nashr?.totalElements,
+			modalType: "nashr",
+		},
+		activities: {
+			addLabel: "Maslahat qo'shish",
+			countLabel: "Maslahatlar",
+			count: maslahat?.totalElements,
+			modalType: "maslahat",
+		},
+		awards: {
+			addLabel: "Mukofot qo'shish",
+			countLabel: "Mukofotlar",
+			count: undefined,
+			modalType: "",
+		},
+	} as const;
+
+	const currentToolbar = TOOLBAR_CONFIG[activeTab as keyof typeof TOOLBAR_CONFIG];
+	if (researchLoading) {
+		return <div className="flex flex-col gap-4 sm:gap-5">ma'lumotlar yuklanmoqda !</div>;
+	}
 
 	return (
 		<div className="flex flex-col gap-4 sm:gap-5">
@@ -122,15 +165,46 @@ export default function TeacherDetail() {
 				</div>
 			</div>
 			<TableToolbar
-				addLabel="tadqiqot qo'shish"
-				countLabel="Tadqiqotlar"
-				count={research?.totalElements}
+				addLabel={currentToolbar.addLabel}
+				countLabel={currentToolbar.countLabel}
+				count={currentToolbar.count}
 				searchValue=""
 				onSearchChange={() => {}}
 				showSearch={false}
-				onAdd={() => {}}
+				onAdd={currentToolbar.modalType ? () => open(currentToolbar.modalType) : undefined}
 			/>
-			<ActivityTabs researches={research?.body} researchPage={research?.page} researchTotalPage={research?.totalPage} researchLoading={researchLoading} />
+
+			<ActivityTabs
+				activeTab={activeTab}
+				onTabChange={setActiveTab}
+				userId={teacher.id}
+				// Research
+				researches={research?.body ?? []}
+				researchPage={research?.page ?? 0}
+				researchTotalPage={research?.totalPage ?? 0}
+				onResearchPageChange={setResearchPage}
+				researchLoading={researchLoading}
+				// Nashr
+				nashrlar={nashr?.body ?? []}
+				nashrlarPage={nashr?.page ?? 0}
+				nashrlarTotalPage={nashr?.totalPage ?? 0}
+				onNashrlarPageChange={setNashrlarPage}
+				nashrlarLoading={nashrLoading}
+				// Nazorat
+				nazoratlar={nazorat?.body ?? []}
+				nazoratPage={nazorat?.page ?? 0}
+				nazoratTotalPage={nazorat?.totalPage ?? 0}
+				onNazoratPageChange={setNazoratPage}
+				nazoratLoading={nazoratLoading}
+				// Maslahat
+				maslahatlar={maslahat?.body ?? []}
+				maslahatlarPage={maslahat?.page ?? 0}
+				maslahatlarTotalPage={maslahat?.totalPage ?? 0}
+				onMaslahatlarPageChange={setMaslahatlarPage}
+				maslahatlarLoading={maslahatLoading}
+				// Mukofot
+				mukofotlar={[]}
+			/>
 			<StatsGrid data={statsData} isLoading={statsLoading} />
 			{/* Modallar */}
 			<ResearchModal />
