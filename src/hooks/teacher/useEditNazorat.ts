@@ -16,7 +16,7 @@ export interface EditNazoratInput {
 	finished: boolean;
 }
 
-export function useEditResearch() {
+export function useEditNazorat() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -35,7 +35,7 @@ export function useEditResearch() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["nazorat"] });
+      queryClient.invalidateQueries({ queryKey: ["Nazorat"] });
       toast.success("Nazorat muvaffaqiyatli tahrirlandi");
     },
     onError: (error: any) => {

@@ -22,7 +22,7 @@ export function useCreateNazorat() {
 	return useMutation({
 		mutationFn: (input: CreateNazoratInput) => NazoratService.create(input),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["nazorat"] });
+			queryClient.invalidateQueries({ queryKey: ["Nazorat"] });
 			toast.success("Nazorat muvaffaqiyatli qo'shildi");
 		},
 		onError: (error: any) => {

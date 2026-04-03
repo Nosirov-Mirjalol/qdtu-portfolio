@@ -189,7 +189,7 @@ export default function TeacherDetail() {
 			<StatsGrid data={statsData} isLoading={statsLoading} />
 			{/* Modallar */}
 			<ResearchModal userId={teacher?.id} />
-			<PublicationModal />
+			<PublicationModal userId={teacher?.id}/>
 			<NashrModal />
 			<MaslahatModal />
 		</div>

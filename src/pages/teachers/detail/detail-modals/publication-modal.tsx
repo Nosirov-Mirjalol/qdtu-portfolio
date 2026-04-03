@@ -1,6 +1,9 @@
 import { FileInput } from "@/components/file-input/file-input";
 import { Modal } from "@/components/modal/modal";
 import { useModalActions, useModalEditData, useModalIsOpen } from "@/store/modalStore";
+import { useCreateNazorat } from "@/hooks/teacher/useCreateNazorat";
+import { useEditNazorat } from "@/hooks/teacher/useEditNazorat";
+import { fileService } from "@/features/file/file.service";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
@@ -12,31 +15,40 @@ import { Controller, useForm } from "react-hook-form";
 type PublicationFormData = {
 	name: string;
 	description: string;
-	researcher: string;
-	university: string;
+	researcherName: string;
+	univerName: string;
 	year: string;
-	level: "YUQORI" | "O'RTA" | "BOSHLANG'ICH" | "";
-	status: "JARAYONDA" | "TUGALLANGAN" | "";
+	level: string;
+	memberEnum: "MILLIY" | "XALQARO" | "";
+	finished: "true" | "false" | "";
 	pdf: File | null;
 };
 
-export function PublicationModal() {
+type PublicationModalProps = {
+	userId: number;
+};
+
+export function PublicationModal({ userId }: PublicationModalProps) {
 	const isOpen = useModalIsOpen();
 	const editData = useModalEditData();
 	const { close } = useModalActions();
+	const { mutateAsync: createNazorat, isPending: isCreating } = useCreateNazorat();
+	const { mutateAsync: editNazorat, isPending: isEditing } = useEditNazorat();
 
-	const visible = isOpen && editData?._type === "nazorat";
+	const visible = isOpen && (editData?._type === "nazorat" || editData === "nazorat");
 	const isEdit = visible && !!editData?.id;
+	const isPending = isCreating || isEditing;
 
 	const { register, handleSubmit, control, reset } = useForm<PublicationFormData>({
 		defaultValues: {
 			name: "",
 			description: "",
-			researcher: "",
-			university: "",
+			researcherName: "",
+			univerName: "",
 			year: "",
 			level: "",
-			status: "",
+			memberEnum: "",
+			finished: "",
 			pdf: null,
 		},
 	});
@@ -46,15 +58,16 @@ export function PublicationModal() {
 			reset({
 				name: editData.name ?? "",
 				description: editData.description ?? "",
-				researcher: editData.researcher ?? "",
-				university: editData.university ?? "",
-				year: editData.year ?? "",
+				researcherName: editData.researcherName ?? "",
+				univerName: editData.univerName ?? "",
+				year: String(editData.year ?? ""),
 				level: editData.level ?? "",
-				status: editData.status ?? "",
+				memberEnum: editData.memberEnum ?? "",
+				finished: editData.finished ? "true" : "false",
 				pdf: null,
 			});
 		} else if (visible && !isEdit) {
-			reset({ name: "", description: "", researcher: "", university: "", year: "", level: "", status: "", pdf: null });
+			reset({ name: "", description: "", researcherName: "", univerName: "", year: "", level: "", memberEnum: "", finished: "", pdf: null });
 		}
 	}, [visible, isEdit, editData, reset]);
 
@@ -62,7 +75,43 @@ export function PublicationModal() {
 		reset();
 		close();
 	};
-	const onSubmit = (_data: PublicationFormData) => {
+
+	const onSubmit = async (data: PublicationFormData) => {
+		let fileUrl = "";
+		if (data.pdf) {
+			const uploaded = await fileService.uploadPdf(data.pdf);
+			fileUrl = uploaded.url;
+		}
+
+		if (isEdit) {
+			await editNazorat({
+				id: editData.id,
+				name: data.name,
+				description: data.description,
+				year: Number(data.year),
+				fileUrl: fileUrl || editData.fileUrl || "",
+				userId,
+				researcherName: data.researcherName,
+				univerName: data.univerName,
+				level: data.level,
+				memberEnum: data.memberEnum as "MILLIY" | "XALQARO",
+				finished: data.finished === "true",
+			});
+		} else {
+			await createNazorat({
+				name: data.name,
+				description: data.description,
+				year: Number(data.year),
+				fileUrl,
+				userId,
+				researcherName: data.researcherName,
+				univerName: data.univerName,
+				level: data.level,
+				memberEnum: data.memberEnum as "MILLIY" | "XALQARO",
+				finished: data.finished === "true",
+			});
+		}
+
 		handleClose();
 	};
 
@@ -85,20 +134,24 @@ export function PublicationModal() {
 				<div className="grid grid-cols-2 gap-4">
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="n-researcher">Tadqiqotchi</Label>
-						<Input id="n-researcher" placeholder="F.I.Sh..." {...register("researcher")} />
+						<Input id="n-researcher" placeholder="F.I.Sh..." {...register("researcherName")} />
 					</div>
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="n-university">Universitet</Label>
-						<Input id="n-university" placeholder="Tashkilot nomi..." {...register("university")} />
+						<Input id="n-university" placeholder="Tashkilot nomi..." {...register("univerName")} />
 					</div>
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="n-year">Yil</Label>
 						<Input id="n-year" type="number" placeholder="2024" {...register("year")} />
 					</div>
 					<div className="flex flex-col gap-2">
-						<Label>Daraja</Label>
+						<Label htmlFor="n-level">Daraja</Label>
+						<Input id="n-level" placeholder="Daraja..." {...register("level")} />
+					</div>
+					<div className="flex flex-col gap-2">
+						<Label>A'zolik turi</Label>
 						<Controller
-							name="level"
+							name="memberEnum"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
@@ -106,9 +159,8 @@ export function PublicationModal() {
 										<SelectValue placeholder="Tanlang..." />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="YUQORI">YUQORI</SelectItem>
-										<SelectItem value="O'RTA">O'RTA</SelectItem>
-										<SelectItem value="BOSHLANG'ICH">BOSHLANG'ICH</SelectItem>
+										<SelectItem value="MILLIY">MILLIY</SelectItem>
+										<SelectItem value="XALQARO">XALQARO</SelectItem>
 									</SelectContent>
 								</Select>
 							)}
@@ -117,7 +169,7 @@ export function PublicationModal() {
 					<div className="flex flex-col gap-2">
 						<Label>Holati</Label>
 						<Controller
-							name="status"
+							name="finished"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
@@ -125,8 +177,8 @@ export function PublicationModal() {
 										<SelectValue placeholder="Tanlang..." />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="JARAYONDA">JARAYONDA</SelectItem>
-										<SelectItem value="TUGALLANGAN">TUGALLANGAN</SelectItem>
+										<SelectItem value="false">Jarayonda</SelectItem>
+										<SelectItem value="true">Tugallangan</SelectItem>
 									</SelectContent>
 								</Select>
 							)}
@@ -149,7 +201,9 @@ export function PublicationModal() {
 					<Button type="button" variant="outline" onClick={handleClose}>
 						Bekor qilish
 					</Button>
-					<Button type="submit">Saqlash</Button>
+					<Button type="submit" disabled={isPending}>
+						{isPending ? "Saqlanmoqda..." : "Saqlash"}
+					</Button>
 				</div>
 			</form>
 		</Modal>
