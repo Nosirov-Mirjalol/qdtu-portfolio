@@ -18,6 +18,7 @@ import { useResearch } from "@/hooks/teacher/useResearch";
 import { useNazorat } from "@/hooks/teacher/useNazorat";
 import { useNashr } from "@/hooks/teacher/useNashr";
 import { useMaslahat } from "@/hooks/teacher/useMaslahat";
+import { useAward } from "@/hooks/teacher/useMukofot";
 
 const ADD_LABELS: Record<string, string> = {
 	researches: "Tadqiqot qo'shish",
@@ -56,11 +57,13 @@ export default function TeacherDetail() {
 	const { data: nazoratData, isLoading: nazoratLoading } = useNazorat(teacher.id);
 	const { data: nashrData, isLoading: nashrLoading } = useNashr(teacher.id);
 	const { data: maslahatData, isLoading: maslahatLoading } = useMaslahat(teacher.id);
+	const { data: mukofotData, isLoading: mukofotLoading } = useAward(teacher.id);
 
 	const research = researchData?.data;
 	const nazorat = nazoratData?.data;
 	const nashr = nashrData?.data;
 	const maslahat = maslahatData?.data;
+	const mukofot = mukofotData?.data;
 
 	useEffect(() => {
 		if (teacher) {
@@ -137,8 +140,8 @@ export default function TeacherDetail() {
 		awards: {
 			addLabel: "Mukofot qo'shish",
 			countLabel: "Mukofotlar",
-			count: undefined,
-			modalType: "",
+			count: mukofot?.totalElements,
+			modalType: "mukofot",
 		},
 	} as const;
 
@@ -203,7 +206,7 @@ export default function TeacherDetail() {
 				onMaslahatlarPageChange={setMaslahatlarPage}
 				maslahatlarLoading={maslahatLoading}
 				// Mukofot
-				mukofotlar={[]}
+				mukofotlar={mukofot?.body ?? []}
 			/>
 			<StatsGrid data={statsData} isLoading={statsLoading} />
 			{/* Modallar */}

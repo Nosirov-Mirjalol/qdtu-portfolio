@@ -87,7 +87,16 @@ const STYLE_MAP: Record<string, string> = {
   Davlat_Mukofoti: "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-50",
 };
 
-export function MukofotlarTab() {
+type mukofotTabProps = {
+  data: Mukofot[];
+  userId: number;
+  page: number;
+  totalPage: number;
+  onPageChange: (page: number) => void;
+  isLoading: boolean;
+};
+
+export function MukofotlarTab({ data, page, totalPage, onPageChange, isLoading }: mukofotTabProps) {
   const { open } = useModalActions();
 
   const columns: ColumnDef<Mukofot>[] = [
@@ -181,5 +190,5 @@ export function MukofotlarTab() {
     },
   ];
 
-  return <DataTable columns={columns} data={MOCK_MUKOFOTLAR} />;
+  return <DataTable columns={columns} data={data} />;
 }
