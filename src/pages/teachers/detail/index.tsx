@@ -190,7 +190,7 @@ export default function TeacherDetail() {
 			{/* Modallar */}
 			<ResearchModal userId={teacher?.id} />
 			<PublicationModal userId={teacher?.id}/>
-			<NashrModal />
+			<NashrModal userId={teacher?.id} />
 			<MaslahatModal />
 		</div>
 	);

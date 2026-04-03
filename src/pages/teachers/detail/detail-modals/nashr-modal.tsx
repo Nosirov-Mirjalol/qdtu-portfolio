@@ -1,5 +1,8 @@
 import { FileInput } from "@/components/file-input/file-input";
 import { Modal } from "@/components/modal/modal";
+import { useCreateNashr } from "@/hooks/teacher/useCreateNashr";
+import { useEditNashr } from "@/hooks/teacher/useEditNashr";
+import { fileService } from "@/features/file/file.service";
 import { useModalActions, useModalEditData, useModalIsOpen } from "@/store/modalStore";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
@@ -14,7 +17,7 @@ type NashrFormData = {
 	description: string;
 	year: string;
 	organization: string;
-	type: "MAQOLA" | "KITOB" | "TADQIQOT" | "BOSHQA" | "";
+	type: "ARTICLE" | "BOOK" | "PROCEEDING" | "OTHERS" | "";
 	authorship: "HAMMUALLIF" | "MUALLIF" | "BOSHQA" | "";
 	level: "XALQARO" | "MAHALLIY" | "";
 	volume: string;
@@ -22,13 +25,20 @@ type NashrFormData = {
 	pdf: File | null;
 };
 
-export function NashrModal() {
+type NashrModalProps = {
+	userId: number;
+};
+
+export function NashrModal({ userId }: NashrModalProps) {
 	const isOpen = useModalIsOpen();
 	const editData = useModalEditData();
 	const { close } = useModalActions();
+	const { mutateAsync: createNashr, isPending: isCreating } = useCreateNashr();
+	const { mutateAsync: editNashr, isPending: isEditing } = useEditNashr();
 
 	const visible = isOpen && editData?._type === "nashr";
 	const isEdit = visible && !!editData?.id;
+	const isPending = isCreating || isEditing;
 
 	const { register, handleSubmit, control, reset } = useForm<NashrFormData>({
 		defaultValues: {
@@ -47,12 +57,20 @@ export function NashrModal() {
 
 	useEffect(() => {
 		if (visible && isEdit) {
+			// Backend'dan kelayotgan qiymatlarni frontend formatiga o'tkazish
+			let typeValue = editData.type ?? "";
+			// Agar backend "MAQOLA" yuborsa, "ARTICLE" ga o'tkazamiz
+			if (typeValue === "MAQOLA") typeValue = "ARTICLE";
+			if (typeValue === "KITOB") typeValue = "BOOK";
+			if (typeValue === "TADQIQOT") typeValue = "PROCEEDING";
+			if (typeValue === "BOSHQA") typeValue = "OTHERS";
+
 			reset({
 				name: editData.name ?? "",
 				description: editData.description ?? "",
-				year: editData.year ?? "",
+				year: String(editData.year ?? ""),
 				organization: editData.organization ?? "",
-				type: editData.type ?? "",
+				type: typeValue,
 				authorship: editData.authorship ?? "",
 				level: editData.level ?? "",
 				volume: editData.volume ?? "",
@@ -79,7 +97,45 @@ export function NashrModal() {
 		reset();
 		close();
 	};
-	const onSubmit = (_data: NashrFormData) => {
+
+	const onSubmit = async (data: NashrFormData) => {
+		let fileUrl = "";
+		if (data.pdf) {
+			const uploaded = await fileService.uploadPdf(data.pdf);
+			fileUrl = uploaded.url;
+		}
+
+		if (isEdit) {
+			await editNashr({
+				id: editData.id,
+				name: data.name,
+				description: data.description,
+				year: Number(data.year),
+				organization: data.organization,
+				type: data.type as "ARTICLE" | "BOOK" | "PROCEEDING" | "OTHERS",
+				authorship: data.authorship as "HAMMUALLIF" | "MUALLIF" | "BOSHQA",
+				level: data.level as "XALQARO" | "MAHALLIY",
+				volume: data.volume,
+				popularity: data.popularity as "ODDIY" | "POPULAR",
+				fileUrl: fileUrl || editData.fileUrl || "",
+				userId,
+			});
+		} else {
+			await createNashr({
+				name: data.name,
+				description: data.description,
+				year: Number(data.year),
+				organization: data.organization,
+				type: data.type as "ARTICLE" | "BOOK" | "PROCEEDING" | "OTHERS",
+				authorship: data.authorship as "HAMMUALLIF" | "MUALLIF" | "BOSHQA",
+				level: data.level as "XALQARO" | "MAHALLIY",
+				volume: data.volume,
+				popularity: data.popularity as "ODDIY" | "POPULAR",
+				fileUrl,
+				userId,
+			});
+		}
+
 		handleClose();
 	};
 
@@ -119,10 +175,10 @@ export function NashrModal() {
 										<SelectValue placeholder="Tanlang..." />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="MAQOLA">Maqola</SelectItem>
-										<SelectItem value="KITOB">Kitob</SelectItem>
-										<SelectItem value="TADQIQOT">Tadqiqot</SelectItem>
-										<SelectItem value="BOSHQA">Boshqa</SelectItem>
+										<SelectItem value="ARTICLE">Maqola</SelectItem>
+										<SelectItem value="BOOK">Kitob</SelectItem>
+										<SelectItem value="PROCEEDING">Tadqiqot</SelectItem>
+										<SelectItem value="OTHERS">Boshqa</SelectItem>
 									</SelectContent>
 								</Select>
 							)}
@@ -204,7 +260,9 @@ export function NashrModal() {
 					<Button type="button" variant="outline" onClick={handleClose}>
 						Bekor qilish
 					</Button>
-					<Button type="submit">Saqlash</Button>
+					<Button type="submit" disabled={isPending}>
+						{isPending ? "Saqlanmoqda..." : "Saqlash"}
+					</Button>
 				</div>
 			</form>
 		</Modal>
