@@ -1,5 +1,8 @@
 import { FileInput } from "@/components/file-input/file-input";
 import { Modal } from "@/components/modal/modal";
+import { useCreateMaslahat } from "@/hooks/teacher/useCreateMahlahat";
+import { useEditMaslahat } from "@/hooks/teacher/useEditMaslahat";
+import { fileService } from "@/features/file/file.service";
 import { useModalActions, useModalEditData, useModalIsOpen } from "@/store/modalStore";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
@@ -10,25 +13,30 @@ import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 type MaslahatFormData = {
-	id?: number;
 	name: string;
 	description: string;
 	year: string;
 	head: string;
-	subscribe: "HA" | "YO'Q";
-	level: "XALQARO" | "MAHALLIY";
-	status: "JARAYONDA" | "TUGALLANGAN";
+	subscribe: "HA" | "YOQ" | "";
+	level: "XALQARO" | "MAHALLIY" | "";
+	status: "JARAYONDA" | "TUGALLANGAN" | "";
 	pdf: File | null;
 };
 
-export function MaslahatModal() {
+type MaslahatModalProps = {
+	userId: number;
+};
+
+export function MaslahatModal({ userId }: MaslahatModalProps) {
 	const isOpen = useModalIsOpen();
 	const editData = useModalEditData();
 	const { close } = useModalActions();
+	const { mutateAsync: createMaslahat, isPending: isCreating } = useCreateMaslahat();
+	const { mutateAsync: editMaslahat, isPending: isEditing } = useEditMaslahat();
 
-	// Type-ni tekshirishda ehtiyot bo'ling
 	const visible = isOpen && editData?._type === "maslahat";
 	const isEdit = visible && !!editData?.id;
+	const isPending = isCreating || isEditing;
 
 	const { register, handleSubmit, control, reset } = useForm<MaslahatFormData>({
 		defaultValues: {
@@ -36,9 +44,9 @@ export function MaslahatModal() {
 			description: "",
 			year: "",
 			head: "",
-			level: "MAHALLIY",
-			status: "JARAYONDA",
-			subscribe: "HA",
+			level: "",
+			status: "",
+			subscribe: "",
 			pdf: null,
 		},
 	});
@@ -46,13 +54,13 @@ export function MaslahatModal() {
 	useEffect(() => {
 		if (visible && isEdit) {
 			reset({
-				name: editData.name || "",
-				description: editData.description || "",
-				year: editData.year || "",
-				head: editData.head || "",
-				level: editData.level || "MAHALLIY",
-				status: editData.status || "JARAYONDA",
-				subscribe: editData.subscribe || "HA",
+				name: editData.name ?? "",
+				description: editData.description ?? "",
+				year: String(editData.year ?? ""),
+				head: editData.head ?? "",
+				level: editData.level ?? "",
+				status: editData.status ?? "",
+				subscribe: editData.subscribe ?? "",
 				pdf: null,
 			});
 		} else if (visible && !isEdit) {
@@ -61,9 +69,9 @@ export function MaslahatModal() {
 				description: "",
 				year: "",
 				head: "",
-				level: "MAHALLIY",
-				status: "JARAYONDA",
-				subscribe: "HA",
+				level: "",
+				status: "",
+				subscribe: "",
 				pdf: null,
 			});
 		}
@@ -74,8 +82,40 @@ export function MaslahatModal() {
 		close();
 	};
 
-	const onSubmit = (data: MaslahatFormData) => {
-		console.log("Form Data:", data);
+	const onSubmit = async (data: MaslahatFormData) => {
+		let fileUrl = "";
+		if (data.pdf) {
+			const uploaded = await fileService.uploadPdf(data.pdf);
+			fileUrl = uploaded.url;
+		}
+
+		if (isEdit) {
+			await editMaslahat({
+				id: editData.id,
+				name: data.name,
+				description: data.description,
+				year: Number(data.year),
+				head: data.head,
+				level: data.level as "XALQARO" | "MAHALLIY",
+				status: data.status as "JARAYONDA" | "TUGALLANGAN",
+				subscribe: data.subscribe as "HA" | "YOQ",
+				fileUrl: fileUrl || editData.fileUrl || "",
+				userId,
+			});
+		} else {
+			await createMaslahat({
+				name: data.name,
+				description: data.description,
+				year: Number(data.year),
+				head: data.head,
+				level: data.level as "XALQARO" | "MAHALLIY",
+				status: data.status as "JARAYONDA" | "TUGALLANGAN",
+				subscribe: data.subscribe as "HA" | "YOQ",
+				fileUrl,
+				userId,
+			});
+		}
+
 		handleClose();
 	};
 
@@ -119,7 +159,7 @@ export function MaslahatModal() {
 									</SelectTrigger>
 									<SelectContent>
 										<SelectItem value="HA">Ha</SelectItem>
-										<SelectItem value="YO'Q">Yo'q</SelectItem>
+										<SelectItem value="YOQ">Yo'q</SelectItem>
 									</SelectContent>
 								</Select>
 							)}
@@ -166,7 +206,9 @@ export function MaslahatModal() {
 				</div>
 
 				<div className="flex flex-col gap-2">
-					<Label>PDF yuklash</Label>
+					<Label>
+						PDF yuklash <span className="text-muted-foreground font-normal">(ixtiyoriy)</span>
+					</Label>
 					<Controller
 						name="pdf"
 						control={control}
@@ -180,7 +222,9 @@ export function MaslahatModal() {
 					<Button type="button" variant="outline" onClick={handleClose}>
 						Bekor qilish
 					</Button>
-					<Button type="submit">Saqlash</Button>
+					<Button type="submit" disabled={isPending}>
+						{isPending ? "Saqlanmoqda..." : "Saqlash"}
+					</Button>
 				</div>
 			</form>
 		</Modal>

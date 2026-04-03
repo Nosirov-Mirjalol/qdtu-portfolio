@@ -191,7 +191,7 @@ export default function TeacherDetail() {
 			<ResearchModal userId={teacher?.id} />
 			<PublicationModal userId={teacher?.id}/>
 			<NashrModal userId={teacher?.id} />
-			<MaslahatModal />
+			<MaslahatModal userId={teacher?.id} />
 		</div>
 	);
 }
