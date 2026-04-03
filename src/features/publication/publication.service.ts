@@ -1,6 +1,6 @@
 import { apiClient } from "@/api/client";
 import { NASHR } from "@/constants/apiEndpoint";
-import type { GetbyIdResponse } from "./publication.type";
+import type { GetbyIdResponse, PublicationCreateParams } from "./publication.type";
 import { EditResearchResponse } from "../research/research.type";
 
 export const publicationService = {
@@ -9,5 +9,11 @@ export const publicationService = {
 	},
 	delete(id: number) {
 		return apiClient.delete<EditResearchResponse>(`${NASHR.DELETE}/${id}`);
+	},
+	edit(id: number | string, params: PublicationCreateParams) {
+		return apiClient.put(`${NASHR.DELETE}/${id}`, params);
+	},
+	create(params: PublicationCreateParams) {
+		return apiClient.post(NASHR.DELETE, params);
 	},
 };

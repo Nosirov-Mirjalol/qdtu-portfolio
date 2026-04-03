@@ -42,3 +42,36 @@ export interface GetbyIdResponse {
   message: string;
   data: PaginationData<PublicationItem>;
 }
+// Create pleace
+enum PublicationType {
+  ARTICLE = 'ARTICLE',
+  BOOK = 'BOOK',
+  PROCEEDING = 'PROCEEDING',
+  OTHERS = 'OTHERS'
+}
+
+enum AuthorRole {
+  COAUTHOR = 'COAUTHOR',
+  FIRST_AUTHOR = 'FIRST_AUTHOR',
+  BOTH_AUTHOR = 'BOTH_AUTHOR'
+}
+
+enum DegreeLevel {
+  INTERNATIONAL = 'INTERNATIONAL',
+  NATIONAL = 'NATIONAL'
+}
+
+// Asosiy interfeys
+export interface PublicationCreateParams {
+  userId: number;
+  name: string;
+  description: string;
+  year: number;
+  fileUrl: string;
+  type: PublicationType;
+  author: AuthorRole;
+  degree: DegreeLevel;
+  volume: string;
+  institution: string;
+  popular: boolean;
+}
