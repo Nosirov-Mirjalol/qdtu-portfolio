@@ -8,5 +8,8 @@ export const ResearchService={
   },
   edit(id:number,params:EditResearchParams){
     return apiClient.put<EditResearchResponse>(`${RESEARCH.GETBYID}/${id}`,params)
+  },
+  delete(id:number){
+    return apiClient.delete<EditResearchResponse>(`${RESEARCH.DELETE}/${id}`)
   }
 }

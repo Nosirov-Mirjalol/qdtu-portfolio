@@ -33,18 +33,23 @@ const API_ENDPOINTS = {
 	USER_STATISTICS: "/user/statistics",
 	RESEARCH: {
 		GETBYID: "/research/byUser",
+		DELETE:"/research"
 	},
 	NAZORAT: {
 		GETBYID: "/nazorat/byUser",
+		DELETE:"/nazorat"
 	},
 	NASHR: {
 		GETBYID: "/api/publication/byUser",
+		DELETE:"/api/publication"
 	},
 	MASLAHAT: {
 		GETBYID: "/api/consultation/byUser",
+		DELETE:"/api/consultation"
 	},
 	MUKOFOT: {
 		GETBYID: "/award/byUser",
+		DELETE:"/award"
 	},
 };
 
