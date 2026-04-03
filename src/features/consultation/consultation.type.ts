@@ -35,3 +35,16 @@ export interface GetbyIdResponse {
   message: string;
   data: PaginationData<ConsultationItem>;
 }
+
+// create and Edit types
+
+export interface PublicationRequest {
+  name: string;
+  description: string;
+  year: number;
+  fileUrl: string;
+  userId: number;
+  member: boolean;
+  finishedEnum: "COMPLETED" | "IN_PROGRESS" | "FINISHED";
+  leader: string;
+}
