@@ -2,6 +2,7 @@ import { ConfirmPopover } from "@/components/confirm-popover/confirm-popover";
 import { DataTable } from "@/components/data-table/data-table";
 import type { ColumnDef } from "@/components/data-table/data-table";
 import { TruncatedText } from "@/components/tooltip/truncated-text";
+import { useDeleteNashr } from "@/hooks/teacher/useDeleteNashr";
 import { useModalActions } from "@/store/modalStore";
 import { Badge } from "@/ui/badge";
 import { Eye, Pencil, Trash2 } from "lucide-react";
@@ -190,6 +191,7 @@ type nashrsTabProps = {
 
 export function NashrlarTab({ data, page, totalPage, onPageChange, isLoading }: nashrsTabProps) {
 	const { open } = useModalActions();
+	const {mutate:deleteNashr}=useDeleteNashr()
 
 	const cols: ColumnDef<Nashr>[] = columns.map((col) => {
 		if ("id" in col && col.id === "actions") {
@@ -205,7 +207,7 @@ export function NashrlarTab({ data, page, totalPage, onPageChange, isLoading }: 
 							<Pencil className="size-3" />
 							Tahrirlash
 						</button>
-						<ConfirmPopover onConfirm={() => console.log("delete", row.original)}>
+						<ConfirmPopover onConfirm={() => deleteNashr(row.original.id)}>
 							<button
 								type="button"
 								className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"

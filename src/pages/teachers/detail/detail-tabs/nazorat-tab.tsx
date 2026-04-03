@@ -2,6 +2,7 @@ import { ConfirmPopover } from "@/components/confirm-popover/confirm-popover";
 import { DataTable } from "@/components/data-table/data-table";
 import type { ColumnDef } from "@/components/data-table/data-table";
 import { TruncatedText } from "@/components/tooltip/truncated-text";
+import { useDeleteNazorat } from "@/hooks/teacher/useDeleteNazorat";
 import { useModalActions } from "@/store/modalStore";
 import { Badge } from "@/ui/badge";
 import { Eye, Pencil, Trash2 } from "lucide-react";
@@ -167,6 +168,7 @@ type nazoratsTabProps = {
 
 export function NazoratTab({ data, page, totalPage, onPageChange, isLoading }: nazoratsTabProps) {
 	const { open } = useModalActions();
+	const {mutate:deleteNazorat}=useDeleteNazorat()
 
 	const cols: ColumnDef<Publication>[] = columns.map((col) => {
 		if ("id" in col && col.id === "actions") {
@@ -182,7 +184,7 @@ export function NazoratTab({ data, page, totalPage, onPageChange, isLoading }: n
 							<Pencil className="size-3" />
 							Tahrirlash
 						</button>
-						<ConfirmPopover onConfirm={()=>{}}>
+						<ConfirmPopover onConfirm={()=>deleteNazorat(row.original.id)}>
 							<button
 								type="button"
 								className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"

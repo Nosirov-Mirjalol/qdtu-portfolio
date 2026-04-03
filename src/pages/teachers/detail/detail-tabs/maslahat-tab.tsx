@@ -2,6 +2,7 @@ import { ConfirmPopover } from "@/components/confirm-popover/confirm-popover";
 import { DataTable } from "@/components/data-table/data-table";
 import type { ColumnDef } from "@/components/data-table/data-table";
 import { TruncatedText } from "@/components/tooltip/truncated-text";
+import { useDeleteMaslahat } from "@/hooks/teacher/useDeleteMaslahat";
 import { useModalActions } from "@/store/modalStore";
 import { Badge } from "@/ui/badge";
 import { Eye, Pencil, Trash2 } from "lucide-react";
@@ -83,6 +84,7 @@ type maslahatTabProps = {
 };
 export function MaslahatTab({ data, page, totalPage, onPageChange, isLoading }: maslahatTabProps) {
 	const { open } = useModalActions();
+	const {mutate:deleteMaslahat}=useDeleteMaslahat()
 
 	const columns: ColumnDef<Maslahat>[] = [
 		{
@@ -167,7 +169,7 @@ export function MaslahatTab({ data, page, totalPage, onPageChange, isLoading }: 
 					>
 						<Pencil className="size-3" /> Tahrirlash
 					</button>
-					<ConfirmPopover onConfirm={() => console.log("delete", row.original.id)}>
+					<ConfirmPopover onConfirm={() => deleteMaslahat(row.original.id)}>
 						<button
 							type="button"
 							className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
