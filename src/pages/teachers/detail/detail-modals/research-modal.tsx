@@ -24,7 +24,7 @@ export function ResearchModal() {
 	const editData = useModalEditData();
 	const { close } = useModalActions();
 
-	const visible = isOpen && editData?._type === "research";
+	const visible = isOpen && (editData?._type === "research" || editData === "research");
 	const isEdit = visible && !!editData?.id;
 
 	const { register, handleSubmit, control, reset } = useForm<ResearchFormData>({

@@ -174,7 +174,7 @@ export default function TeacherDetail() {
 				searchValue=""
 				onSearchChange={() => {}}
 				showSearch={false}
-				onAdd={currentToolbar.modalType ? () => open(currentToolbar.modalType) : undefined}
+				onAdd={currentToolbar.modalType ? () => open({ _type: currentToolbar.modalType }) : undefined}
 			/>
 
 			<ActivityTabs
