@@ -1,6 +1,7 @@
 import { FileInput } from "@/components/file-input/file-input";
 import { Modal } from "@/components/modal/modal";
 import { useCreateResearch } from "@/hooks/teacher/useCreateResearch";
+import { useEditResearch } from "@/hooks/teacher/useEditResearch";
 import { useModalActions, useModalEditData, useModalIsOpen } from "@/store/modalStore";
 import { fileService } from "@/features/file/file.service";
 import { Button } from "@/ui/button";
@@ -29,10 +30,12 @@ export function ResearchModal({ userId }: ResearchModalProps) {
 	const isOpen = useModalIsOpen();
 	const editData = useModalEditData();
 	const { close } = useModalActions();
-	const { mutateAsync, isPending } = useCreateResearch();
+	const { mutateAsync: createResearch, isPending: isCreating } = useCreateResearch();
+	const { mutateAsync: editResearch, isPending: isEditing } = useEditResearch();
 
 	const visible = isOpen && (editData?._type === "research" || editData === "research");
 	const isEdit = visible && !!editData?.id;
+	const isPending = isCreating || isEditing;
 
 	const { register, handleSubmit, control, reset } = useForm<ResearchFormData>({
 		defaultValues: {
@@ -51,10 +54,10 @@ export function ResearchModal({ userId }: ResearchModalProps) {
 			reset({
 				name: editData.name ?? "",
 				description: editData.description ?? "",
-				year: editData.year ?? "",
-				organization: editData.organization ?? "",
-				membershipType: editData.membershipType ?? "",
-				status: editData.status ?? "",
+				year: String(editData.year ?? ""),
+				organization: editData.univerName ?? "",
+				membershipType: editData.memberEnum ?? "",
+				status: editData.finished ? "TUGALLANGAN" : "JARAYONDA",
 				pdf: null,
 			});
 		} else if (visible && !isEdit) {
@@ -74,16 +77,31 @@ export function ResearchModal({ userId }: ResearchModalProps) {
 			fileUrl = uploaded.url;
 		}
 
-		await mutateAsync({
-			name: data.name,
-			description: data.description,
-			year: Number(data.year),
-			fileUrl,
-			userId,
-			organization: data.organization,
-			membershipType: data.membershipType as "MILLIY" | "XALQARO",
-			status: data.status as "JARAYONDA" | "TUGALLANGAN",
-		});
+		if (isEdit) {
+			await editResearch({
+				id: editData.id,
+				name: data.name,
+				description: data.description,
+				year: Number(data.year),
+				fileUrl: fileUrl || editData.fileUrl || "",
+				userId,
+				univerName: data.organization,
+				member: true,
+				finished: data.status === "TUGALLANGAN",
+				memberEnum: data.membershipType as "MILLIY" | "XALQARO",
+			});
+		} else {
+			await createResearch({
+				name: data.name,
+				description: data.description,
+				year: Number(data.year),
+				fileUrl,
+				userId,
+				organization: data.organization,
+				membershipType: data.membershipType as "MILLIY" | "XALQARO",
+				status: data.status as "JARAYONDA" | "TUGALLANGAN",
+			});
+		}
 
 		handleClose();
 	};
