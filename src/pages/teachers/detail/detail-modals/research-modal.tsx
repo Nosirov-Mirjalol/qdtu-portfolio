@@ -1,6 +1,8 @@
 import { FileInput } from "@/components/file-input/file-input";
 import { Modal } from "@/components/modal/modal";
+import { useCreateResearch } from "@/hooks/teacher/useCreateResearch";
 import { useModalActions, useModalEditData, useModalIsOpen } from "@/store/modalStore";
+import { fileService } from "@/features/file/file.service";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
@@ -19,16 +21,29 @@ type ResearchFormData = {
 	pdf: File | null;
 };
 
-export function ResearchModal() {
+type ResearchModalProps = {
+	userId: number;
+};
+
+export function ResearchModal({ userId }: ResearchModalProps) {
 	const isOpen = useModalIsOpen();
 	const editData = useModalEditData();
 	const { close } = useModalActions();
+	const { mutateAsync, isPending } = useCreateResearch();
 
 	const visible = isOpen && (editData?._type === "research" || editData === "research");
 	const isEdit = visible && !!editData?.id;
 
 	const { register, handleSubmit, control, reset } = useForm<ResearchFormData>({
-		defaultValues: { name: "", description: "", year: "", organization: "", membershipType: "", status: "", pdf: null },
+		defaultValues: {
+			name: "",
+			description: "",
+			year: "",
+			organization: "",
+			membershipType: "",
+			status: "",
+			pdf: null,
+		},
 	});
 
 	useEffect(() => {
@@ -51,7 +66,25 @@ export function ResearchModal() {
 		reset();
 		close();
 	};
-	const onSubmit = (_data: ResearchFormData) => {
+
+	const onSubmit = async (data: ResearchFormData) => {
+		let fileUrl = "";
+		if (data.pdf) {
+			const uploaded = await fileService.uploadPdf(data.pdf);
+			fileUrl = uploaded.url;
+		}
+
+		await mutateAsync({
+			name: data.name,
+			description: data.description,
+			year: Number(data.year),
+			fileUrl,
+			userId,
+			organization: data.organization,
+			membershipType: data.membershipType as "MILLIY" | "XALQARO",
+			status: data.status as "JARAYONDA" | "TUGALLANGAN",
+		});
+
 		handleClose();
 	};
 
@@ -133,7 +166,9 @@ export function ResearchModal() {
 					<Button type="button" variant="outline" onClick={handleClose}>
 						Bekor qilish
 					</Button>
-					<Button type="submit">Saqlash</Button>
+					<Button type="submit" disabled={isPending}>
+						{isPending ? "Saqlanmoqda..." : "Saqlash"}
+					</Button>
 				</div>
 			</form>
 		</Modal>

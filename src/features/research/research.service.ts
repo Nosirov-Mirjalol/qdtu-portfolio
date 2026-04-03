@@ -1,6 +1,6 @@
 import { apiClient } from "@/api/client"
 import { RESEARCH } from "@/constants/apiEndpoint"
-import { EditResearchParams, EditResearchResponse, GetByIdResponse } from "./research.type"
+import { EditResearchParams, EditResearchResponse, GetByIdResponse, ResearchCreateParams } from "./research.type"
 
 export const ResearchService={
   getById(id:number){
@@ -11,5 +11,8 @@ export const ResearchService={
   },
   delete(id:number){
     return apiClient.delete<EditResearchResponse>(`${RESEARCH.DELETE}/${id}`)
+  },
+  create(params:ResearchCreateParams){
+    return apiClient.post<EditResearchResponse>(RESEARCH.DELETE,params)
   }
 }

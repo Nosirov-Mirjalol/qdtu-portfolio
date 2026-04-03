@@ -153,14 +153,17 @@ export default function TeacherDetail() {
 	return (
 		<div className="flex flex-col gap-4 sm:gap-5">
 			{/* Breadcrumb */}
-			<div className="flex items-center gap-2 text-[13px] text-muted-foreground">
-				<button type="button" onClick={() => navigate("/teachers")} className="hover:text-foreground transition-colors">
+			<div className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
+				<button
+					type="button"
+					onClick={() => navigate("/teachers")}
+					className="hover:text-foreground transition-colors hover:underline underline-offset-4"
+				>
 					O'qituvchilar
 				</button>
-				<ChevronRight className="size-3.5" />
-				<span className="text-foreground font-medium truncate max-w-[160px] sm:max-w-[300px]">{teacher.fullName}</span>
+				<ChevronRight className="size-3.5 opacity-40" />
+				<span className="text-foreground font-medium truncate max-w-[160px] sm:max-w-xs">{teacher.fullName}</span>
 			</div>
-
 			<div className="flex flex-col lg:flex-row gap-4 sm:gap-5 items-start">
 				<ProfileSidebar profile={profile} imgUrl={teacher.imgUrl} />
 				<div className="w-full lg:flex-1 min-w-0">
@@ -176,7 +179,6 @@ export default function TeacherDetail() {
 				showSearch={false}
 				onAdd={currentToolbar.modalType ? () => open({ _type: currentToolbar.modalType }) : undefined}
 			/>
-
 			<ActivityTabs
 				activeTab={activeTab}
 				onTabChange={setActiveTab}
@@ -210,7 +212,7 @@ export default function TeacherDetail() {
 			/>
 			<StatsGrid data={statsData} isLoading={statsLoading} />
 			{/* Modallar */}
-			<ResearchModal />
+			<ResearchModal userId={teacher?.id} />
 			<PublicationModal />
 			<NashrModal />
 			<MaslahatModal />
