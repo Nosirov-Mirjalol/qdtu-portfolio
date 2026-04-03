@@ -7,7 +7,7 @@ export const ResearchService={
     return apiClient.get<GetByIdResponse>(`${RESEARCH.GETBYID}/${id}`)
   },
   edit(id:number,params:EditResearchParams){
-    return apiClient.put<EditResearchResponse>(`${RESEARCH.GETBYID}/${id}`,params)
+    return apiClient.put<EditResearchResponse>(`${RESEARCH.DELETE}/${id}`,params)
   },
   delete(id:number){
     return apiClient.delete<EditResearchResponse>(`${RESEARCH.DELETE}/${id}`)

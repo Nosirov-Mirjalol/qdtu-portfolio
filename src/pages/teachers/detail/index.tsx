@@ -20,30 +20,6 @@ import { useNashr } from "@/hooks/teacher/useNashr";
 import { useMaslahat } from "@/hooks/teacher/useMaslahat";
 import { useAward } from "@/hooks/teacher/useMukofot";
 
-const ADD_LABELS: Record<string, string> = {
-	researches: "Tadqiqot qo'shish",
-	publications: "Nazorat qo'shish",
-	supervision: "Nashr qo'shish",
-	activities: "Maslahat qo'shish",
-	awards: "Mukofot qo'shish",
-};
-
-const MODAL_TYPES: Record<string, string> = {
-	researches: "research",
-	publications: "nazorat",
-	supervision: "nashr",
-	activities: "maslahat",
-	awards: "mukofot",
-};
-
-const COUNT_LABELS: Record<string, string> = {
-	researches: "Tadqiqotlar",
-	publications: "Nazoratlar",
-	supervision: "Nashrlar",
-	activities: "Maslahatlar",
-	awards: "Mukofotlar",
-};
-
 export default function TeacherDetail() {
 	const navigate = useNavigate();
 	const location = useLocation();
