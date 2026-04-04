@@ -35,3 +35,28 @@ export interface GetbyIdResponse {
   message: string;
   data: PaginationData<MukofotItem>;
 }
+
+// Azolik turlari uchun enum
+enum MemberType {
+  MILLIY = "MILLIY",
+  XALQARO = "XALQARO"
+}
+
+enum AwardType {
+  TRENING_VA_AMALIYOT = "Trening_Va_Amaliyot",
+  TAHRIRIYAT_KENGASHIGA_AZOLIK = "Tahririyat_Kengashiga_Azolik",
+  MAXSUS_KENGASH_AZOLIGI = "Maxsus_Kengash_Azoligi",
+  PATENT_DGU = "Patent_Dgu",
+  DAVLAT_MUKOFOTI = "Davlat_Mukofoti"
+}
+
+// Asosiy ma'lumotlar interfeysi
+export interface AwardRequest {
+  name: string;
+  description: string;
+  year: number;
+  fileUrl: string;
+  userId: number;
+  awardEnum: AwardType;
+  memberEnum: MemberType;
+}
