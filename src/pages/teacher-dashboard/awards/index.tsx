@@ -11,6 +11,7 @@ const data: Mukofot[] = [];
 export default function TeacherAwards() {
 	const { open } = useModalActions();
 	const [search, setSearch] = useState("");
+	const teacher = (location.state as { teacher?: TeacherProfile } | null)?.teacher ?? null;
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -27,7 +28,7 @@ export default function TeacherAwards() {
 					<MukofotlarTab data={data} />
 				</div>
 			</div>
-			<MukofotModal />
+			<MukofotModal userId={teacher?.id} />
 		</div>
 	);
 }
