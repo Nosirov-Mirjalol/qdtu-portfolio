@@ -19,6 +19,7 @@ import { useNazorat } from "@/hooks/teacher/useNazorat";
 import { useNashr } from "@/hooks/teacher/useNashr";
 import { useMaslahat } from "@/hooks/teacher/useMaslahat";
 import { useAward } from "@/hooks/teacher/useMukofot";
+import { MukofotModal } from "./detail-modals/mukofot-modal";
 
 export default function TeacherDetail() {
 	const navigate = useNavigate();
@@ -192,6 +193,7 @@ export default function TeacherDetail() {
 			<PublicationModal userId={teacher?.id}/>
 			<NashrModal userId={teacher?.id} />
 			<MaslahatModal userId={teacher?.id} />
+			<MukofotModal userId={teacher?.id} />
 		</div>
 	);
 }

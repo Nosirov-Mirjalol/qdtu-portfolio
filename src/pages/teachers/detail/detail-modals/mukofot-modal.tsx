@@ -1,5 +1,8 @@
 import { FileInput } from "@/components/file-input/file-input";
 import { Modal } from "@/components/modal/modal";
+import { useCreateMukofot } from "@/hooks/teacher/useCreateMukofot";
+import { useEditMukofot } from "@/hooks/teacher/useEditMukofot";
+import { fileService } from "@/features/file/file.service";
 import { useModalActions, useModalEditData, useModalIsOpen } from "@/store/modalStore";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
@@ -9,32 +12,50 @@ import { Textarea } from "@/ui/textarea";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
+enum MemberType {
+	MILLIY = "MILLIY",
+	XALQARO = "XALQARO",
+}
+
+enum AwardType {
+	TRENING_VA_AMALIYOT = "Trening_Va_Amaliyot",
+	TAHRIRIYAT_KENGASHIGA_AZOLIK = "Tahririyat_Kengashiga_Azolik",
+	MAXSUS_KENGASH_AZOLIGI = "Maxsus_Kengash_Azoligi",
+	PATENT_DGU = "Patent_Dgu",
+	DAVLAT_MUKOFOTI = "Davlat_Mukofoti",
+}
+
 type MukofotFormData = {
 	name: string;
 	description: string;
 	year: string;
-	organization: string;
-	level: "XALQARO" | "MAHALLIY" | "";
-	type: "DIPLOM" | "SERTIFIKAT" | "MEDAL" | "BOSHQA" | "";
+	awardEnum: AwardType | "";
+	memberEnum: MemberType | "";
 	pdf: File | null;
 };
 
-export function MukofotModal() {
+type MukofotModalProps = {
+	userId: number;
+};
+
+export function MukofotModal({ userId }: MukofotModalProps) {
 	const isOpen = useModalIsOpen();
 	const editData = useModalEditData();
 	const { close } = useModalActions();
+	const { mutateAsync: createMukofot, isPending: isCreating } = useCreateMukofot();
+	const { mutateAsync: editMukofot, isPending: isEditing } = useEditMukofot();
 
 	const visible = isOpen && editData?._type === "mukofot";
 	const isEdit = visible && !!editData?.id;
+	const isPending = isCreating || isEditing;
 
 	const { register, handleSubmit, control, reset } = useForm<MukofotFormData>({
 		defaultValues: {
 			name: "",
 			description: "",
 			year: "",
-			organization: "",
-			level: "",
-			type: "",
+			awardEnum: "",
+			memberEnum: "",
 			pdf: null,
 		},
 	});
@@ -44,10 +65,9 @@ export function MukofotModal() {
 			reset({
 				name: editData.name ?? "",
 				description: editData.description ?? "",
-				year: editData.year ?? "",
-				organization: editData.organization ?? "",
-				level: editData.level ?? "",
-				type: editData.type ?? "",
+				year: String(editData.year ?? ""),
+				awardEnum: editData.awardEnum ?? "",
+				memberEnum: editData.memberEnum ?? "",
 				pdf: null,
 			});
 		} else if (visible && !isEdit) {
@@ -55,9 +75,8 @@ export function MukofotModal() {
 				name: "",
 				description: "",
 				year: "",
-				organization: "",
-				level: "",
-				type: "",
+				awardEnum: "",
+				memberEnum: "",
 				pdf: null,
 			});
 		}
@@ -68,7 +87,29 @@ export function MukofotModal() {
 		close();
 	};
 
-	const onSubmit = (_data: MukofotFormData) => {
+	const onSubmit = async (data: MukofotFormData) => {
+		let fileUrl = "";
+		if (data.pdf) {
+			const uploaded = await fileService.uploadPdf(data.pdf);
+			fileUrl = uploaded.url;
+		}
+
+		const payload = {
+			name: data.name,
+			description: data.description,
+			year: Number(data.year),
+			awardEnum: data.awardEnum as AwardType,
+			memberEnum: data.memberEnum as MemberType,
+			fileUrl: fileUrl || editData?.fileUrl || "",
+			userId,
+		};
+
+		if (isEdit) {
+			await editMukofot({ id: editData.id, ...payload });
+		} else {
+			await createMukofot(payload);
+		}
+
 		handleClose();
 	};
 
@@ -94,13 +135,9 @@ export function MukofotModal() {
 						<Input id="mukofot-year" type="number" placeholder="2024" {...register("year")} />
 					</div>
 					<div className="flex flex-col gap-2">
-						<Label htmlFor="mukofot-org">Tashkilot</Label>
-						<Input id="mukofot-org" placeholder="Tashkilot nomi..." {...register("organization")} />
-					</div>
-					<div className="flex flex-col gap-2">
-						<Label>Daraja</Label>
+						<Label>A'zolik turi</Label>
 						<Controller
-							name="level"
+							name="memberEnum"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
@@ -108,17 +145,17 @@ export function MukofotModal() {
 										<SelectValue placeholder="Tanlang..." />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="XALQARO">Xalqaro</SelectItem>
-										<SelectItem value="MAHALLIY">Mahalliy</SelectItem>
+										<SelectItem value={MemberType.MILLIY}>Milliy</SelectItem>
+										<SelectItem value={MemberType.XALQARO}>Xalqaro</SelectItem>
 									</SelectContent>
 								</Select>
 							)}
 						/>
 					</div>
-					<div className="flex flex-col gap-2">
+					<div className="flex flex-col gap-2 col-span-2">
 						<Label>Mukofot turi</Label>
 						<Controller
-							name="type"
+							name="awardEnum"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
@@ -126,10 +163,11 @@ export function MukofotModal() {
 										<SelectValue placeholder="Tanlang..." />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="DIPLOM">Diplom</SelectItem>
-										<SelectItem value="SERTIFIKAT">Sertifikat</SelectItem>
-										<SelectItem value="MEDAL">Medal</SelectItem>
-										<SelectItem value="BOSHQA">Boshqa</SelectItem>
+										<SelectItem value={AwardType.TRENING_VA_AMALIYOT}>Trening va Amaliyot</SelectItem>
+										<SelectItem value={AwardType.TAHRIRIYAT_KENGASHIGA_AZOLIK}>Tahririyat Kengashiga Azolik</SelectItem>
+										<SelectItem value={AwardType.MAXSUS_KENGASH_AZOLIGI}>Maxsus Kengash Azoligi</SelectItem>
+										<SelectItem value={AwardType.PATENT_DGU}>Patent DGU</SelectItem>
+										<SelectItem value={AwardType.DAVLAT_MUKOFOTI}>Davlat Mukofoti</SelectItem>
 									</SelectContent>
 								</Select>
 							)}
@@ -152,7 +190,9 @@ export function MukofotModal() {
 					<Button type="button" variant="outline" onClick={handleClose}>
 						Bekor qilish
 					</Button>
-					<Button type="submit">Saqlash</Button>
+					<Button type="submit" disabled={isPending}>
+						{isPending ? "Saqlanmoqda..." : "Saqlash"}
+					</Button>
 				</div>
 			</form>
 		</Modal>

@@ -100,7 +100,7 @@ type mukofotTabProps = {
 export function MukofotlarTab({ data, page, totalPage, onPageChange, isLoading }: mukofotTabProps) {
   const { open } = useModalActions();
   const {mutate:deleteMukofot}=useDeleteMukofot()
-
+  
   const columns: ColumnDef<Mukofot>[] = [
     {
       accessorKey: "name",
