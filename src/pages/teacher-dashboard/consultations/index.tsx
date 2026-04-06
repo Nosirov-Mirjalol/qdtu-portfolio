@@ -4,13 +4,13 @@ import { useModalActions } from "@/store/modalStore";
 import { MaslahatModal } from "@/pages/teachers/detail/detail-modals/maslahat-modal";
 import { MaslahatTab } from "@/pages/teachers/detail/detail-tabs/maslahat-tab";
 import { useUser } from "@/hooks/user/useUser";
-import { useNashr } from "@/hooks/teacher/useNashr";
+import { useMaslahat } from "@/hooks/teacher/useMaslahat";
 
 export default function TeacherConsultations() {
 	const { open } = useModalActions();
 	const [search, setSearch] = useState("");
 	const { data: teacher, isLoading: userLoading } = useUser();
-	const { data, isLoading: maslahatLoading } = useNashr(teacher?.id);
+	const { data, isLoading: maslahatLoading } = useMaslahat(teacher?.id);
 
 	if (userLoading || maslahatLoading) {
 		return <div>Ma'lumotlar yuklanmoqda</div>;
