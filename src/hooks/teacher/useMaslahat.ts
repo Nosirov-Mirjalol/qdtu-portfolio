@@ -5,5 +5,6 @@ export function useMaslahat(id:number) {
 	return useQuery({
 		queryKey: ["maslahat"],
 		queryFn: () => MaslahatService.getById(id),
+		enabled: !!id,
 	});
 }

@@ -13,6 +13,7 @@ interface ConsultationInput {
   finishedEnum: "COMPLETED" | "IN_PROGRESS" | "FINISHED";
   leader: string;
 }
+
 export function useEditMaslahat() {
   const queryClient = useQueryClient();
 

@@ -16,10 +16,9 @@ type MaslahatFormData = {
 	name: string;
 	description: string;
 	year: string;
-	head: string;
-	subscribe: "HA" | "YOQ" | "";
-	level: "XALQARO" | "MAHALLIY" | "";
-	status: "JARAYONDA" | "TUGALLANGAN" | "";
+	member: boolean | "";
+	finishedEnum: "COMPLETED" | "IN_PROGRESS" | "FINISHED" | "";
+	leader: string;
 	pdf: File | null;
 };
 
@@ -43,10 +42,9 @@ export function MaslahatModal({ userId }: MaslahatModalProps) {
 			name: "",
 			description: "",
 			year: "",
-			head: "",
-			level: "",
-			status: "",
-			subscribe: "",
+			member: "",
+			finishedEnum: "",
+			leader: "",
 			pdf: null,
 		},
 	});
@@ -57,10 +55,9 @@ export function MaslahatModal({ userId }: MaslahatModalProps) {
 				name: editData.name ?? "",
 				description: editData.description ?? "",
 				year: String(editData.year ?? ""),
-				head: editData.head ?? "",
-				level: editData.level ?? "",
-				status: editData.status ?? "",
-				subscribe: editData.subscribe ?? "",
+				member: editData.member ?? "",
+				finishedEnum: editData.finishedEnum ?? "",
+				leader: editData.leader ?? "",
 				pdf: null,
 			});
 		} else if (visible && !isEdit) {
@@ -68,10 +65,9 @@ export function MaslahatModal({ userId }: MaslahatModalProps) {
 				name: "",
 				description: "",
 				year: "",
-				head: "",
-				level: "",
-				status: "",
-				subscribe: "",
+				member: "",
+				finishedEnum: "",
+				leader: "",
 				pdf: null,
 			});
 		}
@@ -89,31 +85,21 @@ export function MaslahatModal({ userId }: MaslahatModalProps) {
 			fileUrl = uploaded.url;
 		}
 
+		const payload = {
+			name: data.name,
+			description: data.description,
+			year: Number(data.year),
+			member: data.member as boolean,
+			finishedEnum: data.finishedEnum as "COMPLETED" | "IN_PROGRESS" | "FINISHED",
+			leader: data.leader,
+			fileUrl,
+			userId,
+		};
+
 		if (isEdit) {
-			await editMaslahat({
-				id: editData.id,
-				name: data.name,
-				description: data.description,
-				year: Number(data.year),
-				head: data.head,
-				level: data.level as "XALQARO" | "MAHALLIY",
-				status: data.status as "JARAYONDA" | "TUGALLANGAN",
-				subscribe: data.subscribe as "HA" | "YOQ",
-				fileUrl: fileUrl || editData.fileUrl || "",
-				userId,
-			});
+			await editMaslahat({ id: editData.id, ...payload, fileUrl: fileUrl || editData.fileUrl || "" });
 		} else {
-			await createMaslahat({
-				name: data.name,
-				description: data.description,
-				year: Number(data.year),
-				head: data.head,
-				level: data.level as "XALQARO" | "MAHALLIY",
-				status: data.status as "JARAYONDA" | "TUGALLANGAN",
-				subscribe: data.subscribe as "HA" | "YOQ",
-				fileUrl,
-				userId,
-			});
+			await createMaslahat(payload);
 		}
 
 		handleClose();
@@ -129,12 +115,7 @@ export function MaslahatModal({ userId }: MaslahatModalProps) {
 
 				<div className="flex flex-col gap-2">
 					<Label htmlFor="m-desc">Qisqa tavsif</Label>
-					<Textarea
-						id="m-desc"
-						placeholder="Tavsif..."
-						className="min-h-[80px] resize-none"
-						{...register("description")}
-					/>
+					<Textarea id="m-desc" placeholder="Tavsif..." className="min-h-[80px] resize-none" {...register("description")} />
 				</div>
 
 				<div className="grid grid-cols-2 gap-4">
@@ -142,24 +123,28 @@ export function MaslahatModal({ userId }: MaslahatModalProps) {
 						<Label htmlFor="m-year">Yil</Label>
 						<Input id="m-year" type="number" placeholder="2024" {...register("year")} />
 					</div>
+
 					<div className="flex flex-col gap-2">
-						<Label htmlFor="m-head">Rahbar</Label>
-						<Input id="m-head" placeholder="Rahbar ismi..." {...register("head")} />
+						<Label htmlFor="m-leader">Rahbar</Label>
+						<Input id="m-leader" placeholder="Rahbar ismi..." {...register("leader")} />
 					</div>
 
 					<div className="flex flex-col gap-2">
 						<Label>A'zolik</Label>
 						<Controller
-							name="subscribe"
+							name="member"
 							control={control}
 							render={({ field }) => (
-								<Select value={field.value} onValueChange={field.onChange}>
+								<Select
+									value={field.value === "" ? "" : String(field.value)}
+									onValueChange={(val) => field.onChange(val === "true")}
+								>
 									<SelectTrigger className="w-full">
 										<SelectValue placeholder="Tanlang" />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="HA">Ha</SelectItem>
-										<SelectItem value="YOQ">Yo'q</SelectItem>
+										<SelectItem value="true">Ha</SelectItem>
+										<SelectItem value="false">Yo'q</SelectItem>
 									</SelectContent>
 								</Select>
 							)}
@@ -169,7 +154,7 @@ export function MaslahatModal({ userId }: MaslahatModalProps) {
 					<div className="flex flex-col gap-2">
 						<Label>Holat</Label>
 						<Controller
-							name="status"
+							name="finishedEnum"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
@@ -177,32 +162,14 @@ export function MaslahatModal({ userId }: MaslahatModalProps) {
 										<SelectValue placeholder="Tanlang" />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="JARAYONDA">Jarayonda</SelectItem>
-										<SelectItem value="TUGALLANGAN">Tugallangan</SelectItem>
+										<SelectItem value="COMPLETED">Tugallangan</SelectItem>
+										<SelectItem value="IN_PROGRESS">Jarayonda</SelectItem>
+										<SelectItem value="FINISHED">Yakunlangan</SelectItem>
 									</SelectContent>
 								</Select>
 							)}
 						/>
 					</div>
-				</div>
-
-				<div className="flex flex-col gap-2">
-					<Label>Daraja</Label>
-					<Controller
-						name="level"
-						control={control}
-						render={({ field }) => (
-							<Select value={field.value} onValueChange={field.onChange}>
-								<SelectTrigger className="w-full">
-									<SelectValue placeholder="Tanlang" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="XALQARO">Xalqaro</SelectItem>
-									<SelectItem value="MAHALLIY">Mahalliy</SelectItem>
-								</SelectContent>
-							</Select>
-						)}
-					/>
 				</div>
 
 				<div className="flex flex-col gap-2">
