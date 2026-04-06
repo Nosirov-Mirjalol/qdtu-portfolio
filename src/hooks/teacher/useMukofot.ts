@@ -5,5 +5,6 @@ export function useAward(id:number) {
 	return useQuery({
 		queryKey: ["mukofot"],
 		queryFn: () => MukofotService.getById(id),
+		enabled: !!id,
 	});
 }

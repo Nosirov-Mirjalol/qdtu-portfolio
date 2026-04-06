@@ -12,6 +12,7 @@ export function useUser() {
 			const response = await userService.getMe();
 
 			return {
+				id:response.data.id,
 				fullName: response.data.fullName,
 				phone: response.data.phone,
 				imageUrl: response.data.imageUrl,

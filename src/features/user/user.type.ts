@@ -12,6 +12,7 @@ export interface UserResponse {
 }
 
 export interface UserProfile {
+	id:number;
 	fullName: string;
 	phone: string;
 	imageUrl: string | null;

@@ -3,20 +3,24 @@ import { TableToolbar } from "@/components/table-toolbar/table-toolbar";
 import { useModalActions } from "@/store/modalStore";
 import { MaslahatModal } from "@/pages/teachers/detail/detail-modals/maslahat-modal";
 import { MaslahatTab } from "@/pages/teachers/detail/detail-tabs/maslahat-tab";
-import type { Maslahat } from "@/pages/teachers/detail/detail-tabs/maslahat-tab";
-
-// TODO: Replace with useQuery hook
-const data: Maslahat[] = [];
+import { useUser } from "@/hooks/user/useUser";
+import { useNashr } from "@/hooks/teacher/useNashr";
 
 export default function TeacherConsultations() {
 	const { open } = useModalActions();
 	const [search, setSearch] = useState("");
+	const { data: teacher, isLoading: userLoading } = useUser();
+	const { data, isLoading: maslahatLoading } = useNashr(teacher?.id);
+
+	if (userLoading || maslahatLoading) {
+		return <div>Ma'lumotlar yuklanmoqda</div>;
+	}
 
 	return (
 		<div className="flex flex-col gap-4">
 			<TableToolbar
 				countLabel="Maslahatlar"
-				count={data.length}
+				count={data?.data.totalElements}
 				searchValue={search}
 				onSearchChange={setSearch}
 				addLabel="Maslahat qo'shish"
@@ -24,10 +28,10 @@ export default function TeacherConsultations() {
 			/>
 			<div className="rounded-xl border bg-card overflow-x-auto">
 				<div className="p-3 sm:p-5">
-					<MaslahatTab data={data} />
+					<MaslahatTab isLoading={maslahatLoading} page={data?.data.page} userId={teacher?.id} data={data?.data.body} />
 				</div>
 			</div>
-			<MaslahatModal />
+			<MaslahatModal userId={teacher?.id} />
 		</div>
 	);
 }

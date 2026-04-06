@@ -192,5 +192,5 @@ export function MukofotlarTab({ data, page, totalPage, onPageChange, isLoading }
     },
   ];
 
-  return <DataTable columns={columns} data={data} />;
+  return <DataTable columns={columns} data={data}  />;
 }

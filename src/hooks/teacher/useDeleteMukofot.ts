@@ -8,7 +8,7 @@ export function useDeleteMukofot() {
   return useMutation({
     mutationFn: (id: number) => MukofotService.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["award"] });
+      queryClient.invalidateQueries({ queryKey: ["mukofot"] });
       toast.success("Mukofot muvaffaqiyatli o'chirildi");
     },
     onError: (error: any) => {

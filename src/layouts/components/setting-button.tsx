@@ -4,7 +4,7 @@ import { Icon } from "@/components/icon";
 import { type SettingsType, useSettingActions, useSettings } from "@/store/settingStore";
 import { Button } from "@/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/ui/sheet";
-import { type CSSProperties } from "react";
+import type { CSSProperties } from "react";
 
 export default function SettingButton() {
 	const settings = useSettings();

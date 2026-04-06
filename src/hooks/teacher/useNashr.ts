@@ -6,5 +6,6 @@ export function useNashr(id:number) {
 	return useQuery({
 		queryKey: ["Nashr"],
 		queryFn: () => publicationService.getById(id),
+		enabled: !!id,
 	});
 }
