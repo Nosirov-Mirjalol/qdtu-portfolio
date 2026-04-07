@@ -8,7 +8,7 @@ export function useDeleteNazorat() {
   return useMutation({
     mutationFn: (id: number) => NazoratService.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["nazorat"] });
+      queryClient.invalidateQueries({ queryKey: ["Nazorat"] });
       toast.success("Nazorat muvaffaqiyatli o'chirildi");
     },
     onError: (error: any) => {

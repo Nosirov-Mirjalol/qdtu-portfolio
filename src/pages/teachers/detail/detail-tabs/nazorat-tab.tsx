@@ -11,49 +11,13 @@ export type Publication = {
 	id: number;
 	name: string;
 	description: string;
-	researcher: string;
+	researcherName: string;
 	university: string;
 	year: string;
 	level: "YUQORI" | "O'RTA" | "BOSHLANG'ICH";
 	status: "JARAYONDA" | "TUGALLANGAN";
 	pdfName: string | null;
 };
-
-export const MOCK_PUBLICATIONS: Publication[] = [
-	{
-		id: 1,
-		name: "Neyron tarmoqlar yordamida kasalliklarni erta aniqlash",
-		description: "Chuqur o'rganish asosida tibbiy tasvirlarni tahlil qilish metodikasi",
-		researcher: "Karimov Jasur Aliyevich",
-		university: "Toshkent tibbiyot akademiyasi",
-		year: "2023",
-		level: "YUQORI",
-		status: "TUGALLANGAN",
-		pdfName: "neural_medical.pdf",
-	},
-	{
-		id: 2,
-		name: "Kvant hisoblash algoritmlarining samaradorligi",
-		description: "Kvant kompyuterlarida optimallashtirish masalalarini yechish",
-		researcher: "Toshmatov Behruz Salimovich",
-		university: "TATU",
-		year: "2024",
-		level: "YUQORI",
-		status: "JARAYONDA",
-		pdfName: null,
-	},
-	{
-		id: 3,
-		name: "O'zbek tilini qayta ishlashda transformer modellari",
-		description: "O'zbek tili uchun NLP modellarini o'rgatish va baholash",
-		researcher: "Nazarova Dilnoza Hamidovna",
-		university: "NUUz",
-		year: "2022",
-		level: "O'RTA",
-		status: "TUGALLANGAN",
-		pdfName: "uzbek_nlp.pdf",
-	},
-];
 
 const LEVEL_STYLES: Record<Publication["level"], string> = {
 	YUQORI: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-50",
@@ -73,7 +37,7 @@ const columns: ColumnDef<Publication>[] = [
 		cell: ({ row }) => <TruncatedText text={row.getValue("description")} />,
 	},
 	{
-		accessorKey: "researcher",
+		accessorKey: "researcherName",
 		header: "Tadqiqotchi",
 		cell: ({ row }) => <span className="text-[13px] text-muted-foreground">{row.getValue("researcher")}</span>,
 	},

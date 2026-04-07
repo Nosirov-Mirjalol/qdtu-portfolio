@@ -12,13 +12,15 @@ import { Textarea } from "@/ui/textarea";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
+type AuthorType = "COAUTHOR" | "FIRST_AUTHOR" | "BOTH_AUTHOR" | "";
+
 type NashrFormData = {
 	name: string;
 	description: string;
 	year: string;
-	organization: string;
-	type: "ARTICLE" | "BOOK" | "PROCEEDING" | "OTHERS" | "";
-	authorship: "HAMMUALLIF" | "MUALLIF" | "BOSHQA" | "";
+	institution: string;
+	type: AuthorType;
+	author: "HAMMUALLIF" | "MUALLIF" | "BOSHQA" | "";
 	level: "XALQARO" | "MAHALLIY" | "";
 	volume: string;
 	popularity: "ODDIY" | "POPULAR" | "";
@@ -45,9 +47,9 @@ export function NashrModal({ userId }: NashrModalProps) {
 			name: "",
 			description: "",
 			year: "",
-			organization: "",
+			institution: "",
 			type: "",
-			authorship: "",
+			author: "",
 			level: "",
 			volume: "",
 			popularity: "",
@@ -69,9 +71,9 @@ export function NashrModal({ userId }: NashrModalProps) {
 				name: editData.name ?? "",
 				description: editData.description ?? "",
 				year: String(editData.year ?? ""),
-				organization: editData.organization ?? "",
+				institution: editData.organization ?? "",
 				type: typeValue,
-				authorship: editData.authorship ?? "",
+				author: editData.authorship ?? "",
 				level: editData.level ?? "",
 				volume: editData.volume ?? "",
 				popularity: editData.popularity ?? "",
@@ -82,9 +84,9 @@ export function NashrModal({ userId }: NashrModalProps) {
 				name: "",
 				description: "",
 				year: "",
-				organization: "",
+				institution: "",
 				type: "",
-				authorship: "",
+				author: "",
 				level: "",
 				volume: "",
 				popularity: "",
@@ -111,9 +113,9 @@ export function NashrModal({ userId }: NashrModalProps) {
 				name: data.name,
 				description: data.description,
 				year: Number(data.year),
-				organization: data.organization,
+				institution: data.institution,
 				type: data.type as "ARTICLE" | "BOOK" | "PROCEEDING" | "OTHERS",
-				authorship: data.authorship as "HAMMUALLIF" | "MUALLIF" | "BOSHQA",
+				author: data.author as "HAMMUALLIF" | "MUALLIF" | "BOSHQA",
 				level: data.level as "XALQARO" | "MAHALLIY",
 				volume: data.volume,
 				popularity: data.popularity as "ODDIY" | "POPULAR",
@@ -125,9 +127,9 @@ export function NashrModal({ userId }: NashrModalProps) {
 				name: data.name,
 				description: data.description,
 				year: Number(data.year),
-				organization: data.organization,
+				institution: data.institution,
 				type: data.type as "ARTICLE" | "BOOK" | "PROCEEDING" | "OTHERS",
-				authorship: data.authorship as "HAMMUALLIF" | "MUALLIF" | "BOSHQA",
+				author: data.author as "HAMMUALLIF" | "MUALLIF" | "BOSHQA",
 				level: data.level as "XALQARO" | "MAHALLIY",
 				volume: data.volume,
 				popularity: data.popularity as "ODDIY" | "POPULAR",
@@ -162,7 +164,7 @@ export function NashrModal({ userId }: NashrModalProps) {
 					</div>
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="nashr-org">Tashkilot</Label>
-						<Input id="nashr-org" placeholder="Tashkilot nomi..." {...register("organization")} />
+						<Input id="nashr-org" placeholder="Tashkilot nomi..." {...register("institution")} />
 					</div>
 					<div className="flex flex-col gap-2">
 						<Label>Nashr turi</Label>
@@ -187,7 +189,7 @@ export function NashrModal({ userId }: NashrModalProps) {
 					<div className="flex flex-col gap-2">
 						<Label>Mualliflik</Label>
 						<Controller
-							name="authorship"
+							name="author"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>

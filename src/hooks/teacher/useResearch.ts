@@ -5,5 +5,6 @@ export function useResearch(id:number) {
 	return useQuery({
 		queryKey: ["research"],
 		queryFn: () => ResearchService.getById(id),
+		enabled: !!id,
 	});
 }

@@ -6,5 +6,6 @@ export function useNazorat(id:number) {
 	return useQuery({
 		queryKey: ["Nazorat"],
 		queryFn: () => NazoratService.getById(id),
+		enabled: !!id,
 	});
 }

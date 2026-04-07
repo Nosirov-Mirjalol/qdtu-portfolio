@@ -18,7 +18,7 @@ type PublicationFormData = {
 	researcherName: string;
 	univerName: string;
 	year: string;
-	level: string;
+	level: "YUQORI" | "O'RTA" | "BOSHLANG'ICH" | "";
 	memberEnum: "MILLIY" | "XALQARO" | "";
 	finished: "true" | "false" | "";
 	pdf: File | null;
@@ -67,7 +67,17 @@ export function PublicationModal({ userId }: PublicationModalProps) {
 				pdf: null,
 			});
 		} else if (visible && !isEdit) {
-			reset({ name: "", description: "", researcherName: "", univerName: "", year: "", level: "", memberEnum: "", finished: "", pdf: null });
+			reset({
+				name: "",
+				description: "",
+				researcherName: "",
+				univerName: "",
+				year: "",
+				level: "",
+				memberEnum: "",
+				finished: "",
+				pdf: null,
+			});
 		}
 	}, [visible, isEdit, editData, reset]);
 
@@ -145,8 +155,23 @@ export function PublicationModal({ userId }: PublicationModalProps) {
 						<Input id="n-year" type="number" placeholder="2024" {...register("year")} />
 					</div>
 					<div className="flex flex-col gap-2">
-						<Label htmlFor="n-level">Daraja</Label>
-						<Input id="n-level" placeholder="Daraja..." {...register("level")} />
+						<Label>Daraja</Label>
+						<Controller
+							name="level"
+							control={control}
+							render={({ field }) => (
+								<Select value={field.value} onValueChange={field.onChange}>
+									<SelectTrigger className="w-full">
+										<SelectValue placeholder="Tanlang..." />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="YUQORI">YUQORI</SelectItem>
+										<SelectItem value="O'RTA">O'RTA</SelectItem>
+										<SelectItem value="BOSHLANG'ICH">BOSHLANG'ICH</SelectItem>
+									</SelectContent>
+								</Select>
+							)}
+						/>
 					</div>
 					<div className="flex flex-col gap-2">
 						<Label>A'zolik turi</Label>
