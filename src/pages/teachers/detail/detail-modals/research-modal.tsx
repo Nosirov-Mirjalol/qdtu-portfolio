@@ -11,22 +11,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/ui/textarea";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { BookOpen, Calendar, Building2, Globe2, CheckCircle2, FileUp, AlignLeft, Plus, Pencil } from "lucide-react"; // Ikonkalarni import qilamiz
 
 type ResearchFormData = {
 	name: string;
 	description: string;
 	year: string;
-	organization: string;
-	membershipType: "MILLIY" | "XALQARO" | "";
+	univerName: string;
+	memberEnum: "MILLIY" | "XALQARO" | "";
 	status: "JARAYONDA" | "TUGALLANGAN" | "";
 	pdf: File | null;
 };
 
-type ResearchModalProps = {
-	userId: number;
-};
-
-export function ResearchModal({ userId }: ResearchModalProps) {
+export function ResearchModal({ userId }: { userId: number }) {
 	const isOpen = useModalIsOpen();
 	const editData = useModalEditData();
 	const { close } = useModalActions();
@@ -37,140 +34,159 @@ export function ResearchModal({ userId }: ResearchModalProps) {
 	const isEdit = visible && !!editData?.id;
 	const isPending = isCreating || isEditing;
 
-	const { register, handleSubmit, control, reset } = useForm<ResearchFormData>({
-		defaultValues: {
-			name: "",
-			description: "",
-			year: "",
-			organization: "",
-			membershipType: "",
-			status: "",
-			pdf: null,
-		},
-	});
+	const { register, handleSubmit, control, reset } = useForm<ResearchFormData>();
 
 	useEffect(() => {
-		if (visible && isEdit) {
-			reset({
-				name: editData.name ?? "",
-				description: editData.description ?? "",
-				year: String(editData.year ?? ""),
-				organization: editData.univerName ?? "",
-				membershipType: editData.memberEnum ?? "",
-				status: editData.finished ? "TUGALLANGAN" : "JARAYONDA",
-				pdf: null,
-			});
-		} else if (visible && !isEdit) {
-			reset({ name: "", description: "", year: "", organization: "", membershipType: "", status: "", pdf: null });
+		if (visible) {
+			reset(
+				isEdit
+					? {
+							name: editData.name,
+							description: editData.description,
+							year: String(editData.year),
+							univerName: editData.univerName,
+							memberEnum: editData.memberEnum,
+							status: editData.finished ? "TUGALLANGAN" : "JARAYONDA",
+							pdf: null,
+						}
+					: { name: "", description: "", year: "", univerName: "", memberEnum: "", status: "", pdf: null },
+			);
 		}
 	}, [visible, isEdit, editData, reset]);
 
-	const handleClose = () => {
-		reset();
-		close();
-	};
-
 	const onSubmit = async (data: ResearchFormData) => {
-		let fileUrl = "";
+		let fileUrl = editData?.fileUrl || "";
 		if (data.pdf) {
 			const uploaded = await fileService.uploadPdf(data.pdf);
 			fileUrl = uploaded.url;
 		}
 
-		if (isEdit) {
-			await editResearch({
-				id: editData.id,
-				name: data.name,
-				description: data.description,
-				year: Number(data.year),
-				fileUrl: fileUrl || editData.fileUrl || "",
-				userId,
-				univerName: data.organization,
-				member: true,
-				finished: data.status === "TUGALLANGAN",
-				memberEnum: data.membershipType as "MILLIY" | "XALQARO",
-			});
-		} else {
-			await createResearch({
-				name: data.name,
-				description: data.description,
-				year: Number(data.year),
-				fileUrl,
-				userId,
-				organization: data.organization,
-				membershipType: data.membershipType as "MILLIY" | "XALQARO",
-				status: data.status as "JARAYONDA" | "TUGALLANGAN",
-			});
-		}
+		const payload = {
+			name: data.name,
+			description: data.description,
+			year: Number(data.year),
+			fileUrl,
+			userId,
+			member: true,
+			univerName: data.univerName,
+			finished: data.status === "TUGALLANGAN",
+			memberEnum: data.memberEnum as "MILLIY" | "XALQARO",
+		};
 
-		handleClose();
+		isEdit ? await editResearch({ id: editData.id, ...payload }) : await createResearch(payload);
+		close();
 	};
 
 	return (
-		<Modal open={visible} onClose={handleClose} title={isEdit ? "Tadqiqotni tahrirlash" : "Tadqiqot qo'shish"}>
-			<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-				<div className="flex flex-col gap-2">
-					<Label htmlFor="r-name">Tadqiqot nomi</Label>
-					<Input id="r-name" placeholder="Tadqiqot nomini kiriting..." {...register("name")} />
+		<Modal
+			open={visible}
+			onClose={close}
+			title={
+				<div className="flex items-center gap-2">
+					{isEdit ? <Pencil className="w-5 h-5 text-blue-500" /> : <Plus className="w-5 h-5 text-green-500" />}
+					<span>{isEdit ? "Tadqiqotni tahrirlash" : "Yangi tadqiqot qo'shish"}</span>
 				</div>
-				<div className="flex flex-col gap-2">
-					<Label htmlFor="r-desc">Qisqa tavsif</Label>
-					<Textarea
-						id="r-desc"
-						placeholder="Tadqiqot haqida qisqacha..."
-						className="min-h-[80px] resize-none"
-						{...register("description")}
-					/>
+			}
+		>
+			<form
+				onSubmit={handleSubmit(onSubmit)}
+				className="flex flex-col gap-5 py-2 max-h-[75vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300"
+			>
+				{/* Asosiy ma'lumotlar bloki */}
+				<div className="space-y-4 p-4 rounded-xl bg-muted/30 border border-border/50">
+					<div className="grid gap-2">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<BookOpen className="w-4 h-4 text-muted-foreground" />
+							Tadqiqot nomi
+						</Label>
+						<Input
+							placeholder="Masalan: Sun'iy intellektning ta'limdagi o'rni"
+							{...register("name", { required: true })}
+							className="bg-background"
+						/>
+					</div>
+
+					<div className="grid gap-2">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<AlignLeft className="w-4 h-4 text-muted-foreground" />
+							Qisqa tavsif
+						</Label>
+						<Textarea
+							placeholder="Tadqiqot maqsadlari va natijalari haqida..."
+							className="min-h-[100px] resize-none bg-background"
+							{...register("description")}
+						/>
+					</div>
 				</div>
-				<div className="grid grid-cols-2 gap-4">
-					<div className="flex flex-col gap-2">
-						<Label htmlFor="r-year">Yil</Label>
-						<Input id="r-year" type="number" placeholder="2024" {...register("year")} />
+
+				{/* Detallar bloki */}
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div className="grid gap-2">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Calendar className="w-4 h-4 text-muted-foreground" />
+							Amalga oshirilgan yil
+						</Label>
+						<Input type="number" placeholder="2024" {...register("year")} className="bg-background" />
 					</div>
-					<div className="flex flex-col gap-2">
-						<Label htmlFor="r-org">Universitet / Tashkilot</Label>
-						<Input id="r-org" placeholder="Tashkilot nomi..." {...register("organization")} />
+
+					<div className="grid gap-2">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Building2 className="w-4 h-4 text-muted-foreground" />
+							Muassasa nomi
+						</Label>
+						<Input placeholder="Universitet yoki OTM..." {...register("univerName")} className="bg-background" />
 					</div>
-					<div className="flex flex-col gap-2">
-						<Label>A'zolik turi</Label>
+
+					<div className="grid gap-2">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Globe2 className="w-4 h-4 text-muted-foreground" />
+							A'zolik darajasi
+						</Label>
 						<Controller
-							name="membershipType"
+							name="memberEnum"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Tanlang..." />
+									<SelectTrigger className="bg-background">
+										<SelectValue placeholder="Tanlang" />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="MILLIY">MILLIY</SelectItem>
-										<SelectItem value="XALQARO">XALQARO</SelectItem>
+										<SelectItem value="MILLIY">Milliy darajadagi</SelectItem>
+										<SelectItem value="XALQARO">Xalqaro darajadagi</SelectItem>
 									</SelectContent>
 								</Select>
 							)}
 						/>
 					</div>
-					<div className="flex flex-col gap-2">
-						<Label>Holati</Label>
+
+					<div className="grid gap-2">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<CheckCircle2 className="w-4 h-4 text-muted-foreground" />
+							Joriy holati
+						</Label>
 						<Controller
 							name="status"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Tanlang..." />
+									<SelectTrigger className="bg-background">
+										<SelectValue placeholder="Tanlang" />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="JARAYONDA">JARAYONDA</SelectItem>
-										<SelectItem value="TUGALLANGAN">TUGALLANGAN</SelectItem>
+										<SelectItem value="JARAYONDA">Davom etmoqda</SelectItem>
+										<SelectItem value="TUGALLANGAN">Yakunlangan</SelectItem>
 									</SelectContent>
 								</Select>
 							)}
 						/>
 					</div>
 				</div>
-				<div className="flex flex-col gap-2">
-					<Label>
-						PDF yuklash <span className="text-muted-foreground font-normal">(ixtiyoriy)</span>
+
+				{/* Fayl yuklash bloki */}
+				<div className="grid gap-2 p-4 rounded-xl border-2 border-dashed border-muted-foreground/20 hover:border-primary/50 transition-colors">
+					<Label className="flex items-center gap-2 text-sm font-medium mb-1">
+						<FileUp className="w-4 h-4 text-primary" />
+						Tasdiqlovchi hujjat (PDF)
 					</Label>
 					<Controller
 						name="pdf"
@@ -179,13 +195,20 @@ export function ResearchModal({ userId }: ResearchModalProps) {
 							<FileInput type="document" accept=".pdf" value={field.value} onChange={field.onChange} />
 						)}
 					/>
+					<p className="text-[12px] text-muted-foreground italic text-center">Maksimal hajm 5MB, faqat PDF formatida</p>
 				</div>
-				<div className="flex items-center justify-end gap-2 pt-1">
-					<Button type="button" variant="outline" onClick={handleClose}>
+
+				{/* Footer */}
+				<div className="flex items-center justify-end gap-3 pt-4 border-t">
+					<Button type="button" variant="ghost" onClick={close} className="px-6">
 						Bekor qilish
 					</Button>
-					<Button type="submit" disabled={isPending}>
-						{isPending ? "Saqlanmoqda..." : "Saqlash"}
+					<Button
+						type="submit"
+						disabled={isPending}
+						className="px-8 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
+					>
+						{isPending ? "Saqlanmoqda..." : "Ma'lumotni saqlash"}
 					</Button>
 				</div>
 			</form>

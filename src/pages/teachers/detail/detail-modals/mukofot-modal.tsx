@@ -1,8 +1,8 @@
 import { FileInput } from "@/components/file-input/file-input";
 import { Modal } from "@/components/modal/modal";
+import { fileService } from "@/features/file/file.service";
 import { useCreateMukofot } from "@/hooks/teacher/useCreateMukofot";
 import { useEditMukofot } from "@/hooks/teacher/useEditMukofot";
-import { fileService } from "@/features/file/file.service";
 import { useModalActions, useModalEditData, useModalIsOpen } from "@/store/modalStore";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
@@ -11,12 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/ui/textarea";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Trophy, AlignLeft, Calendar, Globe2, Medal, FileUp, Plus, Pencil } from "lucide-react";
 
 enum MemberType {
 	MILLIY = "MILLIY",
 	XALQARO = "XALQARO",
 }
-
 enum AwardType {
 	TRENING_VA_AMALIYOT = "Trening_Va_Amaliyot",
 	TAHRIRIYAT_KENGASHIGA_AZOLIK = "Tahririyat_Kengashiga_Azolik",
@@ -25,20 +25,7 @@ enum AwardType {
 	DAVLAT_MUKOFOTI = "Davlat_Mukofoti",
 }
 
-type MukofotFormData = {
-	name: string;
-	description: string;
-	year: string;
-	awardEnum: AwardType | "";
-	memberEnum: MemberType | "";
-	pdf: File | null;
-};
-
-type MukofotModalProps = {
-	userId: number;
-};
-
-export function MukofotModal({ userId }: MukofotModalProps) {
+export function MukofotModal({ userId }: { userId: number }) {
 	const isOpen = useModalIsOpen();
 	const editData = useModalEditData();
 	const { close } = useModalActions();
@@ -49,46 +36,27 @@ export function MukofotModal({ userId }: MukofotModalProps) {
 	const isEdit = visible && !!editData?.id;
 	const isPending = isCreating || isEditing;
 
-	const { register, handleSubmit, control, reset } = useForm<MukofotFormData>({
-		defaultValues: {
-			name: "",
-			description: "",
-			year: "",
-			awardEnum: "",
-			memberEnum: "",
-			pdf: null,
-		},
-	});
+	const { register, handleSubmit, control, reset } = useForm();
 
 	useEffect(() => {
-		if (visible && isEdit) {
-			reset({
-				name: editData.name ?? "",
-				description: editData.description ?? "",
-				year: String(editData.year ?? ""),
-				awardEnum: editData.awardEnum ?? "",
-				memberEnum: editData.memberEnum ?? "",
-				pdf: null,
-			});
-		} else if (visible && !isEdit) {
-			reset({
-				name: "",
-				description: "",
-				year: "",
-				awardEnum: "",
-				memberEnum: "",
-				pdf: null,
-			});
+		if (visible) {
+			reset(
+				isEdit
+					? {
+							name: editData.name,
+							description: editData.description,
+							year: String(editData.year),
+							awardEnum: editData.awardEnum,
+							memberEnum: editData.memberEnum,
+							pdf: null,
+						}
+					: { name: "", description: "", year: "", awardEnum: "", memberEnum: "", pdf: null },
+			);
 		}
 	}, [visible, isEdit, editData, reset]);
 
-	const handleClose = () => {
-		reset();
-		close();
-	};
-
-	const onSubmit = async (data: MukofotFormData) => {
-		let fileUrl = "";
+	const onSubmit = async (data: any) => {
+		let fileUrl = editData?.fileUrl || "";
 		if (data.pdf) {
 			const uploaded = await fileService.uploadPdf(data.pdf);
 			fileUrl = uploaded.url;
@@ -98,51 +66,76 @@ export function MukofotModal({ userId }: MukofotModalProps) {
 			name: data.name,
 			description: data.description,
 			year: Number(data.year),
-			awardEnum: data.awardEnum as AwardType,
-			memberEnum: data.memberEnum as MemberType,
-			fileUrl: fileUrl || editData?.fileUrl || "",
+			awardEnum: data.awardEnum,
+			memberEnum: data.memberEnum,
+			fileUrl,
 			userId,
 		};
 
-		if (isEdit) {
-			await editMukofot({ id: editData.id, ...payload });
-		} else {
-			await createMukofot(payload);
-		}
-
-		handleClose();
+		isEdit ? await editMukofot({ id: editData.id, ...payload }) : await createMukofot(payload);
+		close();
 	};
 
 	return (
-		<Modal open={visible} onClose={handleClose} title={isEdit ? "Mukofotni tahrirlash" : "Mukofot qo'shish"}>
-			<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-				<div className="flex flex-col gap-2">
-					<Label htmlFor="mukofot-name">Mukofot nomi</Label>
-					<Input id="mukofot-name" placeholder="Mukofot nomini kiriting..." {...register("name")} />
+		<Modal
+			open={visible}
+			onClose={close}
+			title={
+				<div className="flex items-center gap-2">
+					{isEdit ? <Pencil className="w-5 h-5 text-blue-500" /> : <Trophy className="w-5 h-5 text-yellow-500" />}
+					<span>{isEdit ? "Mukofotni tahrirlash" : "Mukofot qo'shish"}</span>
 				</div>
-				<div className="flex flex-col gap-2">
-					<Label htmlFor="mukofot-desc">Qisqa tavsif</Label>
-					<Textarea
-						id="mukofot-desc"
-						placeholder="Mukofot haqida qisqacha..."
-						className="min-h-[80px] resize-none"
-						{...register("description")}
-					/>
-				</div>
-				<div className="grid grid-cols-2 gap-4">
-					<div className="flex flex-col gap-2">
-						<Label htmlFor="mukofot-year">Yil</Label>
-						<Input id="mukofot-year" type="number" placeholder="2024" {...register("year")} />
+			}
+		>
+			<form
+				onSubmit={handleSubmit(onSubmit)}
+				className="flex flex-col gap-5 py-2 max-h-[75vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300"
+			>
+				<div className="space-y-4 p-4 rounded-xl bg-muted/30 border border-border/50">
+					<div className="grid gap-2">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Trophy className="w-4 h-4 text-muted-foreground" />
+							Mukofot nomi
+						</Label>
+						<Input
+							placeholder="Mukofot nomini kiriting..."
+							{...register("name", { required: true })}
+							className="bg-background"
+						/>
 					</div>
-					<div className="flex flex-col gap-2">
-						<Label>A'zolik turi</Label>
+					<div className="grid gap-2">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<AlignLeft className="w-4 h-4 text-muted-foreground" />
+							Tavsif
+						</Label>
+						<Textarea
+							placeholder="Qisqacha tavsif..."
+							className="min-h-[80px] resize-none bg-background"
+							{...register("description")}
+						/>
+					</div>
+				</div>
+
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div className="grid gap-2">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Calendar className="w-4 h-4 text-muted-foreground" />
+							Berilgan yili
+						</Label>
+						<Input type="number" placeholder="2024" {...register("year")} className="bg-background" />
+					</div>
+					<div className="grid gap-2">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Globe2 className="w-4 h-4 text-muted-foreground" />
+							Darajasi
+						</Label>
 						<Controller
 							name="memberEnum"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Tanlang..." />
+									<SelectTrigger className="bg-background">
+										<SelectValue placeholder="Tanlang" />
 									</SelectTrigger>
 									<SelectContent>
 										<SelectItem value={MemberType.MILLIY}>Milliy</SelectItem>
@@ -152,20 +145,25 @@ export function MukofotModal({ userId }: MukofotModalProps) {
 							)}
 						/>
 					</div>
-					<div className="flex flex-col gap-2 col-span-2">
-						<Label>Mukofot turi</Label>
+					<div className="grid gap-2 col-span-full">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Medal className="w-4 h-4 text-muted-foreground" />
+							Mukofot turi
+						</Label>
 						<Controller
 							name="awardEnum"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Tanlang..." />
+									<SelectTrigger className="bg-background">
+										<SelectValue placeholder="Tanlang" />
 									</SelectTrigger>
 									<SelectContent>
 										<SelectItem value={AwardType.TRENING_VA_AMALIYOT}>Trening va Amaliyot</SelectItem>
-										<SelectItem value={AwardType.TAHRIRIYAT_KENGASHIGA_AZOLIK}>Tahririyat Kengashiga Azolik</SelectItem>
-										<SelectItem value={AwardType.MAXSUS_KENGASH_AZOLIGI}>Maxsus Kengash Azoligi</SelectItem>
+										<SelectItem value={AwardType.TAHRIRIYAT_KENGASHIGA_AZOLIK}>
+											Tahririyat Kengashiga A'zolik
+										</SelectItem>
+										<SelectItem value={AwardType.MAXSUS_KENGASH_AZOLIGI}>Maxsus Kengash A'zoligi</SelectItem>
 										<SelectItem value={AwardType.PATENT_DGU}>Patent DGU</SelectItem>
 										<SelectItem value={AwardType.DAVLAT_MUKOFOTI}>Davlat Mukofoti</SelectItem>
 									</SelectContent>
@@ -174,9 +172,10 @@ export function MukofotModal({ userId }: MukofotModalProps) {
 						/>
 					</div>
 				</div>
-				<div className="flex flex-col gap-2">
-					<Label>
-						PDF yuklash <span className="text-muted-foreground font-normal">(ixtiyoriy)</span>
+
+				<div className="grid gap-2 p-4 rounded-xl border-2 border-dashed border-muted-foreground/20">
+					<Label className="flex items-center gap-2 text-sm font-medium">
+						<FileUp className="w-4 h-4 text-primary" /> Tasdiqlovchi PDF
 					</Label>
 					<Controller
 						name="pdf"
@@ -186,8 +185,9 @@ export function MukofotModal({ userId }: MukofotModalProps) {
 						)}
 					/>
 				</div>
-				<div className="flex items-center justify-end gap-2 pt-1">
-					<Button type="button" variant="outline" onClick={handleClose}>
+
+				<div className="flex items-center justify-end gap-3 pt-4 border-t">
+					<Button type="button" variant="ghost" onClick={close}>
 						Bekor qilish
 					</Button>
 					<Button type="submit" disabled={isPending}>

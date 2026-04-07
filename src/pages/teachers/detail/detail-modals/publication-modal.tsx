@@ -11,195 +11,187 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/ui/textarea";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import {
+	Search,
+	AlignLeft,
+	User,
+	Building2,
+	Calendar,
+	BarChart,
+	Globe2,
+	CheckCircle2,
+	FileUp,
+	Plus,
+	Pencil,
+} from "lucide-react";
 
-type PublicationFormData = {
-	name: string;
-	description: string;
-	researcherName: string;
-	univerName: string;
-	year: string;
-	level: "YUQORI" | "O'RTA" | "BOSHLANG'ICH" | "";
-	memberEnum: "MILLIY" | "XALQARO" | "";
-	finished: "true" | "false" | "";
-	pdf: File | null;
-};
-
-type PublicationModalProps = {
-	userId: number;
-};
-
-export function PublicationModal({ userId }: PublicationModalProps) {
+export function PublicationModal({ userId }: { userId: number }) {
 	const isOpen = useModalIsOpen();
 	const editData = useModalEditData();
 	const { close } = useModalActions();
 	const { mutateAsync: createNazorat, isPending: isCreating } = useCreateNazorat();
 	const { mutateAsync: editNazorat, isPending: isEditing } = useEditNazorat();
 
-	const visible = isOpen && (editData?._type === "nazorat" || editData === "nazorat");
+	const visible = isOpen && editData?._type === "nazorat";
 	const isEdit = visible && !!editData?.id;
 	const isPending = isCreating || isEditing;
 
-	const { register, handleSubmit, control, reset } = useForm<PublicationFormData>({
-		defaultValues: {
-			name: "",
-			description: "",
-			researcherName: "",
-			univerName: "",
-			year: "",
-			level: "",
-			memberEnum: "",
-			finished: "",
-			pdf: null,
-		},
-	});
+	const { register, handleSubmit, control, reset } = useForm();
 
 	useEffect(() => {
-		if (visible && isEdit) {
-			reset({
-				name: editData.name ?? "",
-				description: editData.description ?? "",
-				researcherName: editData.researcherName ?? "",
-				univerName: editData.univerName ?? "",
-				year: String(editData.year ?? ""),
-				level: editData.level ?? "",
-				memberEnum: editData.memberEnum ?? "",
-				finished: editData.finished ? "true" : "false",
-				pdf: null,
-			});
-		} else if (visible && !isEdit) {
-			reset({
-				name: "",
-				description: "",
-				researcherName: "",
-				univerName: "",
-				year: "",
-				level: "",
-				memberEnum: "",
-				finished: "",
-				pdf: null,
-			});
+		if (visible) {
+			reset(
+				isEdit
+					? {
+							name: editData.name,
+							description: editData.description,
+							researcherName: editData.researcherName,
+							univerName: editData.univerName,
+							year: String(editData.year),
+							level: editData.level,
+							memberEnum: editData.memberEnum,
+							finished: editData.finished ? "true" : "false",
+							pdf: null,
+						}
+					: {
+							name: "",
+							description: "",
+							researcherName: "",
+							univerName: "",
+							year: "",
+							level: "",
+							memberEnum: "",
+							finished: "",
+							pdf: null,
+						},
+			);
 		}
 	}, [visible, isEdit, editData, reset]);
 
-	const handleClose = () => {
-		reset();
-		close();
-	};
-
-	const onSubmit = async (data: PublicationFormData) => {
-		let fileUrl = "";
+	const onSubmit = async (data: any) => {
+		let fileUrl = editData?.fileUrl || "";
 		if (data.pdf) {
 			const uploaded = await fileService.uploadPdf(data.pdf);
 			fileUrl = uploaded.url;
 		}
 
-		if (isEdit) {
-			await editNazorat({
-				id: editData.id,
-				name: data.name,
-				description: data.description,
-				year: Number(data.year),
-				fileUrl: fileUrl || editData.fileUrl || "",
-				userId,
-				researcherName: data.researcherName,
-				univerName: data.univerName,
-				level: data.level,
-				memberEnum: data.memberEnum as "MILLIY" | "XALQARO",
-				finished: data.finished === "true",
-			});
-		} else {
-			await createNazorat({
-				name: data.name,
-				description: data.description,
-				year: Number(data.year),
-				fileUrl,
-				userId,
-				researcherName: data.researcherName,
-				univerName: data.univerName,
-				level: data.level,
-				memberEnum: data.memberEnum as "MILLIY" | "XALQARO",
-				finished: data.finished === "true",
-			});
-		}
+		const payload = {
+			...data,
+			year: Number(data.year),
+			finished: data.finished === "true",
+			fileUrl,
+			userId,
+		};
 
-		handleClose();
+		isEdit ? await editNazorat({ id: editData.id, ...payload }) : await createNazorat(payload);
+		close();
 	};
 
 	return (
-		<Modal open={visible} onClose={handleClose} title={isEdit ? "Nazoratni tahrirlash" : "Nazorat qo'shish"}>
-			<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-				<div className="flex flex-col gap-2">
-					<Label htmlFor="n-name">Nazorat nomi</Label>
-					<Input id="n-name" placeholder="Nazorat nomini kiriting..." {...register("name")} />
+		<Modal
+			open={visible}
+			onClose={close}
+			title={
+				<div className="flex items-center gap-2">
+					{isEdit ? <Pencil className="w-5 h-5 text-blue-500" /> : <Search className="w-5 h-5 text-orange-500" />}
+					<span>{isEdit ? "Nazoratni tahrirlash" : "Yangi nazorat qo'shish"}</span>
 				</div>
-				<div className="flex flex-col gap-2">
-					<Label htmlFor="n-desc">Tavsif</Label>
-					<Textarea
-						id="n-desc"
-						placeholder="Nazorat haqida qisqacha..."
-						className="min-h-[80px] resize-none"
-						{...register("description")}
-					/>
+			}
+		>
+			<form
+				onSubmit={handleSubmit(onSubmit)}
+				className="flex flex-col gap-5 py-2 max-h-[75vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300"
+			>
+				<div className="space-y-3 p-4 rounded-xl bg-muted/30 border border-border/50">
+					<div className="grid gap-1.5">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Search className="w-4 h-4 text-muted-foreground" /> Nazorat nomi
+						</Label>
+						<Input placeholder="Nazorat nomi..." {...register("name", { required: true })} className="bg-background" />
+					</div>
+					<div className="grid gap-1.5">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<AlignLeft className="w-4 h-4 text-muted-foreground" /> Tavsif
+						</Label>
+						<Textarea
+							placeholder="Qisqacha tavsif..."
+							className="min-h-[60px] resize-none bg-background"
+							{...register("description")}
+						/>
+					</div>
 				</div>
+
 				<div className="grid grid-cols-2 gap-4">
-					<div className="flex flex-col gap-2">
-						<Label htmlFor="n-researcher">Tadqiqotchi</Label>
-						<Input id="n-researcher" placeholder="F.I.Sh..." {...register("researcherName")} />
+					<div className="grid gap-1.5">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<User className="w-4 h-4 text-muted-foreground" /> Tadqiqotchi
+						</Label>
+						<Input placeholder="F.I.Sh..." {...register("researcherName")} className="bg-background" />
 					</div>
-					<div className="flex flex-col gap-2">
-						<Label htmlFor="n-university">Universitet</Label>
-						<Input id="n-university" placeholder="Tashkilot nomi..." {...register("univerName")} />
+					<div className="grid gap-1.5">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Building2 className="w-4 h-4 text-muted-foreground" /> Universitet
+						</Label>
+						<Input placeholder="OTM nomi..." {...register("univerName")} className="bg-background" />
 					</div>
-					<div className="flex flex-col gap-2">
-						<Label htmlFor="n-year">Yil</Label>
-						<Input id="n-year" type="number" placeholder="2024" {...register("year")} />
+					<div className="grid gap-1.5">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Calendar className="w-4 h-4 text-muted-foreground" /> Yil
+						</Label>
+						<Input type="number" placeholder="2024" {...register("year")} className="bg-background" />
 					</div>
-					<div className="flex flex-col gap-2">
-						<Label>Daraja</Label>
+					<div className="grid gap-1.5">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<BarChart className="w-4 h-4 text-muted-foreground" /> Daraja
+						</Label>
 						<Controller
 							name="level"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Tanlang..." />
+									<SelectTrigger className="bg-background">
+										<SelectValue placeholder="Tanlang" />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="YUQORI">YUQORI</SelectItem>
-										<SelectItem value="O'RTA">O'RTA</SelectItem>
-										<SelectItem value="BOSHLANG'ICH">BOSHLANG'ICH</SelectItem>
+										<SelectItem value="YUQORI">Yuqori</SelectItem>
+										<SelectItem value="O'RTA">O'rta</SelectItem>
+										<SelectItem value="BOSHLANG'ICH">Boshlang'ich</SelectItem>
 									</SelectContent>
 								</Select>
 							)}
 						/>
 					</div>
-					<div className="flex flex-col gap-2">
-						<Label>A'zolik turi</Label>
+					<div className="grid gap-1.5">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Globe2 className="w-4 h-4 text-muted-foreground" /> A'zolik
+						</Label>
 						<Controller
 							name="memberEnum"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Tanlang..." />
+									<SelectTrigger className="bg-background">
+										<SelectValue placeholder="Tanlang" />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="MILLIY">MILLIY</SelectItem>
-										<SelectItem value="XALQARO">XALQARO</SelectItem>
+										<SelectItem value="MILLIY">Milliy</SelectItem>
+										<SelectItem value="XALQARO">Xalqaro</SelectItem>
 									</SelectContent>
 								</Select>
 							)}
 						/>
 					</div>
-					<div className="flex flex-col gap-2">
-						<Label>Holati</Label>
+					<div className="grid gap-1.5">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<CheckCircle2 className="w-4 h-4 text-muted-foreground" /> Holati
+						</Label>
 						<Controller
 							name="finished"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Tanlang..." />
+									<SelectTrigger className="bg-background">
+										<SelectValue placeholder="Tanlang" />
 									</SelectTrigger>
 									<SelectContent>
 										<SelectItem value="false">Jarayonda</SelectItem>
@@ -210,9 +202,10 @@ export function PublicationModal({ userId }: PublicationModalProps) {
 						/>
 					</div>
 				</div>
-				<div className="flex flex-col gap-2">
-					<Label>
-						PDF yuklash <span className="text-muted-foreground font-normal">(ixtiyoriy)</span>
+
+				<div className="grid gap-2 p-4 rounded-xl border-2 border-dashed border-muted-foreground/20">
+					<Label className="flex items-center gap-2 text-sm font-medium">
+						<FileUp className="w-4 h-4 text-primary" /> Hujjat PDF
 					</Label>
 					<Controller
 						name="pdf"
@@ -222,8 +215,9 @@ export function PublicationModal({ userId }: PublicationModalProps) {
 						)}
 					/>
 				</div>
-				<div className="flex items-center justify-end gap-2 pt-1">
-					<Button type="button" variant="outline" onClick={handleClose}>
+
+				<div className="flex items-center justify-end gap-3 pt-4 border-t">
+					<Button type="button" variant="ghost" onClick={close}>
 						Bekor qilish
 					</Button>
 					<Button type="submit" disabled={isPending}>

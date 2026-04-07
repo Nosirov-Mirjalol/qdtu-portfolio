@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/ui/textarea";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { ClipboardList, AlignLeft, Calendar, User, Users, CheckCircle2, FileUp, Plus, Pencil } from "lucide-react";
 
 type MaslahatFormData = {
 	name: string;
@@ -22,11 +23,7 @@ type MaslahatFormData = {
 	pdf: File | null;
 };
 
-type MaslahatModalProps = {
-	userId: number;
-};
-
-export function MaslahatModal({ userId }: MaslahatModalProps) {
+export function MaslahatModal({ userId }: { userId: number }) {
 	const isOpen = useModalIsOpen();
 	const editData = useModalEditData();
 	const { close } = useModalActions();
@@ -37,49 +34,28 @@ export function MaslahatModal({ userId }: MaslahatModalProps) {
 	const isEdit = visible && !!editData?.id;
 	const isPending = isCreating || isEditing;
 
-	const { register, handleSubmit, control, reset } = useForm<MaslahatFormData>({
-		defaultValues: {
-			name: "",
-			description: "",
-			year: "",
-			member: "",
-			finishedEnum: "",
-			leader: "",
-			pdf: null,
-		},
-	});
+	const { register, handleSubmit, control, reset } = useForm<MaslahatFormData>();
 
 	useEffect(() => {
-		if (visible && isEdit) {
-			reset({
-				name: editData.name ?? "",
-				description: editData.description ?? "",
-				year: String(editData.year ?? ""),
-				member: editData.member ?? "",
-				finishedEnum: editData.finishedEnum ?? "",
-				leader: editData.leader ?? "",
-				pdf: null,
-			});
-		} else if (visible && !isEdit) {
-			reset({
-				name: "",
-				description: "",
-				year: "",
-				member: "",
-				finishedEnum: "",
-				leader: "",
-				pdf: null,
-			});
+		if (visible) {
+			reset(
+				isEdit
+					? {
+							name: editData.name,
+							description: editData.description,
+							year: String(editData.year),
+							member: editData.member,
+							finishedEnum: editData.finishedEnum,
+							leader: editData.leader,
+							pdf: null,
+						}
+					: { name: "", description: "", year: "", member: "", finishedEnum: "", leader: "", pdf: null },
+			);
 		}
 	}, [visible, isEdit, editData, reset]);
 
-	const handleClose = () => {
-		reset();
-		close();
-	};
-
 	const onSubmit = async (data: MaslahatFormData) => {
-		let fileUrl = "";
+		let fileUrl = editData?.fileUrl || "";
 		if (data.pdf) {
 			const uploaded = await fileService.uploadPdf(data.pdf);
 			fileUrl = uploaded.url;
@@ -90,47 +66,76 @@ export function MaslahatModal({ userId }: MaslahatModalProps) {
 			description: data.description,
 			year: Number(data.year),
 			member: data.member as boolean,
-			finishedEnum: data.finishedEnum as "COMPLETED" | "IN_PROGRESS" | "FINISHED",
+			finishedEnum: data.finishedEnum as any,
 			leader: data.leader,
 			fileUrl,
 			userId,
 		};
 
-		if (isEdit) {
-			await editMaslahat({ id: editData.id, ...payload, fileUrl: fileUrl || editData.fileUrl || "" });
-		} else {
-			await createMaslahat(payload);
-		}
-
-		handleClose();
+		isEdit ? await editMaslahat({ id: editData.id, ...payload }) : await createMaslahat(payload);
+		close();
 	};
 
 	return (
-		<Modal open={visible} onClose={handleClose} title={isEdit ? "Maslahatni tahrirlash" : "Maslahat qo'shish"}>
-			<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-				<div className="flex flex-col gap-2">
-					<Label htmlFor="m-name">Maslahat nomi</Label>
-					<Input id="m-name" placeholder="Nomni kiriting..." {...register("name")} />
+		<Modal
+			open={visible}
+			onClose={close}
+			title={
+				<div className="flex items-center gap-2">
+					{isEdit ? <Pencil className="w-5 h-5 text-blue-500" /> : <Plus className="w-5 h-5 text-green-500" />}
+					<span>{isEdit ? "Maslahatni tahrirlash" : "Yangi maslahat qo'shish"}</span>
+				</div>
+			}
+		>
+			<form
+				onSubmit={handleSubmit(onSubmit)}
+				className="flex flex-col gap-5 py-2 max-h-[75vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300"
+			>
+				<div className="space-y-4 p-4 rounded-xl bg-muted/30 border border-border/50">
+					<div className="grid gap-2">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<ClipboardList className="w-4 h-4 text-muted-foreground" />
+							Maslahat nomi
+						</Label>
+						<Input
+							placeholder="Nomini kiriting..."
+							{...register("name", { required: true })}
+							className="bg-background"
+						/>
+					</div>
+					<div className="grid gap-2">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<AlignLeft className="w-4 h-4 text-muted-foreground" />
+							Tavsif
+						</Label>
+						<Textarea
+							placeholder="Qisqacha tavsif..."
+							className="min-h-[80px] resize-none bg-background"
+							{...register("description")}
+						/>
+					</div>
 				</div>
 
-				<div className="flex flex-col gap-2">
-					<Label htmlFor="m-desc">Qisqa tavsif</Label>
-					<Textarea id="m-desc" placeholder="Tavsif..." className="min-h-[80px] resize-none" {...register("description")} />
-				</div>
-
-				<div className="grid grid-cols-2 gap-4">
-					<div className="flex flex-col gap-2">
-						<Label htmlFor="m-year">Yil</Label>
-						<Input id="m-year" type="number" placeholder="2024" {...register("year")} />
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div className="grid gap-2">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Calendar className="w-4 h-4 text-muted-foreground" />
+							Yil
+						</Label>
+						<Input type="number" placeholder="2024" {...register("year")} className="bg-background" />
 					</div>
-
-					<div className="flex flex-col gap-2">
-						<Label htmlFor="m-leader">Rahbar</Label>
-						<Input id="m-leader" placeholder="Rahbar ismi..." {...register("leader")} />
+					<div className="grid gap-2">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<User className="w-4 h-4 text-muted-foreground" />
+							Rahbar
+						</Label>
+						<Input placeholder="F.I.Sh..." {...register("leader")} className="bg-background" />
 					</div>
-
-					<div className="flex flex-col gap-2">
-						<Label>A'zolik</Label>
+					<div className="grid gap-2">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Users className="w-4 h-4 text-muted-foreground" />
+							A'zolik
+						</Label>
 						<Controller
 							name="member"
 							control={control}
@@ -139,26 +144,28 @@ export function MaslahatModal({ userId }: MaslahatModalProps) {
 									value={field.value === "" ? "" : String(field.value)}
 									onValueChange={(val) => field.onChange(val === "true")}
 								>
-									<SelectTrigger className="w-full">
+									<SelectTrigger className="bg-background">
 										<SelectValue placeholder="Tanlang" />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="true">Ha</SelectItem>
-										<SelectItem value="false">Yo'q</SelectItem>
+										<SelectItem value="true">Ha, a'zo</SelectItem>
+										<SelectItem value="false">Yo'q, a'zo emas</SelectItem>
 									</SelectContent>
 								</Select>
 							)}
 						/>
 					</div>
-
-					<div className="flex flex-col gap-2">
-						<Label>Holat</Label>
+					<div className="grid gap-2">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<CheckCircle2 className="w-4 h-4 text-muted-foreground" />
+							Holati
+						</Label>
 						<Controller
 							name="finishedEnum"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
-									<SelectTrigger className="w-full">
+									<SelectTrigger className="bg-background">
 										<SelectValue placeholder="Tanlang" />
 									</SelectTrigger>
 									<SelectContent>
@@ -172,9 +179,10 @@ export function MaslahatModal({ userId }: MaslahatModalProps) {
 					</div>
 				</div>
 
-				<div className="flex flex-col gap-2">
-					<Label>
-						PDF yuklash <span className="text-muted-foreground font-normal">(ixtiyoriy)</span>
+				<div className="grid gap-2 p-4 rounded-xl border-2 border-dashed border-muted-foreground/20">
+					<Label className="flex items-center gap-2 text-sm font-medium">
+						<FileUp className="w-4 h-4 text-primary" />
+						Hujjat (PDF)
 					</Label>
 					<Controller
 						name="pdf"
@@ -185,8 +193,8 @@ export function MaslahatModal({ userId }: MaslahatModalProps) {
 					/>
 				</div>
 
-				<div className="flex items-center justify-end gap-2 pt-2">
-					<Button type="button" variant="outline" onClick={handleClose}>
+				<div className="flex items-center justify-end gap-3 pt-4 border-t">
+					<Button type="button" variant="ghost" onClick={close}>
 						Bekor qilish
 					</Button>
 					<Button type="submit" disabled={isPending}>

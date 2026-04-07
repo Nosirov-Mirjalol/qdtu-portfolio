@@ -9,27 +9,25 @@ import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
 import { Textarea } from "@/ui/textarea";
+import { Checkbox } from "@/ui/checkbox"; // Shadcn Checkbox ishlatsangiz bo'ladi
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import {
+	BookOpen,
+	AlignLeft,
+	Calendar,
+	Building2,
+	FileText,
+	UserCheck,
+	Globe2,
+	Hash,
+	FileUp,
+	Plus,
+	Pencil,
+	Star,
+} from "lucide-react";
 
-type NashrFormData = {
-	name: string;
-	description: string;
-	year: string;
-	institution: string;
-	type: "ARTICLE" | "BOOK" | "PROCEEDING" | "OTHERS" | "";
-	author: "COAUTHOR" | "FIRST_AUTHOR" | "BOTH_AUTHOR" | "";
-	degree: "NATIONAL" | "INTERNATIONAL" | "";
-	volume: string;
-	popular: boolean;
-	pdf: File | null;
-};
-
-type NashrModalProps = {
-	userId: number;
-};
-
-export function NashrModal({ userId }: NashrModalProps) {
+export function NashrModal({ userId }: { userId: number }) {
 	const isOpen = useModalIsOpen();
 	const editData = useModalEditData();
 	const { close } = useModalActions();
@@ -40,146 +38,120 @@ export function NashrModal({ userId }: NashrModalProps) {
 	const isEdit = visible && !!editData?.id;
 	const isPending = isCreating || isEditing;
 
-	const { register, handleSubmit, control, reset } = useForm<NashrFormData>({
-		defaultValues: {
-			name: "",
-			description: "",
-			year: "",
-			institution: "",
-			type: "",
-			author: "",
-			degree: "",
-			volume: "",
-			popular: false,
-			pdf: null,
-		},
-	});
+	const { register, handleSubmit, control, reset } = useForm();
 
 	useEffect(() => {
-		if (visible && isEdit) {
-			let typeValue: NashrFormData["type"] = "";
-			if (editData.type === "MAQOLA" || editData.type === "ARTICLE") typeValue = "ARTICLE";
-			else if (editData.type === "KITOB" || editData.type === "BOOK") typeValue = "BOOK";
-			else if (editData.type === "TADQIQOT" || editData.type === "PROCEEDING") typeValue = "PROCEEDING";
-			else if (editData.type === "BOSHQA" || editData.type === "OTHERS") typeValue = "OTHERS";
-
-			let authorValue: NashrFormData["author"] = "";
-			if (editData.authorship === "HAMMUALLIF" || editData.authorship === "COAUTHOR") authorValue = "COAUTHOR";
-			else if (editData.authorship === "MUALLIF" || editData.authorship === "FIRST_AUTHOR") authorValue = "FIRST_AUTHOR";
-			else if (editData.authorship === "BOSHQA" || editData.authorship === "BOTH_AUTHOR") authorValue = "BOTH_AUTHOR";
-
-			let degreeValue: NashrFormData["degree"] = "";
-			if (editData.degree === "XALQARO" || editData.degree === "INTERNATIONAL") degreeValue = "INTERNATIONAL";
-			else if (editData.degree === "MAHALLIY" || editData.degree === "NATIONAL") degreeValue = "NATIONAL";
-
-			reset({
-				name: editData.name ?? "",
-				description: editData.description ?? "",
-				year: String(editData.year ?? ""),
-				institution: editData.organization ?? "",
-				type: typeValue,
-				author: authorValue,
-				degree: degreeValue,
-				volume: editData.volume ?? "",
-				popular: editData.popular ?? false,
-				pdf: null,
-			});
-		} else if (visible && !isEdit) {
-			reset({
-				name: "",
-				description: "",
-				year: "",
-				institution: "",
-				type: "",
-				author: "",
-				degree: "",
-				volume: "",
-				popular: false,
-				pdf: null,
-			});
+		if (visible) {
+			reset(
+				isEdit
+					? {
+							name: editData.name,
+							description: editData.description,
+							year: String(editData.year),
+							institution: editData.organization,
+							type: editData.type,
+							author: editData.authorship,
+							degree: editData.degree,
+							volume: editData.volume,
+							popular: editData.popular,
+							pdf: null,
+						}
+					: {
+							name: "",
+							description: "",
+							year: "",
+							institution: "",
+							type: "",
+							author: "",
+							degree: "",
+							volume: "",
+							popular: false,
+							pdf: null,
+						},
+			);
 		}
 	}, [visible, isEdit, editData, reset]);
 
-	const handleClose = () => {
-		reset();
-		close();
-	};
-
-	const onSubmit = async (data: NashrFormData) => {
-		let fileUrl = "";
+	const onSubmit = async (data: any) => {
+		let fileUrl = editData?.fileUrl || "";
 		if (data.pdf) {
 			const uploaded = await fileService.uploadPdf(data.pdf);
 			fileUrl = uploaded.url;
 		}
 
-		if (isEdit) {
-			await editNashr({
-				id: editData.id,
-				name: data.name,
-				description: data.description,
-				year: Number(data.year),
-				institution: data.institution,
-				type: data.type as "ARTICLE" | "BOOK" | "PROCEEDING" | "OTHERS",
-				author: data.author as "COAUTHOR" | "FIRST_AUTHOR" | "BOTH_AUTHOR",
-				degree: data.degree as "NATIONAL" | "INTERNATIONAL",
-				volume: data.volume,
-				popular: data.popular,
-				fileUrl: fileUrl || editData.fileUrl || "",
-				userId,
-			});
-		} else {
-			await createNashr({
-				name: data.name,
-				description: data.description,
-				year: Number(data.year),
-				institution: data.institution,
-				type: data.type as "ARTICLE" | "BOOK" | "PROCEEDING" | "OTHERS",
-				author: data.author as "COAUTHOR" | "FIRST_AUTHOR" | "BOTH_AUTHOR",
-				degree: data.degree as "NATIONAL" | "INTERNATIONAL",
-				volume: data.volume,
-				popular: data.popular,
-				fileUrl,
-				userId,
-			});
-		}
+		const payload = {
+			...data,
+			year: Number(data.year),
+			fileUrl,
+			userId,
+		};
 
-		handleClose();
+		isEdit ? await editNashr({ id: editData.id, ...payload }) : await createNashr(payload);
+		close();
 	};
 
 	return (
-		<Modal open={visible} onClose={handleClose} title={isEdit ? "Nashrni tahrirlash" : "Nashr qo'shish"}>
-			<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-				<div className="flex flex-col gap-2">
-					<Label htmlFor="nashr-name">Nashr nomi</Label>
-					<Input id="nashr-name" placeholder="Nashr nomini kiriting..." {...register("name")} />
+		<Modal
+			open={visible}
+			onClose={close}
+			title={
+				<div className="flex items-center gap-2">
+					{isEdit ? <Pencil className="w-5 h-5 text-blue-500" /> : <BookOpen className="w-5 h-5 text-indigo-500" />}
+					<span>{isEdit ? "Nashrni tahrirlash" : "Yangi nashr qo'shish"}</span>
 				</div>
-				<div className="flex flex-col gap-2">
-					<Label htmlFor="nashr-desc">Qisqa tavsif</Label>
-					<Textarea
-						id="nashr-desc"
-						placeholder="Nashr haqida qisqacha..."
-						className="min-h-[80px] resize-none"
-						{...register("description")}
-					/>
+			}
+		>
+			<form
+				onSubmit={handleSubmit(onSubmit)}
+				className="flex flex-col gap-5 py-2 max-h-[75vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300"
+			>
+				<div className="space-y-3 p-4 rounded-xl bg-muted/30 border border-border/50">
+					<div className="grid gap-1.5">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<BookOpen className="w-4 h-4 text-muted-foreground" /> Nashr nomi
+						</Label>
+						<Input
+							placeholder="Nashr nomini kiriting..."
+							{...register("name", { required: true })}
+							className="bg-background"
+						/>
+					</div>
+					<div className="grid gap-1.5">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<AlignLeft className="w-4 h-4 text-muted-foreground" /> Tavsif
+						</Label>
+						<Textarea
+							placeholder="Qisqacha..."
+							className="min-h-[60px] resize-none bg-background"
+							{...register("description")}
+						/>
+					</div>
 				</div>
-				<div className="grid grid-cols-2 gap-4">
-					<div className="flex flex-col gap-2">
-						<Label htmlFor="nashr-year">Yil</Label>
-						<Input id="nashr-year" type="number" placeholder="2024" {...register("year")} />
+
+				<div className="grid grid-cols-2 gap-3">
+					<div className="grid gap-1.5">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Calendar className="w-4 h-4 text-muted-foreground" /> Yil
+						</Label>
+						<Input type="number" placeholder="2024" {...register("year")} className="bg-background" />
 					</div>
-					<div className="flex flex-col gap-2">
-						<Label htmlFor="nashr-org">Tashkilot</Label>
-						<Input id="nashr-org" placeholder="Tashkilot nomi..." {...register("institution")} />
+					<div className="grid gap-1.5">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Building2 className="w-4 h-4 text-muted-foreground" /> Tashkilot
+						</Label>
+						<Input placeholder="Tashkilot..." {...register("institution")} className="bg-background" />
 					</div>
-					<div className="flex flex-col gap-2">
-						<Label>Nashr turi</Label>
+					<div className="grid gap-1.5">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<FileText className="w-4 h-4 text-muted-foreground" /> Turi
+						</Label>
 						<Controller
 							name="type"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Tanlang..." />
+									<SelectTrigger className="bg-background">
+										<SelectValue placeholder="Tanlang" />
 									</SelectTrigger>
 									<SelectContent>
 										<SelectItem value="ARTICLE">Maqola</SelectItem>
@@ -191,18 +163,20 @@ export function NashrModal({ userId }: NashrModalProps) {
 							)}
 						/>
 					</div>
-					<div className="flex flex-col gap-2">
-						<Label>Mualliflik</Label>
+					<div className="grid gap-1.5">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<UserCheck className="w-4 h-4 text-muted-foreground" /> Mualliflik
+						</Label>
 						<Controller
 							name="author"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Tanlang..." />
+									<SelectTrigger className="bg-background">
+										<SelectValue placeholder="Tanlang" />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="FIRST_AUTHOR">Muallif</SelectItem>
+										<SelectItem value="FIRST_AUTHOR">Asosiy muallif</SelectItem>
 										<SelectItem value="COAUTHOR">Hammuallif</SelectItem>
 										<SelectItem value="BOTH_AUTHOR">Boshqa</SelectItem>
 									</SelectContent>
@@ -210,15 +184,17 @@ export function NashrModal({ userId }: NashrModalProps) {
 							)}
 						/>
 					</div>
-					<div className="flex flex-col gap-2">
-						<Label>Daraja</Label>
+					<div className="grid gap-1.5">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Globe2 className="w-4 h-4 text-muted-foreground" /> Daraja
+						</Label>
 						<Controller
 							name="degree"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Tanlang..." />
+									<SelectTrigger className="bg-background">
+										<SelectValue placeholder="Tanlang" />
 									</SelectTrigger>
 									<SelectContent>
 										<SelectItem value="INTERNATIONAL">Xalqaro</SelectItem>
@@ -228,35 +204,36 @@ export function NashrModal({ userId }: NashrModalProps) {
 							)}
 						/>
 					</div>
-					<div className="flex flex-col gap-2">
-						<Label htmlFor="nashr-volume">Volume</Label>
-						<Input id="nashr-volume" placeholder="Vol. 12..." {...register("volume")} />
-					</div>
-					<div className="flex flex-col gap-2 col-span-2">
-						<Label>Popularlik</Label>
-						<Controller
-							name="popular"
-							control={control}
-							render={({ field }) => (
-								<div className="flex items-center gap-2">
-									<input
-										type="checkbox"
-										id="nashr-popular"
-										checked={field.value}
-										onChange={(e) => field.onChange(e.target.checked)}
-										className="w-4 h-4 cursor-pointer"
-									/>
-									<Label htmlFor="nashr-popular" className="cursor-pointer">
-										Popular
-									</Label>
-								</div>
-							)}
-						/>
+					<div className="grid gap-1.5">
+						<Label className="flex items-center gap-2 text-sm font-medium">
+							<Hash className="w-4 h-4 text-muted-foreground" /> Jild (Volume)
+						</Label>
+						<Input placeholder="Vol. 12..." {...register("volume")} className="bg-background" />
 					</div>
 				</div>
-				<div className="flex flex-col gap-2">
-					<Label>
-						PDF yuklash <span className="text-muted-foreground font-normal">(ixtiyoriy)</span>
+
+				<div className="flex items-center gap-2 p-3 bg-muted/20 rounded-lg border border-border/50">
+					<Controller
+						name="popular"
+						control={control}
+						render={({ field }) => (
+							<input
+								type="checkbox"
+								id="nashr-popular"
+								checked={field.value}
+								onChange={(e) => field.onChange(e.target.checked)}
+								className="w-4 h-4 accent-primary"
+							/>
+						)}
+					/>
+					<Label htmlFor="nashr-popular" className="flex items-center gap-2 cursor-pointer select-none">
+						<Star className="w-4 h-4 text-yellow-500 fill-yellow-500" /> Ommabop nashr (Popular)
+					</Label>
+				</div>
+
+				<div className="grid gap-2 p-4 rounded-xl border-2 border-dashed border-muted-foreground/20">
+					<Label className="flex items-center gap-2 text-sm font-medium">
+						<FileUp className="w-4 h-4 text-primary" /> Nashr PDF
 					</Label>
 					<Controller
 						name="pdf"
@@ -266,8 +243,9 @@ export function NashrModal({ userId }: NashrModalProps) {
 						)}
 					/>
 				</div>
-				<div className="flex items-center justify-end gap-2 pt-1">
-					<Button type="button" variant="outline" onClick={handleClose}>
+
+				<div className="flex items-center justify-end gap-3 pt-4 border-t">
+					<Button type="button" variant="ghost" onClick={close}>
 						Bekor qilish
 					</Button>
 					<Button type="submit" disabled={isPending}>
