@@ -8,7 +8,7 @@ export function useDeleteNashr() {
   return useMutation({
     mutationFn: (id: number) => publicationService.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["nashr"] });
+      queryClient.invalidateQueries({ queryKey: ["Nashr"] });
       toast.success("Nashr muvaffaqiyatli o'chirildi");
     },
     onError: (error: any) => {
