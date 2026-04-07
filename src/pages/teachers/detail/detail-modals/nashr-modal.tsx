@@ -12,18 +12,16 @@ import { Textarea } from "@/ui/textarea";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
-type AuthorType = "COAUTHOR" | "FIRST_AUTHOR" | "BOTH_AUTHOR" | "";
-
 type NashrFormData = {
 	name: string;
 	description: string;
 	year: string;
 	institution: string;
-	type: AuthorType;
-	author: "HAMMUALLIF" | "MUALLIF" | "BOSHQA" | "";
-	level: "XALQARO" | "MAHALLIY" | "";
+	type: "ARTICLE" | "BOOK" | "PROCEEDING" | "OTHERS" | "";
+	author: "COAUTHOR" | "FIRST_AUTHOR" | "BOTH_AUTHOR" | "";
+	degree: "NATIONAL" | "INTERNATIONAL" | "";
 	volume: string;
-	popularity: "ODDIY" | "POPULAR" | "";
+	popular: boolean;
 	pdf: File | null;
 };
 
@@ -50,22 +48,29 @@ export function NashrModal({ userId }: NashrModalProps) {
 			institution: "",
 			type: "",
 			author: "",
-			level: "",
+			degree: "",
 			volume: "",
-			popularity: "",
+			popular: false,
 			pdf: null,
 		},
 	});
 
 	useEffect(() => {
 		if (visible && isEdit) {
-			// Backend'dan kelayotgan qiymatlarni frontend formatiga o'tkazish
-			let typeValue = editData.type ?? "";
-			// Agar backend "MAQOLA" yuborsa, "ARTICLE" ga o'tkazamiz
-			if (typeValue === "MAQOLA") typeValue = "ARTICLE";
-			if (typeValue === "KITOB") typeValue = "BOOK";
-			if (typeValue === "TADQIQOT") typeValue = "PROCEEDING";
-			if (typeValue === "BOSHQA") typeValue = "OTHERS";
+			let typeValue: NashrFormData["type"] = "";
+			if (editData.type === "MAQOLA" || editData.type === "ARTICLE") typeValue = "ARTICLE";
+			else if (editData.type === "KITOB" || editData.type === "BOOK") typeValue = "BOOK";
+			else if (editData.type === "TADQIQOT" || editData.type === "PROCEEDING") typeValue = "PROCEEDING";
+			else if (editData.type === "BOSHQA" || editData.type === "OTHERS") typeValue = "OTHERS";
+
+			let authorValue: NashrFormData["author"] = "";
+			if (editData.authorship === "HAMMUALLIF" || editData.authorship === "COAUTHOR") authorValue = "COAUTHOR";
+			else if (editData.authorship === "MUALLIF" || editData.authorship === "FIRST_AUTHOR") authorValue = "FIRST_AUTHOR";
+			else if (editData.authorship === "BOSHQA" || editData.authorship === "BOTH_AUTHOR") authorValue = "BOTH_AUTHOR";
+
+			let degreeValue: NashrFormData["degree"] = "";
+			if (editData.degree === "XALQARO" || editData.degree === "INTERNATIONAL") degreeValue = "INTERNATIONAL";
+			else if (editData.degree === "MAHALLIY" || editData.degree === "NATIONAL") degreeValue = "NATIONAL";
 
 			reset({
 				name: editData.name ?? "",
@@ -73,10 +78,10 @@ export function NashrModal({ userId }: NashrModalProps) {
 				year: String(editData.year ?? ""),
 				institution: editData.organization ?? "",
 				type: typeValue,
-				author: editData.authorship ?? "",
-				level: editData.level ?? "",
+				author: authorValue,
+				degree: degreeValue,
 				volume: editData.volume ?? "",
-				popularity: editData.popularity ?? "",
+				popular: editData.popular ?? false,
 				pdf: null,
 			});
 		} else if (visible && !isEdit) {
@@ -87,9 +92,9 @@ export function NashrModal({ userId }: NashrModalProps) {
 				institution: "",
 				type: "",
 				author: "",
-				level: "",
+				degree: "",
 				volume: "",
-				popularity: "",
+				popular: false,
 				pdf: null,
 			});
 		}
@@ -115,10 +120,10 @@ export function NashrModal({ userId }: NashrModalProps) {
 				year: Number(data.year),
 				institution: data.institution,
 				type: data.type as "ARTICLE" | "BOOK" | "PROCEEDING" | "OTHERS",
-				author: data.author as "HAMMUALLIF" | "MUALLIF" | "BOSHQA",
-				level: data.level as "XALQARO" | "MAHALLIY",
+				author: data.author as "COAUTHOR" | "FIRST_AUTHOR" | "BOTH_AUTHOR",
+				degree: data.degree as "NATIONAL" | "INTERNATIONAL",
 				volume: data.volume,
-				popularity: data.popularity as "ODDIY" | "POPULAR",
+				popular: data.popular,
 				fileUrl: fileUrl || editData.fileUrl || "",
 				userId,
 			});
@@ -129,10 +134,10 @@ export function NashrModal({ userId }: NashrModalProps) {
 				year: Number(data.year),
 				institution: data.institution,
 				type: data.type as "ARTICLE" | "BOOK" | "PROCEEDING" | "OTHERS",
-				author: data.author as "HAMMUALLIF" | "MUALLIF" | "BOSHQA",
-				level: data.level as "XALQARO" | "MAHALLIY",
+				author: data.author as "COAUTHOR" | "FIRST_AUTHOR" | "BOTH_AUTHOR",
+				degree: data.degree as "NATIONAL" | "INTERNATIONAL",
 				volume: data.volume,
-				popularity: data.popularity as "ODDIY" | "POPULAR",
+				popular: data.popular,
 				fileUrl,
 				userId,
 			});
@@ -197,9 +202,9 @@ export function NashrModal({ userId }: NashrModalProps) {
 										<SelectValue placeholder="Tanlang..." />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="MUALLIF">Muallif</SelectItem>
-										<SelectItem value="HAMMUALLIF">Hammuallif</SelectItem>
-										<SelectItem value="BOSHQA">Boshqa</SelectItem>
+										<SelectItem value="FIRST_AUTHOR">Muallif</SelectItem>
+										<SelectItem value="COAUTHOR">Hammuallif</SelectItem>
+										<SelectItem value="BOTH_AUTHOR">Boshqa</SelectItem>
 									</SelectContent>
 								</Select>
 							)}
@@ -208,7 +213,7 @@ export function NashrModal({ userId }: NashrModalProps) {
 					<div className="flex flex-col gap-2">
 						<Label>Daraja</Label>
 						<Controller
-							name="level"
+							name="degree"
 							control={control}
 							render={({ field }) => (
 								<Select value={field.value} onValueChange={field.onChange}>
@@ -216,8 +221,8 @@ export function NashrModal({ userId }: NashrModalProps) {
 										<SelectValue placeholder="Tanlang..." />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="XALQARO">Xalqaro</SelectItem>
-										<SelectItem value="MAHALLIY">Mahalliy</SelectItem>
+										<SelectItem value="INTERNATIONAL">Xalqaro</SelectItem>
+										<SelectItem value="NATIONAL">Mahalliy</SelectItem>
 									</SelectContent>
 								</Select>
 							)}
@@ -230,18 +235,21 @@ export function NashrModal({ userId }: NashrModalProps) {
 					<div className="flex flex-col gap-2 col-span-2">
 						<Label>Popularlik</Label>
 						<Controller
-							name="popularity"
+							name="popular"
 							control={control}
 							render={({ field }) => (
-								<Select value={field.value} onValueChange={field.onChange}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Tanlang..." />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="ODDIY">Oddiy</SelectItem>
-										<SelectItem value="POPULAR">Popular</SelectItem>
-									</SelectContent>
-								</Select>
+								<div className="flex items-center gap-2">
+									<input
+										type="checkbox"
+										id="nashr-popular"
+										checked={field.value}
+										onChange={(e) => field.onChange(e.target.checked)}
+										className="w-4 h-4 cursor-pointer"
+									/>
+									<Label htmlFor="nashr-popular" className="cursor-pointer">
+										Popular
+									</Label>
+								</div>
 							)}
 						/>
 					</div>
