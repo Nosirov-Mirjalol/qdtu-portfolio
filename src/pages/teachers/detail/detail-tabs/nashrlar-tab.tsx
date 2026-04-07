@@ -17,51 +17,9 @@ export type Nashr = {
 	authorship: "HAMMUALLIF" | "MUALLIF" | "BOSHQA";
 	level: "XALQARO" | "MAHALLIY";
 	volume: string;
-	popularity: "ODDIY" | "POPULAR";
+	popular: boolean;
 	pdfName: string | null;
 };
-
-export const MOCK_NASHRLAR: Nashr[] = [
-	{
-		id: 1,
-		name: "Machine Learning in Medical Imaging",
-		description: "Tibbiy tasvirlashda mashinali o'rganish usullarini qo'llash bo'yicha tadqiqot",
-		year: "2023",
-		organization: "Springer",
-		type: "MAQOLA",
-		authorship: "MUALLIF",
-		level: "XALQARO",
-		volume: "Vol. 14",
-		popularity: "POPULAR",
-		pdfName: "ml_medical.pdf",
-	},
-	{
-		id: 2,
-		name: "Informatika asoslari",
-		description: "Oliy ta'lim muassasalari uchun mo'ljallangan darslik",
-		year: "2022",
-		organization: "O'zbekiston",
-		type: "KITOB",
-		authorship: "HAMMUALLIF",
-		level: "MAHALLIY",
-		volume: "",
-		popularity: "ODDIY",
-		pdfName: null,
-	},
-	{
-		id: 3,
-		name: "Kvant algoritmlar samaradorligi",
-		description: "Kvant hisoblashda optimallashtirish algoritmlarining qiyosiy tahlili",
-		year: "2024",
-		organization: "IEEE",
-		type: "TADQIQOT",
-		authorship: "MUALLIF",
-		level: "XALQARO",
-		volume: "Vol. 8",
-		popularity: "POPULAR",
-		pdfName: "quantum_algo.pdf",
-	},
-];
 
 const TYPE_STYLES: Record<Nashr["type"], string> = {
 	MAQOLA: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-50",
@@ -99,10 +57,10 @@ const columns: ColumnDef<Nashr>[] = [
 		},
 	},
 	{
-		accessorKey: "level",
+		accessorKey: "degree",
 		header: "Daraja",
 		cell: ({ row }) => {
-			const level = row.getValue("level") as Nashr["level"];
+			const level = row.getValue("degree") as Nashr["level"];
 			return (
 				<Badge
 					className={
@@ -118,14 +76,14 @@ const columns: ColumnDef<Nashr>[] = [
 		},
 	},
 	{
-		accessorKey: "popularity",
+		accessorKey: "popular",
 		header: "Popularlik",
 		cell: ({ row }) => {
-			const pop = row.getValue("popularity") as Nashr["popularity"];
+			const pop = row.getValue("popular") as Nashr["popular"];
 			return (
 				<Badge
 					className={
-						pop === "POPULAR"
+						pop === true
 							? "bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-50"
 							: "bg-zinc-50 text-zinc-600 border-zinc-200 hover:bg-zinc-50"
 					}
