@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { FileInput } from "@/components/file-input/file-input";
 import { SearchableSelect } from "@/components/searchable-select/searchable-select";
 import { Button } from "@/ui/button";
@@ -7,8 +9,6 @@ import { ScrollArea } from "@/ui/scroll-area";
 import { Separator } from "@/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/sheet";
 import { Textarea } from "@/ui/textarea";
-import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
 
 const POSITIONS_OPTIONS = [
 	{ value: "1", label: "Professor" },
@@ -47,7 +47,7 @@ export type ProfileFormData = {
 	scopusId: string;
 	scienceId: string;
 	researcherId: string;
-	image: string | null;
+	image: File | string | null;
 	resume: File | null;
 };
 
@@ -192,7 +192,7 @@ export function ProfileEditSheet({ open, onClose, defaultValues, onSave }: Profi
 							<Textarea
 								id="bio"
 								placeholder="Qisqacha biografiya..."
-								className="min-h-[100px] resize-none"
+								className="min-h-24 resize-none"
 								{...register("bio")}
 							/>
 						</div>

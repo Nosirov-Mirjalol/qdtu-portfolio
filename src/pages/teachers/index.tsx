@@ -4,6 +4,9 @@ import { useNavigate } from "react-router";
 import { ConfirmPopover } from "@/components/confirm-popover/confirm-popover";
 import type { ColumnDef } from "@/components/data-table/data-table";
 import { DataTable } from "@/components/data-table/data-table";
+import { useDepartment } from "@/hooks/department/useDepartment";
+import { usePosition } from "@/hooks/position/usePosition";
+import { useDeleteTeacher } from "@/hooks/teacher/useDeleteTeacher";
 import { useTeacher } from "@/hooks/teacher/useTeacher";
 import { useTeacherSheetActions } from "@/store/teacherSheet";
 import { Button } from "@/ui/button";
@@ -12,14 +15,8 @@ import { Label } from "@/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
 import type { Teacher } from "./teacher.type";
 import { TeacherSheet } from "./teacher-sheet";
-import { useDeleteTeacher } from "@/hooks/teacher/useDeleteTeacher";
-import { useDepartment } from "@/hooks/department/useDepartment";
-import { usePosition } from "@/hooks/position/usePosition";
 
-function createColumns(
-	onEdit: (row: Teacher) => void,
-	onDelete: (row: Teacher) => void
-): ColumnDef<Teacher>[] {
+function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) => void): ColumnDef<Teacher>[] {
 	return [
 		{
 			accessorKey: "id",
@@ -34,11 +31,7 @@ function createColumns(
 				return (
 					<div className="flex items-center gap-2">
 						{teacher.imgUrl ? (
-							<img
-								src={teacher.imgUrl}
-								alt={teacher.fullName}
-								className="w-7 h-7 rounded-full object-cover shrink-0"
-							/>
+							<img src={teacher.imgUrl} alt={teacher.fullName} className="w-7 h-7 rounded-full object-cover shrink-0" />
 						) : (
 							<div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-[12px] shrink-0">
 								{teacher.fullName.charAt(0).toUpperCase()}
@@ -52,9 +45,7 @@ function createColumns(
 		{
 			accessorKey: "phoneNumber",
 			header: "Telefon",
-			cell: ({ row }) => (
-				<span className="text-muted-foreground text-[12px]">{row.getValue("phoneNumber")}</span>
-			),
+			cell: ({ row }) => <span className="text-muted-foreground text-[12px]">{row.getValue("phoneNumber")}</span>,
 		},
 		{
 			accessorKey: "lavozim",
@@ -76,7 +67,7 @@ function createColumns(
 			id: "actions",
 			header: () => <div className="text-center text-[12px]">Amallar</div>,
 			cell: ({ row }) => (
-				<div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+				<button type="button" className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
 					<button
 						type="button"
 						onClick={() => onEdit(row.original)}
@@ -138,14 +129,11 @@ export default function Teachers() {
 		if (!teachers.length) return [];
 
 		return teachers.filter((teacher) => {
-			const matchesName =
-				teacher.fullName?.toLowerCase().includes(searchName.toLowerCase()) ?? false;
+			const matchesName = teacher.fullName?.toLowerCase().includes(searchName.toLowerCase()) ?? false;
 
-			const matchesDepartment =
-				selectedDepartment === "all" || String(teacher.departmentId) === selectedDepartment;
+			const matchesDepartment = selectedDepartment === "all" || String(teacher.departmentId) === selectedDepartment;
 
-			const matchesPosition =
-				selectedPosition === "all" || String(teacher.lavozmId) === selectedPosition;
+			const matchesPosition = selectedPosition === "all" || String(teacher.lavozmId) === selectedPosition;
 
 			return matchesName && matchesDepartment && matchesPosition;
 		});
@@ -157,16 +145,15 @@ export default function Teachers() {
 		setSelectedPosition("all");
 	};
 
-	const hasActiveFilters =
-		searchName !== "" || selectedDepartment !== "all" || selectedPosition !== "all";
+	const hasActiveFilters = searchName !== "" || selectedDepartment !== "all" || selectedPosition !== "all";
 
 	const columns = useMemo(
 		() =>
 			createColumns(
 				(row) => open(row),
-				(row) => deleteTeacher(row.id)
+				(row) => deleteTeacher(row.id),
 			),
-		[open, deleteTeacher]
+		[open, deleteTeacher],
 	);
 
 	return (
@@ -179,8 +166,9 @@ export default function Teachers() {
 					</span>
 					{hasActiveFilters && (
 						<button
+							type="button"
 							onClick={clearFilters}
-							className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors ml-2"
+							className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors ml-2"
 						>
 							<X className="size-3" />
 							Filtrlarni tozalash
@@ -198,7 +186,7 @@ export default function Teachers() {
 			</div>
 
 			<div className="flex flex-wrap items-end gap-3 p-4 bg-muted/30 rounded-lg border">
-				<div className="flex-1 min-w-[200px]">
+				<div className="flex-1 min-w-48">
 					<Label htmlFor="search-name" className="text-[11px] font-medium text-muted-foreground mb-1 block">
 						Ism bo'yicha qidirish
 					</Label>
@@ -214,8 +202,8 @@ export default function Teachers() {
 					</div>
 				</div>
 
-				<div className="w-[200px]">
-					<Label htmlFor="department-filter" className="text-[11px] font-medium text-muted-foreground mb-1 block">
+				<div className="w-48">
+					<Label htmlFor="department-filter" className="text-xs font-medium text-muted-foreground mb-1 block">
 						Kafedra bo'yicha
 					</Label>
 					<Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
@@ -232,8 +220,8 @@ export default function Teachers() {
 					</Select>
 				</div>
 
-				<div className="w-[200px]">
-					<Label htmlFor="position-filter" className="text-[11px] font-medium text-muted-foreground mb-1 block">
+				<div className="w-48">
+					<Label htmlFor="position-filter" className="text-xs font-medium text-muted-foreground mb-1 block">
 						Lavozim bo'yicha
 					</Label>
 					<Select value={selectedPosition} onValueChange={setSelectedPosition}>
@@ -255,7 +243,7 @@ export default function Teachers() {
 				columns={columns}
 				data={filteredData}
 				isLoading={isLoading}
-				onRowClick={(row) => navigate(`/teacher/${row.id}`,{state:{teacher:row}})}
+				onRowClick={(row) => navigate(`/teacher/${row.id}`, { state: { teacher: row } })}
 			/>
 
 			<TeacherSheet />

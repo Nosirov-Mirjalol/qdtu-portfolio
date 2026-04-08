@@ -39,11 +39,9 @@ type ProfileFormProps = {
 };
 
 export function ProfileForm({ defaultValues }: ProfileFormProps) {
-	const { register, control ,} = useForm<ProfileFormData>({
+	const { register, control } = useForm<ProfileFormData>({
 		defaultValues,
 	});
-  console.log();
-  
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -179,7 +177,7 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
 							<Textarea
 								id="bio"
 								placeholder="Qisqacha biografiya..."
-								className="min-h-[90px] resize-none"
+								className="min-h-24 resize-none"
 								{...register("bio")}
 							/>
 						</div>
@@ -189,7 +187,7 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
 							<Textarea
 								id="additionalInfo"
 								placeholder="Ilmiy yutuqlar, tajriba..."
-								className="min-h-[70px] resize-none"
+								className="min-h-20 resize-none"
 								{...register("additionalInfo")}
 							/>
 						</div>

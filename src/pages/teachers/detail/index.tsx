@@ -1,27 +1,38 @@
 import { ChevronRight, GraduationCap } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
+import { TableToolbar } from "@/components/table-toolbar/table-toolbar";
+import type { Teacher } from "@/features/teacher/teacher.type";
+import { useGetTeacherStats } from "@/hooks/teacher/useGetTeacherStats";
+import { useMaslahat } from "@/hooks/teacher/useMaslahat";
+import { useAward } from "@/hooks/teacher/useMukofot";
+import { useNashr } from "@/hooks/teacher/useNashr";
+import { useNazorat } from "@/hooks/teacher/useNazorat";
+import { useResearch } from "@/hooks/teacher/useResearch";
+import { useTeacherComplation } from "@/hooks/teacher/useTeacherComplation";
+import { useTeacherId } from "@/hooks/teacher/useTeacherId";
 import { useModalActions } from "@/store/modalStore";
+import { Button } from "@/ui/button";
+import { ActivityTabs } from "./activity-tabs";
+import { MaslahatModal } from "./detail-modals/maslahat-modal";
+import { MukofotModal } from "./detail-modals/mukofot-modal";
 import { NashrModal } from "./detail-modals/nashr-modal";
 import { PublicationModal } from "./detail-modals/publication-modal";
 import { ResearchModal } from "./detail-modals/research-modal";
-import { MaslahatModal } from "./detail-modals/maslahat-modal";
 import type { ProfileFormData } from "./detail-profile/profile-edit";
 import { ProfileForm } from "./detail-profile/profile-form";
 import { ProfileSidebar } from "./detail-profile/profile-sidebar";
-import { useLocation, useNavigate } from "react-router";
-import { Button } from "@/ui/button";
 import { StatsGrid } from "./stats-grid";
-import { useGetTeacherStats } from "@/hooks/teacher/useGetTeacherStats";
-import { TableToolbar } from "@/components/table-toolbar/table-toolbar";
-import { ActivityTabs } from "./activity-tabs";
-import { useResearch } from "@/hooks/teacher/useResearch";
-import { useNazorat } from "@/hooks/teacher/useNazorat";
-import { useNashr } from "@/hooks/teacher/useNashr";
-import { useMaslahat } from "@/hooks/teacher/useMaslahat";
-import { useAward } from "@/hooks/teacher/useMukofot";
-import { MukofotModal } from "./detail-modals/mukofot-modal";
-import { useTeacherComplation } from "@/hooks/teacher/useTeacherComplation";
-import { useTeacherId } from "@/hooks/teacher/useTeacherId";
+
+const EmptyState = ({ title, description, icon }: { title: string; description: string; icon: React.ReactNode }) => (
+	<div className="flex flex-col items-center justify-center py-8 gap-3">
+		<div className="text-muted-foreground">{icon}</div>
+		<div className="text-center">
+			<p className="font-semibold text-foreground text-sm">{title}</p>
+			<p className="text-xs text-muted-foreground mt-1">{description}</p>
+		</div>
+	</div>
+);
 
 export default function TeacherDetail() {
 	const navigate = useNavigate();
@@ -29,16 +40,17 @@ export default function TeacherDetail() {
 	const { open } = useModalActions();
 
 	// Teacher ma'lumotlarini olish
-	const teacher = (location.state as { teacher?: TeacherProfile } | null)?.teacher ?? null;
-	const {data:teacherr}=useTeacherId(teacher?.id);
+	const teacher = (location.state as { teacher?: Teacher } | null)?.teacher ?? null;
+	const { data: teacherResponse } = useTeacherId(teacher?.id ?? 0);
+	const teacherDetail = teacherResponse?.data;
 
 	const { data: statsData, isLoading: statsLoading } = useGetTeacherStats(teacher?.id);
-	const { data: researchData, isLoading: researchLoading } = useResearch(teacher.id);
-	const { data: nazoratData, isLoading: nazoratLoading } = useNazorat(teacher.id);
-	const { data: nashrData, isLoading: nashrLoading } = useNashr(teacher.id);
-	const { data: maslahatData, isLoading: maslahatLoading } = useMaslahat(teacher.id);
-	const { data: mukofotData, isLoading: mukofotLoading } = useAward(teacher.id);
-	const { data: complation, isLoading: ComplationLoading } = useTeacherComplation(teacher?.id);	
+	const { data: researchData, isLoading: researchLoading } = useResearch(teacher?.id ?? 0);
+	const { data: nazoratData, isLoading: nazoratLoading } = useNazorat(teacher?.id ?? 0);
+	const { data: nashrData, isLoading: nashrLoading } = useNashr(teacher?.id ?? 0);
+	const { data: maslahatData, isLoading: maslahatLoading } = useMaslahat(teacher?.id ?? 0);
+	const { data: mukofotData } = useAward(teacher?.id ?? 0);
+	const { data: complation } = useTeacherComplation(teacher?.id ?? 0);
 
 	const research = researchData?.data;
 	const nazorat = nazoratData?.data;
@@ -53,12 +65,6 @@ export default function TeacherDetail() {
 	}, [teacher]);
 
 	const [activeTab, setActiveTab] = useState("researches");
-
-	// Pagination states
-	const [researchPage, setResearchPage] = useState(0);
-	const [nazoratPage, setNazoratPage] = useState(0);
-	const [nashrlarPage, setNashrlarPage] = useState(0);
-	const [maslahatlarPage, setMaslahatlarPage] = useState(0);
 
 	if (!teacher) {
 		return (
@@ -134,7 +140,7 @@ export default function TeacherDetail() {
 	return (
 		<div className="flex flex-col gap-4 sm:gap-5">
 			{/* Breadcrumb */}
-			<div className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
+			<div className="flex items-center gap-1.5 text-sm text-muted-foreground">
 				<button
 					type="button"
 					onClick={() => navigate("/teachers")}
@@ -143,10 +149,18 @@ export default function TeacherDetail() {
 					O'qituvchilar
 				</button>
 				<ChevronRight className="size-3.5 opacity-40" />
-				<span className="text-foreground font-medium truncate max-w-[160px] sm:max-w-xs">{teacher.fullName}</span>
+				<span className="text-foreground font-medium truncate max-w-xs sm:max-w-lg">{teacher.fullName}</span>
 			</div>
 			<div className="flex flex-col lg:flex-row gap-4 sm:gap-5 items-start">
-				<ProfileSidebar profile={teacherr} newImage={teacher.imgUrl} complation={complation?.data} />
+				<ProfileSidebar
+					profile={{
+						fullName: teacherDetail?.fullName || teacher.fullName,
+						lavozimName: teacher.lavozim,
+						imageUrl: teacherDetail?.imageUrl || teacher.imgUrl,
+					}}
+					newImage={teacher.imgUrl}
+					complation={complation?.data}
+				/>
 				<div className="w-full lg:flex-1 min-w-0">
 					<ProfileForm defaultValues={profile} />
 				</div>
@@ -163,38 +177,38 @@ export default function TeacherDetail() {
 			<ActivityTabs
 				activeTab={activeTab}
 				onTabChange={setActiveTab}
-				userId={teacher.id}
+				userId={teacher?.id ?? 0}
 				// Research
 				researches={research?.body ?? []}
 				researchPage={research?.page ?? 0}
 				researchTotalPage={research?.totalPage ?? 0}
-				onResearchPageChange={setResearchPage}
-				researchLoading={researchLoading}
+				onResearchPageChange={() => {}}
+				researchLoading={researchLoading ?? false}
 				// Nashr
-				nashrlar={nashr?.body ?? []}
+				nashrlar={nashr?.body ? (Array.isArray(nashr.body) ? nashr.body : [nashr.body]) : []}
 				nashrlarPage={nashr?.page ?? 0}
 				nashrlarTotalPage={nashr?.totalPage ?? 0}
-				onNashrlarPageChange={setNashrlarPage}
-				nashrlarLoading={nashrLoading}
+				onNashrlarPageChange={() => {}}
+				nashrlarLoading={nashrLoading ?? false}
 				// Nazorat
-				nazoratlar={nazorat?.body ?? []}
+				nazoratlar={nazorat?.body ? (Array.isArray(nazorat.body) ? nazorat.body : [nazorat.body]) : []}
 				nazoratPage={nazorat?.page ?? 0}
 				nazoratTotalPage={nazorat?.totalPage ?? 0}
-				onNazoratPageChange={setNazoratPage}
-				nazoratLoading={nazoratLoading}
+				onNazoratPageChange={() => {}}
+				nazoratLoading={nazoratLoading ?? false}
 				// Maslahat
-				maslahatlar={maslahat?.body ?? []}
+				maslahatlar={maslahat?.body ? (Array.isArray(maslahat.body) ? maslahat.body : [maslahat.body]) : []}
 				maslahatlarPage={maslahat?.page ?? 0}
 				maslahatlarTotalPage={maslahat?.totalPage ?? 0}
-				onMaslahatlarPageChange={setMaslahatlarPage}
-				maslahatlarLoading={maslahatLoading}
+				onMaslahatlarPageChange={() => {}}
+				maslahatlarLoading={maslahatLoading ?? false}
 				// Mukofot
 				mukofotlar={mukofot?.body ?? []}
 			/>
 			<StatsGrid data={statsData} isLoading={statsLoading} />
 			{/* Modallar */}
 			<ResearchModal userId={teacher?.id} />
-			<PublicationModal userId={teacher?.id}/>
+			<PublicationModal userId={teacher?.id} />
 			<NashrModal userId={teacher?.id} />
 			<MaslahatModal userId={teacher?.id} />
 			<MukofotModal userId={teacher?.id} />
