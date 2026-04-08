@@ -1,3 +1,5 @@
+// teacher.type.ts - yangilangan
+
 export interface Teacher {
   id: number;
   fullName: string;
@@ -119,6 +121,34 @@ export interface EditTeacherRequest {
   gender: boolean;
   password: string;
   departmentId: number;
+}
+
+// ✅ PROFIL EDIT UCHUN TO'G'RI TYPE
+export interface ProfileEditRequest extends Partial<UpdateTeacherRequest> {
+  id: number;
+  // Barcha fieldlar optional bo'ladi partial update uchun
+  fullName?: string;
+  phoneNumber?: string;
+  email?: string;
+  biography?: string;
+  input?: string;
+  age?: number;
+  orcid?: string;
+  scopusid?: string;
+  scienceId?: string;
+  researcherId?: string;
+  gender?: boolean;
+  imgUrl?: string;
+  fileUrl?: string;
+  profession?: string;
+  lavozmId?: number;
+  departmentId?: number;
+}
+
+export interface ProfileFormData extends Omit<ProfileEditRequest, 'imgUrl' | 'fileUrl'> {
+  // File inputlar uchun
+  imageUri?: File | null;
+  fileUrl?: File | null | string;
 }
 
 export interface CommonResponse {
