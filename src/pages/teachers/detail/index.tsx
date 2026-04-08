@@ -20,6 +20,8 @@ import { useNashr } from "@/hooks/teacher/useNashr";
 import { useMaslahat } from "@/hooks/teacher/useMaslahat";
 import { useAward } from "@/hooks/teacher/useMukofot";
 import { MukofotModal } from "./detail-modals/mukofot-modal";
+import { useTeacherComplation } from "@/hooks/teacher/useTeacherComplation";
+import { useTeacherId } from "@/hooks/teacher/useTeacherId";
 
 export default function TeacherDetail() {
 	const navigate = useNavigate();
@@ -28,13 +30,15 @@ export default function TeacherDetail() {
 
 	// Teacher ma'lumotlarini olish
 	const teacher = (location.state as { teacher?: TeacherProfile } | null)?.teacher ?? null;
-	const { data: statsData, isLoading: statsLoading } = useGetTeacherStats(teacher?.id);
+	const {data:teacherr}=useTeacherId(teacher?.id);
 
+	const { data: statsData, isLoading: statsLoading } = useGetTeacherStats(teacher?.id);
 	const { data: researchData, isLoading: researchLoading } = useResearch(teacher.id);
 	const { data: nazoratData, isLoading: nazoratLoading } = useNazorat(teacher.id);
 	const { data: nashrData, isLoading: nashrLoading } = useNashr(teacher.id);
 	const { data: maslahatData, isLoading: maslahatLoading } = useMaslahat(teacher.id);
 	const { data: mukofotData, isLoading: mukofotLoading } = useAward(teacher.id);
+	const { data: complation, isLoading: ComplationLoading } = useTeacherComplation(teacher?.id);	
 
 	const research = researchData?.data;
 	const nazorat = nazoratData?.data;
@@ -85,7 +89,7 @@ export default function TeacherDetail() {
 		scopusId: "",
 		scienceId: "",
 		researcherId: "",
-		image: null,
+		image: teacher.imgUrl,
 		resume: null,
 	};
 
@@ -142,7 +146,7 @@ export default function TeacherDetail() {
 				<span className="text-foreground font-medium truncate max-w-[160px] sm:max-w-xs">{teacher.fullName}</span>
 			</div>
 			<div className="flex flex-col lg:flex-row gap-4 sm:gap-5 items-start">
-				<ProfileSidebar profile={profile} imgUrl={teacher.imgUrl} />
+				<ProfileSidebar profile={teacherr} newImage={teacher.imgUrl} complation={complation?.data} />
 				<div className="w-full lg:flex-1 min-w-0">
 					<ProfileForm defaultValues={profile} />
 				</div>
