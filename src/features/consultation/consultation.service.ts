@@ -1,6 +1,6 @@
 import { apiClient } from "@/api/client"
 import { MASLAHAT } from "@/constants/apiEndpoint"
-import type { ApiResponse, GetbyIdResponse, PublicationRequest } from "./consultation.type" 
+import type { ApiResponse, GetbyIdResponse, ConsultationRequest } from "./consultation.type" 
 
 export const MaslahatService={
   getById(id:number){
@@ -9,10 +9,10 @@ export const MaslahatService={
   delete(id:number){
     return apiClient.delete<ApiResponse>(`${MASLAHAT.DELETE}/${id}`)
   },
-  edit(id: number | string, params: PublicationRequest) {
+  edit(id: number | string, params: ConsultationRequest) {
 		return apiClient.put(`${MASLAHAT.DELETE}/${id}`,params);
 	},
-	create(params: PublicationRequest) {
+	create(params: ConsultationRequest) {
 		return apiClient.post(MASLAHAT.DELETE, params);
 	},
 }

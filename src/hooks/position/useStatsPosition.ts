@@ -1,5 +1,5 @@
-import { PositionService } from "@/features/positiion/position.service";
 import { useQuery } from "@tanstack/react-query";
+import { PositionService } from "@/features/position/position.service";
 
 export function useStatsPosition() {
 	return useQuery({

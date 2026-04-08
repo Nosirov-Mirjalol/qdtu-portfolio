@@ -1,12 +1,13 @@
 export interface CreateDepartmentDTO {
 	name: string;
 	imgUrl: string;
-	collegeId:string | number;
+	collegeId: number;
 }
 export interface Department {
-	id: number;
-	name: string;
-	imgUrl: string;
+  id: number;
+  name: string;
+  imgUrl: string;
+  collegeId: number;
 }
 export interface DepartmentListResponse {
 	success: boolean;

@@ -1,20 +1,20 @@
-import { TableToolbar } from "@/components/table-toolbar/table-toolbar";
-import { Card, CardContent } from "@/ui/card";
-import { Pencil, Trash2, Users, Briefcase } from "lucide-react";
+import { Briefcase, Pencil, Trash2, Users } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useModalActions, useModalIsOpen, useModalEditData } from "@/store/modalStore";
-import { Modal } from "@/components/modal/modal";
-import { Button } from "@/ui/button";
 import { useForm } from "react-hook-form";
-import { Label } from "@/ui/label";
-import { Input } from "@/ui/input";
 import { ConfirmPopover } from "@/components/confirm-popover/confirm-popover";
-import { usePosition } from "@/hooks/position/usePosition";
+import { Modal } from "@/components/modal/modal";
+import { TableToolbar } from "@/components/table-toolbar/table-toolbar";
+import type { Position } from "@/features/position/position.type";
 import { useCreatePosition } from "@/hooks/position/useCreatePosition";
-import { useUpdatePosition } from "@/hooks/position/useEditPosition";
 import { useDeletePosition } from "@/hooks/position/useDeletePosition";
+import { useUpdatePosition } from "@/hooks/position/useEditPosition";
+import { usePosition } from "@/hooks/position/usePosition";
 import { useStatsPosition } from "@/hooks/position/useStatsPosition";
-import type { Position } from "@/features/positiion/position.type";
+import { useModalActions, useModalEditData, useModalIsOpen } from "@/store/modalStore";
+import { Button } from "@/ui/button";
+import { Card, CardContent } from "@/ui/card";
+import { Input } from "@/ui/input";
+import { Label } from "@/ui/label";
 
 type PositionFormValues = {
 	name: string;
@@ -38,7 +38,8 @@ export default function Positions() {
 	const positions: Position[] = positionResponse?.data ?? [];
 
 	const stats = statsResponse?.data;
-	const totalEmployees = stats?.data?.reduce((sum: number, item: { totalEmployees: number }) => sum + item.totalEmployees, 0) ?? 0;
+	const totalEmployees =
+		stats?.data?.reduce((sum: number, item: { totalEmployees: number }) => sum + item.totalEmployees, 0) ?? 0;
 
 	const filtered = useMemo(
 		() => positions.filter((f) => f.name.toLowerCase().includes(search.toLowerCase())),

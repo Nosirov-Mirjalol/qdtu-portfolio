@@ -2,15 +2,12 @@ import { apiClient } from "@/api/client";
 import { TEACHER, USER_COMPLETION, USER_STATISTICS } from "@/constants/apiEndpoint";
 import type {
   CreateTeacherParams,
-  CreateTeacherResponse,
-  EditTeacherParams,
-  EditTeacherResponse,
-  DeleteTeacherResponse,
+  EditTeacherRequest,
+  SearchParams,
   GetTeacherListResponse,
   GetTeacherByIdResponse,
   UpdateTeacherParams,
-  UpdateTeacherResponse,
-  SearchParams,
+  CommonResponse,
   TeacherStatsResponse,
   TeacherComplationResponse,
 } from "./teacher.type";
@@ -25,27 +22,26 @@ export const TeacherService = {
   },
 
   create(params: CreateTeacherParams) {
-    return apiClient.post<CreateTeacherResponse>(TEACHER.CREATE, params);
+    return apiClient.post<CommonResponse>(TEACHER.CREATE, params);
   },
 
-  edit(params: EditTeacherParams) {
-    return apiClient.put<EditTeacherResponse>(`${TEACHER.EDIT}`, params);
+  edit(params: EditTeacherRequest) {
+    return apiClient.put<CommonResponse>(TEACHER.EDIT, params);
   },
 
-  update(id: number, params: UpdateTeacherParams) {
-    return apiClient.put<UpdateTeacherResponse>(
-      `${TEACHER.EDIT}/${id}`,
-      params
-    );
+  updateProfile(params: UpdateTeacherParams) {
+    return apiClient.put<CommonResponse>(TEACHER.UPDATE_PROFILE, params);
   },
 
   delete(id: number) {
-    return apiClient.delete<DeleteTeacherResponse>(`${TEACHER.DELETE}/${id}`);
+    return apiClient.delete<CommonResponse>(`${TEACHER.DELETE}/${id}`);
   },
-  getStats(id:number){
-    return apiClient.get<TeacherStatsResponse>(`${USER_STATISTICS}/${id}`)
+
+  getStats(id: number) {
+    return apiClient.get<TeacherStatsResponse>(`${USER_STATISTICS}/${id}`);
   },
-  completion(id:number){
-    return apiClient.get<TeacherComplationResponse>(`${USER_COMPLETION}/${id}`)
+
+  getCompletion(id: number) {
+    return apiClient.get<TeacherComplationResponse>(`${USER_COMPLETION}/${id}`);
   }
 };

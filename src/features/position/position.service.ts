@@ -1,6 +1,6 @@
 import { apiClient } from "@/api/client";
 import { Position } from "./position.type";
-import type { PositionCreateResponse, CreatePositionDTO } from "./position.type";
+import type { PositionCreateResponse, CreatePositionDTO, IApiResponse } from "./position.type";
 import { POSITION } from "@/constants/apiEndpoint";
 
 export const PositionService = {
@@ -17,6 +17,6 @@ export const PositionService = {
 		return apiClient.put<{ success: boolean; message: string }>(`${POSITION.LAVOZIM}/${id}`, data);
 	},
 	getStatistik(){
-		return apiClient.get(`${POSITION.STATISTIC}`)
+		return apiClient.get<IApiResponse>(`${POSITION.STATISTIC}`)
 	}
 };

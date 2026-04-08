@@ -42,19 +42,6 @@ export interface GetbyIdResponse {
   message: string;
   data: PaginationData<PublicationItem>;
 }
-// Create pleace
-enum PublicationType {
-  ARTICLE = 'ARTICLE',
-  BOOK = 'BOOK',
-  PROCEEDING = 'PROCEEDING',
-  OTHERS = 'OTHERS'
-}
-
-enum AuthorRole {
-  COAUTHOR = 'COAUTHOR',
-  FIRST_AUTHOR = 'FIRST_AUTHOR',
-  BOTH_AUTHOR = 'BOTH_AUTHOR'
-}
 
 enum DegreeLevel {
   INTERNATIONAL = 'INTERNATIONAL',
@@ -69,7 +56,7 @@ export interface PublicationCreateParams {
   year: number;
   fileUrl: string;
   type: PublicationType;
-  author: AuthorRole;
+  author: AuthorType;
   degree: DegreeLevel;
   volume: string;
   institution: string;

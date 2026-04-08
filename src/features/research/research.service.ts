@@ -1,6 +1,6 @@
 import { apiClient } from "@/api/client"
 import { RESEARCH } from "@/constants/apiEndpoint"
-import { EditResearchParams, EditResearchResponse, GetByIdResponse, ResearchCreateParams } from "./research.type"
+import type { EditResearchParams, EditResearchResponse, GetByIdResponse, ResearchCreateParams } from "./research.type"
 
 export const ResearchService={
   getById(id:number){

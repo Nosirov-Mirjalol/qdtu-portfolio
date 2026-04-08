@@ -38,7 +38,7 @@ export interface GetbyIdResponse {
 
 // create and Edit types
 
-export interface PublicationRequest {
+export interface ConsultationRequest {
   name: string;
   description: string;
   year: number;

@@ -1,6 +1,6 @@
-import { PositionService } from "@/features/positiion/position.service"; 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { PositionService } from "@/features/position/position.service";
 
 export function useCreatePosition() {
 	const queryClient = useQueryClient();

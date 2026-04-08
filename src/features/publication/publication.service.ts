@@ -1,7 +1,7 @@
 import { apiClient } from "@/api/client";
 import { NASHR } from "@/constants/apiEndpoint";
 import type { GetbyIdResponse, PublicationCreateParams } from "./publication.type";
-import { EditResearchResponse } from "../research/research.type";
+import type { EditResearchResponse } from "../research/research.type";
 
 export const publicationService = {
 	getById(id: number) {
