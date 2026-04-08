@@ -1,5 +1,5 @@
 import { Award, Loader2, Plus } from "lucide-react";
-import { useAward } from "@/hooks/teacher/useMukofot";
+import { useMukofot } from "@/hooks/teacher/useMukofot";
 import { useUser } from "@/hooks/user/useUser";
 import { MukofotModal } from "@/pages/teachers/detail/detail-modals/mukofot-modal";
 import { MukofotlarTab } from "@/pages/teachers/detail/detail-tabs/mukofotlar-tab";
@@ -9,7 +9,7 @@ import { Button } from "@/ui/button";
 export default function TeacherAwards() {
 	const { open } = useModalActions();
 	const { data: teacher, isLoading: userLoading } = useUser();
-	const { data, isLoading: mukofotLoading } = useAward(teacher?.id);
+	const { data, isLoading: mukofotLoading } = useMukofot(teacher?.id);
 
 	const isLoading = userLoading || mukofotLoading;
 

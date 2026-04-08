@@ -1,7 +1,7 @@
 import { apiClient } from "@/api/client";
 import { MUKOFOT } from "@/constants/apiEndpoint";
-import type { AwardRequest, GetbyIdResponse } from "./mukofot";
 import type { EditResearchResponse } from "../research/research.type";
+import type { AwardRequest, GetbyIdResponse } from "./mukofot";
 
 export const MukofotService = {
 	getById(id: number) {
@@ -14,6 +14,6 @@ export const MukofotService = {
 		return apiClient.put(`${MUKOFOT.DELETE}/${id}`, params);
 	},
 	create(params: AwardRequest) {
-		return apiClient.post(MUKOFOT.DELETE, params);
+		return apiClient.post(MUKOFOT.CREATE, params);
 	},
 };

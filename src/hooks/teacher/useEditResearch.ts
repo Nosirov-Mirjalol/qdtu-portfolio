@@ -30,7 +30,7 @@ export function useEditResearch() {
 				memberEnum: input.memberEnum,
 				univerName: input.univerName,
 				userId: input.userId,
-				year: input.userId,
+				year: input.year,
 			});
 		},
 		onSuccess: () => {

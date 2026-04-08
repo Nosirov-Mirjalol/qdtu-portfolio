@@ -1,10 +1,9 @@
-
-import { publicationService } from "@/features/publication/publication.service";
 import { useQuery } from "@tanstack/react-query";
+import { publicationService } from "@/features/publication/publication.service";
 
-export function useNashr(id:number) {
+export function useNashr(id: number) {
 	return useQuery({
-		queryKey: ["Nashr"],
+		queryKey: ["nashr", id],
 		queryFn: () => publicationService.getById(id),
 		enabled: !!id,
 	});

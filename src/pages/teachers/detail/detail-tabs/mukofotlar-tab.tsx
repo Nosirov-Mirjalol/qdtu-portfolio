@@ -27,49 +27,6 @@ export type Mukofot = {
   memberEnum: MemberType;
 };
 
-export const MOCK_MUKOFOTLAR: Mukofot[] = [
-  {
-    id: 1,
-    name: "Eng yaxshi innovatsiya mukofoti",
-    description: "Texnologiya sohasidagi ilg'or innovatsiyalar uchun berilgan mukofot.",
-    year: 2024,
-    fileUrl: "innovation_award.pdf",
-    userId: 101,
-    awardEnum: "Davlat_Mukofoti",
-    memberEnum: "XALQARO",
-  },
-  {
-    id: 2,
-    name: "Trening sertifikati",
-    description: "Ilmiy tadqiqot metodologiyasi bo'yicha o'tkazilgan trening.",
-    year: 2025,
-    fileUrl: "",
-    userId: 102,
-    awardEnum: "Trening_Va_Amaliyot",
-    memberEnum: "MILLIY",
-  },
-  {
-    id: 3,
-    name: "Tahririyat kengashi a'zoligi",
-    description: "Xalqaro ilmiy jurnal tahririyat kengashiga a'zolik.",
-    year: 2023,
-    fileUrl: "editorial_membership.pdf",
-    userId: 103,
-    awardEnum: "Tahririyat_Kengashiga_Azolik",
-    memberEnum: "XALQARO",
-  },
-  {
-    id: 4,
-    name: "DGU patenti",
-    description: "Yangi kimyoviy birikmalar sintezi bo'yicha olingan patent.",
-    year: 2026,
-    fileUrl: "",
-    userId: 104,
-    awardEnum: "Patent_Dgu",
-    memberEnum: "MILLIY",
-  },
-];
-
 const AWARD_LABELS: Record<AwardType, string> = {
   Trening_Va_Amaliyot: "Trening va amaliyot",
   Tahririyat_Kengashiga_Azolik: "Tahririyat kengashi",

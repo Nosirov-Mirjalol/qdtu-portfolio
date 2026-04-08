@@ -34,23 +34,33 @@ const API_ENDPOINTS = {
 	USER_STATISTICS: "/user/statistics",
 	RESEARCH: {
 		GETBYID: "/research/byUser",
-		DELETE:"/research"
+		DELETE: "/research",
+		CREATE: "/research",
+		UPDATE: "/research",
 	},
 	NAZORAT: {
 		GETBYID: "/nazorat/byUser",
-		DELETE:"/nazorat"
+		DELETE: "/nazorat",
+		CREATE: "/nazorat",
+		UPDATE: "/nazorat",
 	},
 	NASHR: {
 		GETBYID: "/api/publication/byUser",
-		DELETE:"/api/publication"
+		DELETE: "/api/publication",
+		CREATE: "/api/publication",
+		UPDATE: "/api/publication",
 	},
 	MASLAHAT: {
 		GETBYID: "/api/consultation/byUser",
-		DELETE:"/api/consultation"
+		DELETE: "/api/consultation",
+		CREATE: "/api/consultation",
+		UPDATE: "/api/consultation",
 	},
 	MUKOFOT: {
 		GETBYID: "/award/byUser",
-		DELETE:"/award"
+		DELETE: "/award",
+		CREATE: "/award",
+		UPDATE: "/award",
 	},
 	USER_COMPLETION: "/user/profile-completion",
 };
@@ -69,5 +79,5 @@ export const {
 	MUKOFOT,
 	NASHR,
 	NAZORAT,
-	USER_COMPLETION
+	USER_COMPLETION,
 } = API_ENDPOINTS;

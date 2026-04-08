@@ -1,9 +1,9 @@
-
-import { ResearchService } from "@/features/research/research.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { ResearchService } from "@/features/research/research.service";
+import type { ResearchCreateParams } from "@/features/research/research.type";
 
-export interface CreateMukofotInput {
+export interface CreateResearchInput {
 	name: string;
 	description: string;
 	year: number;
@@ -19,7 +19,7 @@ export function useCreateResearch() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: (input: CreateMukofotInput) => ResearchService.create(input),
+		mutationFn: (input: CreateResearchInput) => ResearchService.create(input),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["research"] });
 			toast.success("Tatqiqot muvaffaqiyatli qo'shildi");

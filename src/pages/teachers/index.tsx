@@ -13,7 +13,7 @@ import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
-import type { Teacher } from "./teacher.type";
+import type { Teacher } from "@/features/teacher/teacher.type";
 import { TeacherSheet } from "./teacher-sheet";
 
 function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) => void): ColumnDef<Teacher>[] {
@@ -67,10 +67,13 @@ function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) 
 			id: "actions",
 			header: () => <div className="text-center text-[12px]">Amallar</div>,
 			cell: ({ row }) => (
-				<button type="button" className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+				<div className="flex items-center justify-center gap-1.5">
 					<button
 						type="button"
-						onClick={() => onEdit(row.original)}
+						onClick={(e) => {
+							e.stopPropagation();
+							onEdit(row.original);
+						}}
 						className="inline-flex items-center gap-1 bg-green-50 text-green-700 hover:bg-green-100 text-[11px] font-semibold px-2 py-0.5 rounded-md transition-colors cursor-pointer"
 					>
 						<FilePenLine className="size-3" />
@@ -79,6 +82,7 @@ function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) 
 					<ConfirmPopover onConfirm={() => onDelete(row.original)}>
 						<button
 							type="button"
+							onClick={(e) => e.stopPropagation()}
 							className="inline-flex items-center gap-1 bg-red-50 text-red-600 hover:bg-red-100 text-[11px] font-semibold px-2 py-0.5 rounded-md transition-colors cursor-pointer"
 						>
 							<UserX className="size-3" />
