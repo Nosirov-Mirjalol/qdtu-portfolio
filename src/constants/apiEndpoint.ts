@@ -51,6 +51,7 @@ const API_ENDPOINTS = {
 		GETBYID: "/award/byUser",
 		DELETE:"/award"
 	},
+	USER_COMPLETION: "/user/profile-completion",
 };
 
 export const {
@@ -67,4 +68,5 @@ export const {
 	MUKOFOT,
 	NASHR,
 	NAZORAT,
+	USER_COMPLETION
 } = API_ENDPOINTS;

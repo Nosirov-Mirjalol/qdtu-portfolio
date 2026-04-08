@@ -200,3 +200,9 @@ export interface TeacherStatsResponse {
  message: string;
  data: TeacherStatsData;
 }
+
+export interface TeacherComplationResponse {
+ success: boolean;
+ message: string;
+ data: number;
+}

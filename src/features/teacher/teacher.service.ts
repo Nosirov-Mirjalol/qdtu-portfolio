@@ -1,17 +1,18 @@
 import { apiClient } from "@/api/client";
-import { TEACHER, USER_STATISTICS } from "@/constants/apiEndpoint";
-import {
-  type CreateTeacherParams,
-  type CreateTeacherResponse,
-  type EditTeacherParams,
-  type EditTeacherResponse,
-  type DeleteTeacherResponse,
-  type GetTeacherListResponse,
-  type GetTeacherByIdResponse,
-  type UpdateTeacherParams,
-  type UpdateTeacherResponse,
-  type SearchParams,
+import { TEACHER, USER_COMPLETION, USER_STATISTICS } from "@/constants/apiEndpoint";
+import type {
+  CreateTeacherParams,
+  CreateTeacherResponse,
+  EditTeacherParams,
+  EditTeacherResponse,
+  DeleteTeacherResponse,
+  GetTeacherListResponse,
+  GetTeacherByIdResponse,
+  UpdateTeacherParams,
+  UpdateTeacherResponse,
+  SearchParams,
   TeacherStatsResponse,
+  TeacherComplationResponse,
 } from "./teacher.type";
 
 export const TeacherService = {
@@ -43,5 +44,8 @@ export const TeacherService = {
   },
   getStats(id:number){
     return apiClient.get<TeacherStatsResponse>(`${USER_STATISTICS}/${id}`)
+  },
+  completion(id:number){
+    return apiClient.get<TeacherComplationResponse>(`${USER_COMPLETION}/${id}`)
   }
 };

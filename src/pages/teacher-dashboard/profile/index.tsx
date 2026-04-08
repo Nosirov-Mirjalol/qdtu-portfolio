@@ -1,31 +1,27 @@
-import type { ProfileFormData } from "@/pages/teachers/detail/detail-profile/profile-edit";
+import { useTeacherComplation } from "@/hooks/teacher/useTeacherComplation";
+import { useTeacherId } from "@/hooks/teacher/useTeacherId";
+import { useUser } from "@/hooks/user/useUser";
 import { ProfileForm } from "@/pages/teachers/detail/detail-profile/profile-form";
 import { ProfileSidebar } from "@/pages/teachers/detail/detail-profile/profile-sidebar";
-
-const profile: ProfileFormData = {
-	fullName: "Karimov Bobur Aliyevich",
-	email: "bobur.karimov@qdtu.uz",
-	age: "42",
-	phone: "+998900000000",
-	department: "Farmatsiya va kimyo kafedrasi",
-	position: "Dotsent",
-	bio: "Farmatsiya va kimyo sohasida 15 yildan ortiq tajribaga ega mutaxassis.",
-	additionalInfo: "",
-	specialty: "Farmatsiya",
-	orcId: "0000-0002-1234-5678",
-	scopusId: "57210000000",
-	scienceId: "",
-	researcherId: "",
-	image: null,
-	resume: null,
-};
+import { Loader2 } from "lucide-react";
 
 export default function TeacherProfile() {
+	const { data: teacher, isLoading } = useUser();
+	const { data: profile, isLoading: teacherLoading } = useTeacherId(teacher?.id);
+	const { data: complation, isLoading: ComplationLoading } = useTeacherComplation(teacher?.id);	
+
+	if (teacherLoading || isLoading || ComplationLoading)
+		return (
+			<div className="w-full h-[60vh] flex flex-col items-center justify-center gap-3 animate-in fade-in duration-500">
+				<Loader2 className="size-10 text-primary animate-spin" />
+				<p className="text-muted-foreground animate-pulse text-sm font-medium">Ma'lumotlar yuklanmoqda...</p>
+			</div>
+		);
 	return (
 		<div className="flex flex-col lg:flex-row gap-4 sm:gap-5 items-start">
-			<ProfileSidebar profile={profile} />
+			<ProfileSidebar profile={profile?.data} complation={complation?.data} />
 			<div className="w-full lg:flex-1 min-w-0">
-				<ProfileForm defaultValues={profile} />
+				<ProfileForm defaultValues={profile?.data} />
 			</div>
 		</div>
 	);
