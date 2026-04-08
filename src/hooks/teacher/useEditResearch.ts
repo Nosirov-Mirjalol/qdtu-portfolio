@@ -1,10 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { fileService } from "@/features/file/file.service";
 import { ResearchService } from "@/features/research/research.service";
 
 interface EditResearchInput {
-	id: string;
+	id: number;
 	name: string;
 	description: string;
 	year: number;

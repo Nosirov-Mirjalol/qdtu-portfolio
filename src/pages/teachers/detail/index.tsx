@@ -5,7 +5,7 @@ import { TableToolbar } from "@/components/table-toolbar/table-toolbar";
 import type { Teacher } from "@/features/teacher/teacher.type";
 import { useGetTeacherStats } from "@/hooks/teacher/useGetTeacherStats";
 import { useMaslahat } from "@/hooks/teacher/useMaslahat";
-import { useAward } from "@/hooks/teacher/useMukofot";
+import { useMukofot } from "@/hooks/teacher/useMukofot";
 import { useNashr } from "@/hooks/teacher/useNashr";
 import { useNazorat } from "@/hooks/teacher/useNazorat";
 import { useResearch } from "@/hooks/teacher/useResearch";
@@ -49,7 +49,7 @@ export default function TeacherDetail() {
 	const { data: nazoratData, isLoading: nazoratLoading } = useNazorat(teacher?.id ?? 0);
 	const { data: nashrData, isLoading: nashrLoading } = useNashr(teacher?.id ?? 0);
 	const { data: maslahatData, isLoading: maslahatLoading } = useMaslahat(teacher?.id ?? 0);
-	const { data: mukofotData } = useAward(teacher?.id ?? 0);
+	const { data: mukofotData } = useMukofot(teacher?.id ?? 0);
 	const { data: complation } = useTeacherComplation(teacher?.id ?? 0);
 
 	const research = researchData?.data;

@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ResearchService } from "@/features/research/research.service";
-import type { ResearchCreateParams } from "@/features/research/research.type";
 
 export interface CreateResearchInput {
 	name: string;
