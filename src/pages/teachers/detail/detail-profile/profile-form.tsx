@@ -1,5 +1,5 @@
 import { AlertCircle, CheckCircle, FileText, Save, User } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { FileInput } from "@/components/file-input/file-input";
 import { SearchableSelect } from "@/components/searchable-select/searchable-select";
@@ -16,37 +16,10 @@ import { Textarea } from "@/ui/textarea";
 import { cn } from "@/utils";
 
 type ProfileFormProps = {
-	defaultValues: any; // ITeacherDetail
+	defaultValues: any;
 };
 
 export function ProfileForm({ defaultValues }: ProfileFormProps) {
-	const transformedDefaults: ProfileFormData = useMemo(
-		() => ({
-			id: defaultValues?.id || 0,
-			fullName: defaultValues?.fullName || "",
-			phoneNumber: defaultValues?.phone || "",
-			email: defaultValues?.email || "",
-			biography: defaultValues?.biography || "",
-			input: defaultValues?.input || "",
-			age: defaultValues?.age || 0,
-			orcId: defaultValues?.orcId || "",
-			scopusId: defaultValues?.scopusId || "",
-			scienceId: defaultValues?.scienceId || "",
-			researcherId: defaultValues?.researcherId || "",
-			gender: defaultValues?.gender || false,
-			profession: defaultValues?.profession || "",
-			lavozmId: defaultValues?.lavozmId || 0,
-			departmentId: defaultValues?.departmentId || 0,
-			imageUri: null, // Existing image is handled separately
-			fileUrl: null, // Existing file is handled separately
-		}),
-		[defaultValues],
-	);
-
-	const { register, control, handleSubmit } = useForm<ProfileFormData>({
-		defaultValues: transformedDefaults,
-	});
-
 	const { data: departmentResponse } = useDepartment();
 	const { data: positionResponse } = usePosition();
 
@@ -67,6 +40,46 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
 			})),
 		[positionResponse],
 	);
+
+	const transformedDefaults: ProfileFormData = useMemo(
+		() => ({
+			id: defaultValues?.id || 0,
+			fullName: defaultValues?.fullName || "",
+			phoneNumber: defaultValues?.phone || "",
+			email: defaultValues?.email || "",
+			biography: defaultValues?.biography || "",
+			input: defaultValues?.input || "",
+			age: defaultValues?.age || 0,
+			orcId: defaultValues?.orcId || "",
+			scopusId: defaultValues?.scopusId || "",
+			scienceId: defaultValues?.scienceId || "",
+			researcherId: defaultValues?.researcherId || "",
+			gender: defaultValues?.gender || false,
+			profession: defaultValues?.profession || "",
+			lavozmId: 0,
+			departmentId: 0,
+			imageUri: null,
+			fileUrl: null,
+		}),
+		[defaultValues],
+	);
+
+	const { register, control, handleSubmit, reset } = useForm<ProfileFormData>({
+		defaultValues: transformedDefaults,
+	});
+
+	// Options yuklangandan keyin lavozim va kafedra ID larini name bo'yicha topib reset qilamiz
+	useEffect(() => {
+		if (positionOptions.length && departmentOptions.length) {
+			reset({
+				...transformedDefaults,
+				lavozmId:
+					Number(positionOptions.find((p) => p.label === defaultValues?.lavozimName)?.value) || 0,
+				departmentId:
+					Number(departmentOptions.find((d) => d.label === defaultValues?.departmentName)?.value) || 0,
+			});
+		}
+	}, [positionOptions, departmentOptions]);
 
 	const { mutate: updateProfile, isPending } = useUpdateProfile();
 	const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
@@ -96,7 +109,6 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
 					<p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">Saqlash uchun tugmani bosing</p>
 				</div>
 
-				{/* Status Indicator */}
 				<div className="flex items-center gap-2">
 					{isPending && (
 						<div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/50">
