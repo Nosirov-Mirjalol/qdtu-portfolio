@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 export function useTeacherComplation(id: number) {
 	return useQuery({
 		queryKey: ["teacher-completion"],
-		queryFn: () => TeacherService.completion(id),
+		queryFn: () => TeacherService.getCompletion(id),
 		enabled: !!id,
 	});
 }

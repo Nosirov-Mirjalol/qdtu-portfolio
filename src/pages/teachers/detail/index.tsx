@@ -42,7 +42,6 @@ export default function TeacherDetail() {
 	// Teacher ma'lumotlarini olish
 	const teacher = (location.state as { teacher?: Teacher } | null)?.teacher ?? null;
 	const { data: teacherResponse } = useTeacherId(teacher?.id ?? 0);
-	const teacherDetail = teacherResponse?.data;
 
 	const { data: statsData, isLoading: statsLoading } = useGetTeacherStats(teacher?.id);
 	const { data: researchData, isLoading: researchLoading } = useResearch(teacher?.id ?? 0);
@@ -50,7 +49,7 @@ export default function TeacherDetail() {
 	const { data: nashrData, isLoading: nashrLoading } = useNashr(teacher?.id ?? 0);
 	const { data: maslahatData, isLoading: maslahatLoading } = useMaslahat(teacher?.id ?? 0);
 	const { data: mukofotData } = useMukofot(teacher?.id ?? 0);
-	const { data: complation } = useTeacherComplation(teacher?.id ?? 0);
+	const { data: complation } = useTeacherComplation(teacher?.id);
 
 	const research = researchData?.data;
 	const nazorat = nazoratData?.data;
@@ -154,15 +153,15 @@ export default function TeacherDetail() {
 			<div className="flex flex-col lg:flex-row gap-4 sm:gap-5 items-start">
 				<ProfileSidebar
 					profile={{
-						fullName: teacherDetail?.fullName || teacher.fullName,
-						lavozimName: teacher.lavozim,
-						imageUrl: teacherDetail?.imageUrl || teacher.imgUrl,
+						fullName: teacherResponse?.data.fullName,
+						lavozimName: teacherResponse?.data.lavozimName,
+						imageUrl: teacherResponse?.data.imageUrl,
 					}}
 					newImage={teacher.imgUrl}
 					complation={complation?.data}
 				/>
 				<div className="w-full lg:flex-1 min-w-0">
-					<ProfileForm defaultValues={profile} />
+					<ProfileForm defaultValues={teacherResponse?.data} />
 				</div>
 			</div>
 			<TableToolbar

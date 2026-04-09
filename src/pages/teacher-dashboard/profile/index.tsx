@@ -9,7 +9,7 @@ export default function TeacherProfile() {
 	const { data: teacher, isLoading } = useUser();
 	const { data: profile, isLoading: teacherLoading } = useTeacherId(teacher?.id);
 	const { data: complation, isLoading: ComplationLoading } = useTeacherComplation(teacher?.id);	
-
+	
 	if (teacherLoading || isLoading || ComplationLoading)
 		return (
 			<div className="w-full h-[60vh] flex flex-col items-center justify-center gap-3 animate-in fade-in duration-500">
