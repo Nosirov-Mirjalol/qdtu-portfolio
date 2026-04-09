@@ -1,4 +1,4 @@
-import { FileText, Save, User, CheckCircle, AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, FileText, Save, User } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { FileInput } from "@/components/file-input/file-input";
@@ -16,12 +16,35 @@ import { Textarea } from "@/ui/textarea";
 import { cn } from "@/utils";
 
 type ProfileFormProps = {
-	defaultValues: ProfileFormData;
+	defaultValues: any; // ITeacherDetail
 };
 
 export function ProfileForm({ defaultValues }: ProfileFormProps) {
+	const transformedDefaults: ProfileFormData = useMemo(
+		() => ({
+			id: defaultValues?.id || 0,
+			fullName: defaultValues?.fullName || "",
+			phoneNumber: defaultValues?.phone || "",
+			email: defaultValues?.email || "",
+			biography: defaultValues?.biography || "",
+			input: defaultValues?.input || "",
+			age: defaultValues?.age || 0,
+			orcId: defaultValues?.orcId || "",
+			scopusId: defaultValues?.scopusId || "",
+			scienceId: defaultValues?.scienceId || "",
+			researcherId: defaultValues?.researcherId || "",
+			gender: defaultValues?.gender || false,
+			profession: defaultValues?.profession || "",
+			lavozmId: defaultValues?.lavozmId || 0,
+			departmentId: defaultValues?.departmentId || 0,
+			imageUri: null, // Existing image is handled separately
+			fileUrl: null, // Existing file is handled separately
+		}),
+		[defaultValues],
+	);
+
 	const { register, control, handleSubmit } = useForm<ProfileFormData>({
-		defaultValues,
+		defaultValues: transformedDefaults,
 	});
 
 	const { data: departmentResponse } = useDepartment();

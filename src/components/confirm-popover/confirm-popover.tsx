@@ -1,8 +1,7 @@
-import { useDeleteCollage } from "@/hooks/collage/useDeleteCollage";
-import { Button } from "@/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { Button } from "@/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
 
 type ConfirmPopoverProps = {
 	onConfirm: () => void;
@@ -12,7 +11,6 @@ type ConfirmPopoverProps = {
 
 export function ConfirmPopover({ children, onConfirm, message = "O'chirishni xoxlaysizmi?" }: ConfirmPopoverProps) {
 	const [open, setOpen] = useState(false);
-	const {mutate}=useDeleteCollage()
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
@@ -20,7 +18,7 @@ export function ConfirmPopover({ children, onConfirm, message = "O'chirishni xox
 			<PopoverContent>
 				<p className="text-[13px] font-medium mb-3">{message}</p>
 				<div className="flex items-center justify-end gap-2">
-					<Button className="cursor-pointer" size={"sm"} value={"outline"} onClick={() => setOpen(false)}>
+					<Button className="cursor-pointer" size={"sm"} variant={"outline"} onClick={() => setOpen(false)}>
 						Yo'q
 					</Button>
 					<Button
@@ -28,7 +26,6 @@ export function ConfirmPopover({ children, onConfirm, message = "O'chirishni xox
 						variant="destructive"
 						className="cursor-pointer"
 						onClick={() => {
-							mutate(1)
 							onConfirm();
 							setOpen(false);
 						}}

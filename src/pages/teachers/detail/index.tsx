@@ -80,24 +80,6 @@ export default function TeacherDetail() {
 		);
 	}
 
-	const profile: ProfileFormData = {
-		fullName: teacher.fullName,
-		email: teacher.email ?? "",
-		age: teacher.age ? String(teacher.age) : "",
-		phone: teacher.phoneNumber,
-		department: teacher.departmentName,
-		position: teacher.lavozim,
-		bio: "",
-		additionalInfo: "",
-		specialty: teacher.profession ?? "",
-		orcId: "",
-		scopusId: "",
-		scienceId: "",
-		researcherId: "",
-		image: teacher.imgUrl,
-		resume: null,
-	};
-
 	const TOOLBAR_CONFIG = {
 		researches: {
 			addLabel: "Tadqiqot qo'shish",
