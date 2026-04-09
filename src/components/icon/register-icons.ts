@@ -39,7 +39,7 @@ export default async function registerLocalIcons() {
 		return;
 	}
 
-	const svgModules = import.meta.glob("../../assets/icons/*.svg", {
+	const svgModules = import.meta.glob<string>("../../assets/icons/*.svg", {
 		query: "?raw",
 		eager: true,
 		import: "default",
@@ -52,7 +52,7 @@ export default async function registerLocalIcons() {
 
 			if (iconName) {
 				// Parse SVG content
-				const parsedSVG = parseSVGContent(svgContent as string) as ParsedSVG;
+				const parsedSVG = parseSVGContent(svgContent) as ParsedSVG;
 				if (!parsedSVG) {
 					console.warn(`Failed to parse SVG: ${iconName}`);
 					continue;

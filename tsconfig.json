@@ -7,8 +7,8 @@
 		"skipLibCheck": true,
 		"allowJs": true,
 		"moduleResolution": "bundler",
-		"sourceMap": true,
-		"declaration": true,
+		"sourceMap": false,
+		"declaration": false,
 		"preserveWatchOutput": true,
 		"removeComments": true,
 		"allowImportingTsExtensions": true,
@@ -17,8 +17,6 @@
 		"noEmit": true,
 		"jsx": "react-jsx",
 		"esModuleInterop": true,
-		"ignoreDeprecations": "6.0",
-
 		"strict": true,
 		"strictNullChecks": true,
 		"noImplicitAny": true,
@@ -26,7 +24,6 @@
 		"noUnusedParameters": true,
 		"noFallthroughCasesInSwitch": true,
 		"useUnknownInCatchVariables": false,
-
 		"baseUrl": ".",
 		"paths": {
 			"@/*": ["src/*"],

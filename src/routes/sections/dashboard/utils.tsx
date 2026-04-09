@@ -1,6 +1,8 @@
 import { lazy } from "react";
 
-const Pages = import.meta.glob("/src/pages/**/*.tsx");
+const Pages = import.meta.glob<{ default: React.ComponentType<any> }>("/src/pages/**/*.tsx", {
+	eager: false,
+});
 const lazyComponentCache = new Map<string, React.LazyExoticComponent<any>>();
 
 export const loadComponentFromPath = (path: string) => {
