@@ -19,9 +19,13 @@ import { TeacherSheet } from "./teacher-sheet";
 function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) => void): ColumnDef<Teacher>[] {
 	return [
 		{
-			accessorKey: "id",
+			id: "sequential",
 			header: "#",
-			cell: ({ row }) => <span className="text-muted-foreground text-[12px]">{row.getValue("id")}</span>,
+			cell: ({ row, table }) => {
+				const pageIndex = table.getState().pagination.pageIndex;
+				const sequentialNumber = pageIndex * 10 + row.index + 1;
+				return <span className="text-muted-foreground text-[12px]">{sequentialNumber}</span>;
+			},
 		},
 		{
 			accessorKey: "fullName",
