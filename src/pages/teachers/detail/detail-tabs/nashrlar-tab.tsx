@@ -22,10 +22,17 @@ export type Nashr = {
 };
 
 const TYPE_STYLES: Record<Nashr["type"], string> = {
-	MAQOLA: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-50",
-	KITOB: "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50",
-	TADQIQOT: "bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-50",
-	BOSHQA: "bg-zinc-50 text-zinc-600 border-zinc-200 hover:bg-zinc-50",
+	MAQOLA:
+		"bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-50 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800 dark:hover:bg-blue-900/40",
+
+	KITOB:
+		"bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800 dark:hover:bg-emerald-900/40",
+
+	TADQIQOT:
+		"bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-50 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-800 dark:hover:bg-violet-900/40",
+
+	BOSHQA:
+		"bg-zinc-50 text-zinc-600 border-zinc-200 hover:bg-zinc-50 dark:bg-zinc-800/50 dark:text-zinc-400 dark:border-zinc-700 dark:hover:bg-zinc-800/70",
 };
 
 const columns: ColumnDef<Nashr>[] = [
@@ -149,7 +156,7 @@ type nashrsTabProps = {
 
 export function NashrlarTab({ data, page, totalPage, onPageChange, isLoading }: nashrsTabProps) {
 	const { open } = useModalActions();
-	const {mutate:deleteNashr}=useDeleteNashr()
+	const { mutate: deleteNashr } = useDeleteNashr();
 
 	const cols: ColumnDef<Nashr>[] = columns.map((col) => {
 		if ("id" in col && col.id === "actions") {

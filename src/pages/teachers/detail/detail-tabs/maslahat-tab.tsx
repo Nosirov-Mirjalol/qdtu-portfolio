@@ -25,9 +25,14 @@ const FINISHED_ENUM_MAP: Record<string, string> = {
 };
 
 const STYLE_MAP: Record<string, string> = {
-	COMPLETED: "bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-50",
-	IN_PROGRESS: "bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-50",
-	FINISHED: "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50",
+	COMPLETED:
+		"bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800 dark:hover:bg-indigo-900/40",
+
+	IN_PROGRESS:
+		"bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-50 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-800 dark:hover:bg-violet-900/40",
+
+	FINISHED:
+		"bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800 dark:hover:bg-emerald-900/40",
 };
 
 type MaslahatTabProps = {

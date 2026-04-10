@@ -184,7 +184,7 @@ export default function TeacherDetail() {
 				// Mukofot
 				mukofotlar={mukofot?.body ?? []}
 			/>
-			<StatsGrid data={statsData} isLoading={statsLoading} />
+			<StatsGrid data={statsData?.data} isLoading={statsLoading} />
 			{/* Modallar */}
 			<ResearchModal userId={teacher?.id} />
 			<PublicationModal userId={teacher?.id} />

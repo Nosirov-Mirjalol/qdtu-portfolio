@@ -20,9 +20,14 @@ export type Publication = {
 };
 
 const LEVEL_STYLES: Record<Publication["level"], string> = {
-	YUQORI: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-50",
-	"O'RTA": "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-50",
-	"BOSHLANG'ICH": "bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-50",
+	YUQORI:
+		"bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-50 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800 dark:hover:bg-blue-900/40",
+
+	"O'RTA":
+		"bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-50 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800 dark:hover:bg-amber-900/40",
+
+	"BOSHLANG'ICH":
+		"bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-50 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-800 dark:hover:bg-violet-900/40",
 };
 
 const columns: ColumnDef<Publication>[] = [
@@ -132,7 +137,7 @@ type nazoratsTabProps = {
 
 export function NazoratTab({ data, page, totalPage, onPageChange, isLoading }: nazoratsTabProps) {
 	const { open } = useModalActions();
-	const {mutate:deleteNazorat}=useDeleteNazorat()
+	const { mutate: deleteNazorat } = useDeleteNazorat();
 
 	const cols: ColumnDef<Publication>[] = columns.map((col) => {
 		if ("id" in col && col.id === "actions") {
@@ -148,7 +153,7 @@ export function NazoratTab({ data, page, totalPage, onPageChange, isLoading }: n
 							<Pencil className="size-3" />
 							Tahrirlash
 						</button>
-						<ConfirmPopover onConfirm={()=>deleteNazorat(row.original.id)}>
+						<ConfirmPopover onConfirm={() => deleteNazorat(row.original.id)}>
 							<button
 								type="button"
 								className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-900 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
