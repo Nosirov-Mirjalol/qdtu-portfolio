@@ -46,7 +46,7 @@ export function ResearchesTab({ data, page, totalPage, onPageChange, isLoading }
 				<TruncatedText
 					text={row.getValue("description")}
 					maxLength={50}
-					tooltipClassName="text-[#000] text-center bg-white shadow "
+					tooltipClassName="text-foreground text-center bg-background shadow"
 				/>
 			),
 		},

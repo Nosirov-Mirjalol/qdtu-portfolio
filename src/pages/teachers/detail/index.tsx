@@ -19,7 +19,6 @@ import { MukofotModal } from "./detail-modals/mukofot-modal";
 import { NashrModal } from "./detail-modals/nashr-modal";
 import { PublicationModal } from "./detail-modals/publication-modal";
 import { ResearchModal } from "./detail-modals/research-modal";
-import type { ProfileFormData } from "./detail-profile/profile-edit";
 import { ProfileForm } from "./detail-profile/profile-form";
 import { ProfileSidebar } from "./detail-profile/profile-sidebar";
 import { StatsGrid } from "./stats-grid";
@@ -117,7 +116,6 @@ export default function TeacherDetail() {
 	if (researchLoading) {
 		return <div className="flex flex-col gap-4 sm:gap-5">ma'lumotlar yuklanmoqda !</div>;
 	}
-
 	return (
 		<div className="flex flex-col gap-4 sm:gap-5">
 			{/* Breadcrumb */}

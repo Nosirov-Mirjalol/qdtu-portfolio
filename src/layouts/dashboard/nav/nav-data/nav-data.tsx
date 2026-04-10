@@ -28,7 +28,7 @@ export const navData: NavProps["data"] = [
 			{
 				title: "Kafedralar",
 				path: "/departments",
-				icon: <Icon icon="lucide:layers" size="24" color="#637281" />,
+				icon: <Icon icon="lucide:layers" size="24" color="var(--colors-palette-gray-600)" />,
 			},
 			{
 				title: "O'qituvchilar",

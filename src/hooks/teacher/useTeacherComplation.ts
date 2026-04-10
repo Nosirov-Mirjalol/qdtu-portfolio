@@ -1,10 +1,10 @@
 import { TeacherService } from "@/features/teacher/teacher.service";
 import { useQuery } from "@tanstack/react-query";
 
-export function useTeacherComplation(id: number) {
+export function useTeacherComplation(id: number | undefined) {
 	return useQuery({
 		queryKey: ["teacher-completion"],
-		queryFn: () => TeacherService.getCompletion(id),
+		queryFn: () => TeacherService.getCompletion(id!),
 		enabled: !!id,
 	});
 }

@@ -30,7 +30,7 @@ export function NavVerticalLayout({ data, className }: Props) {
 		<nav
 			data-slot="slash-layout-nav"
 			className={cn(
-				"fixed inset-y-0 left-0 flex-col h-full bg-background dark:bg-[#141414] border-r border-dashed dark:border-[#8C8C8C] z-nav transition-[width] duration-300 ease-in-out",
+				"fixed inset-y-0 left-0 flex-col h-full bg-background dark:bg-card border-r border-dashed dark:border-border z-nav transition-[width] duration-300 ease-in-out",
 				className,
 			)}
 			style={{
@@ -64,7 +64,7 @@ export function NavVerticalLayout({ data, className }: Props) {
 					variant="outline"
 					size="icon"
 					onClick={handleToggle}
-					className="h-7 w-7 absolute right-0 rounded-full translate-x-1/2 dark:bg-[#141414] dark:border-[#8C8C8C]"
+					className="h-7 w-7 absolute right-0 rounded-full translate-x-1/2 dark:bg-card dark:border-border"
 				>
 					{themeLayout === ThemeLayout.Mini ? (
 						<Icon icon="lucide:arrow-right-to-line" size={12} />
@@ -74,7 +74,7 @@ export function NavVerticalLayout({ data, className }: Props) {
 				</Button>
 			</div>
 
-			<ScrollArea className={cn("h-[calc(100vh-var(--layout-header-height))] px-2 bg-background dark:bg-[#141414]")}>
+			<ScrollArea className={cn("h-[calc(100vh-var(--layout-header-height))] px-2 bg-background dark:bg-card")}>
 				{themeLayout === ThemeLayout.Mini ? <NavMini data={data} /> : <NavVertical data={data} />}
 			</ScrollArea>
 		</nav>
