@@ -40,25 +40,6 @@ export const navData: NavProps["data"] = [
 				path: "/positions",
 				icon: <Icon icon="lucide:briefcase" size="24" />,
 			},
-			{
-				title: "Error Pages",
-				path: "/error",
-				icon: <Icon icon="bxs:error-alt" size="24" />,
-				children: [
-					{
-						title: "403",
-						path: "/error/403",
-					},
-					{
-						title: "404",
-						path: "/error/404",
-					},
-					{
-						title: "500",
-						path: "/error/500",
-					},
-				],
-			},
 		],
 	},
 ];
