@@ -78,7 +78,7 @@ function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) 
 							e.stopPropagation();
 							onEdit(row.original);
 						}}
-						className="inline-flex items-center gap-1 bg-green-50 text-green-700 hover:bg-green-100 text-[11px] font-semibold px-2 py-0.5 rounded-md transition-colors cursor-pointer"
+						className="inline-flex items-center gap-1 bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-300 dark:hover:bg-green-900 hover:bg-green-100 text-[11px] font-semibold px-2 py-0.5 rounded-md transition-colors cursor-pointer"
 					>
 						<FilePenLine className="size-3" />
 						Tahrirlash
@@ -87,7 +87,7 @@ function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) 
 						<button
 							type="button"
 							onClick={(e) => e.stopPropagation()}
-							className="inline-flex items-center gap-1 bg-red-50 text-red-600 hover:bg-red-100 text-[11px] font-semibold px-2 py-0.5 rounded-md transition-colors cursor-pointer"
+							className="inline-flex items-center gap-1 bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-900 hover:bg-red-100 text-[11px] font-semibold px-2 py-0.5 rounded-md transition-colors cursor-pointer"
 						>
 							<UserX className="size-3" />
 							O'chirish

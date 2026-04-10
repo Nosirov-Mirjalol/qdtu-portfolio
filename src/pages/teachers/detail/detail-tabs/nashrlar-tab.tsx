@@ -103,7 +103,7 @@ const columns: ColumnDef<Nashr>[] = [
 			return (
 				<button
 					type="button"
-					className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+					className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-900 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
 				>
 					<Eye className="size-3" />
 					Ko'rish
@@ -118,7 +118,7 @@ const columns: ColumnDef<Nashr>[] = [
 			<div className="flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
 				<button
 					type="button"
-					className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+					className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-300 dark:hover:bg-blue-900 hover:bg-blue-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
 					onClick={() => {}}
 				>
 					<Pencil className="size-3" />
@@ -127,7 +127,7 @@ const columns: ColumnDef<Nashr>[] = [
 				<ConfirmPopover onConfirm={() => console.log("delete", row.original)}>
 					<button
 						type="button"
-						className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+						className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-900 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
 					>
 						<Trash2 className="size-3" />
 						O'chirish
@@ -160,7 +160,7 @@ export function NashrlarTab({ data, page, totalPage, onPageChange, isLoading }: 
 						<button
 							type="button"
 							onClick={() => open({ _type: "nashr", ...row.original })}
-							className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+							className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-300 dark:hover:bg-blue-900 hover:bg-blue-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
 						>
 							<Pencil className="size-3" />
 							Tahrirlash
@@ -168,7 +168,7 @@ export function NashrlarTab({ data, page, totalPage, onPageChange, isLoading }: 
 						<ConfirmPopover onConfirm={() => deleteNashr(row.original.id)}>
 							<button
 								type="button"
-								className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+								className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-900 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
 							>
 								<Trash2 className="size-3" />
 								O'chirish

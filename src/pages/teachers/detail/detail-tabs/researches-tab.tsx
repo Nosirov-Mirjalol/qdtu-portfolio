@@ -3,7 +3,6 @@ import { DataTable } from "@/components/data-table/data-table";
 import type { ColumnDef } from "@/components/data-table/data-table";
 import { TruncatedText } from "@/components/tooltip/truncated-text";
 import { useDeleteResearch } from "@/hooks/teacher/useDeleteResearch";
-import { useEditResearch } from "@/hooks/teacher/useEditResearch";
 import { useModalActions } from "@/store/modalStore";
 import { Badge } from "@/ui/badge";
 import { Eye, Pencil, Trash2 } from "lucide-react";
@@ -30,7 +29,6 @@ type ResearchesTabProps = {
 
 export function ResearchesTab({ data, page, totalPage, onPageChange, isLoading }: ResearchesTabProps) {
 	const { open } = useModalActions();
-	const {mutate:editMutate}=useEditResearch()
 	const {mutate:deleteResearch}=useDeleteResearch()
 
 	const columns: ColumnDef<Research>[] = [
@@ -105,7 +103,7 @@ export function ResearchesTab({ data, page, totalPage, onPageChange, isLoading }
 				return (
 					<button
 						type="button"
-						className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+						className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-900 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
 					>
 						<Eye className="size-3" /> Ko'rish
 					</button>
@@ -120,7 +118,7 @@ export function ResearchesTab({ data, page, totalPage, onPageChange, isLoading }
 					<button
 						type="button"
 						onClick={() => open({ _type: "research", ...row.original })}
-						className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+						className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-300 dark:hover:bg-blue-900 hover:bg-blue-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
 					>
 						<Pencil className="size-3" /> Tahrirlash
 					</button>
@@ -128,7 +126,7 @@ export function ResearchesTab({ data, page, totalPage, onPageChange, isLoading }
 					<ConfirmPopover onConfirm={() =>deleteResearch(Number(row.original.id))}>
 						<button
 							type="button"
-							className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+							className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-900 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
 						>
 							<Trash2 className="size-3" /> O'chirish
 						</button>
