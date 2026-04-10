@@ -15,7 +15,7 @@ export type Publication = {
 	university: string;
 	year: string;
 	level: "YUQORI" | "O'RTA" | "BOSHLANG'ICH";
-	status: "JARAYONDA" | "TUGALLANGAN";
+	finished: boolean;
 	pdfName: string | null;
 };
 
@@ -64,16 +64,16 @@ const columns: ColumnDef<Publication>[] = [
 		},
 	},
 	{
-		accessorKey: "status",
+		accessorKey: "finished",
 		header: "Holati",
 		cell: ({ row }) => {
-			const status = row.getValue("status") as Publication["status"];
+			const status = row.getValue("finished") as Publication["finished"] ? "TUGALLANGAN" : "JARAYONDA";
 			return (
 				<Badge
 					className={
 						status === "TUGALLANGAN"
-							? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50"
-							: "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-50"
+							? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800"
+							: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-800"
 					}
 					variant="outline"
 				>
