@@ -1,11 +1,11 @@
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import { ConfirmPopover } from "@/components/confirm-popover/confirm-popover";
-import { DataTable } from "@/components/data-table/data-table";
 import type { ColumnDef } from "@/components/data-table/data-table";
+import { DataTable } from "@/components/data-table/data-table";
 import { TruncatedText } from "@/components/tooltip/truncated-text";
 import { useDeleteMaslahat } from "@/hooks/teacher/useDeleteMaslahat";
 import { useModalActions } from "@/store/modalStore";
 import { Badge } from "@/ui/badge";
-import { Eye, Pencil, Trash2 } from "lucide-react";
 
 export type Maslahat = {
 	id: number;
@@ -71,9 +71,10 @@ export function MaslahatTab({ data, page, totalPage, onPageChange, isLoading }: 
 				const val = row.original.member;
 				return (
 					<Badge
-						className={val
-							? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50"
-							: "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-50"
+						className={
+							val
+								? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+								: "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-50"
 						}
 						variant="outline"
 					>

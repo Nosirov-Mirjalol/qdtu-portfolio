@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { ConfirmPopover } from "@/components/confirm-popover/confirm-popover";
 import type { ColumnDef } from "@/components/data-table/data-table";
 import { DataTable } from "@/components/data-table/data-table";
+import type { Teacher } from "@/features/teacher/teacher.type";
 import { useDepartment } from "@/hooks/department/useDepartment";
 import { usePosition } from "@/hooks/position/usePosition";
 import { useDeleteTeacher } from "@/hooks/teacher/useDeleteTeacher";
@@ -13,7 +14,6 @@ import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
-import type { Teacher } from "@/features/teacher/teacher.type";
 import { TeacherSheet } from "./teacher-sheet";
 
 function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) => void): ColumnDef<Teacher>[] {

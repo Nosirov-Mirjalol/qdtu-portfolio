@@ -1,22 +1,22 @@
-import { DataTable } from "@/components/data-table/data-table";
-import type { ColumnDef } from "@/components/data-table/data-table";
+import { Pencil, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useSearchParams } from "react-router";
 import { ConfirmPopover } from "@/components/confirm-popover/confirm-popover";
+import type { ColumnDef } from "@/components/data-table/data-table";
+import { DataTable } from "@/components/data-table/data-table";
 import { FileInput } from "@/components/file-input/file-input";
 import { Modal } from "@/components/modal/modal";
 import { TableToolbar } from "@/components/table-toolbar/table-toolbar";
-import { useModalActions, useModalEditData, useModalIsOpen } from "@/store/modalStore";
-import { useCreateCollage } from "@/hooks/collage/useCreateCollage";
+import type { Collage } from "@/features/collage/collage.type";
 import { useCollage } from "@/hooks/collage/useCollage";
+import { useCreateCollage } from "@/hooks/collage/useCreateCollage";
 import { useDeleteCollage } from "@/hooks/collage/useDeleteCollage";
 import { useUpdateCollage } from "@/hooks/collage/useEditCollage";
+import { useModalActions, useModalEditData, useModalIsOpen } from "@/store/modalStore";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
-import { Pencil, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router";
-import { Controller, useForm } from "react-hook-form";
-import type { Collage } from "@/features/collage/collage.type";
 
 type FacultyFormValues = {
 	name: string;
