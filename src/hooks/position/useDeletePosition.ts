@@ -6,18 +6,24 @@ export function useDeletePosition() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: (id: number) => PositionService.delete(id),
+		mutationFn: async (id: number) => {
+			const res = await PositionService.delete(id);
+			if (res?.success === false) {
+				throw res;
+			}
+			return res;
+		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["positions"] });
 			toast.success("Lavozim muvaffaqiyatli o'chirildi");
 		},
 		onError: (error: any) => {
-			if (error.status === 500) {
-				toast.warning("bu lavozimda xodimlar bor !");
+			if (error?.message === "O'chirish mumkinmas") {
+				toast.warning("Bu lavozimda xodimlar bor!");
 				return;
 			}
 
-			toast.error(error?.response?.data?.message || "Lavozimni o'chirishda xatolik");
+			toast.error(error?.message || "Lavozimni o'chirishda xatolik");
 		},
 	});
 }

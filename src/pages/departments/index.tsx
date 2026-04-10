@@ -63,9 +63,9 @@ function createColumns(
 			cell: ({ row }) => <span className="font-medium">{row.getValue("name")}</span>,
 		},
 		{
-			accessorKey: "departmentName",
+			accessorKey: "collegeName",
 			header: "Fakulteti",
-			cell: ({ row }) => <span className="font-medium">{row.getValue("departmentName")}</span>,
+			cell: ({ row }) => <span className="font-medium">{row.getValue("collegeName")}</span>,
 		},
 		{
 			id: "actions",
