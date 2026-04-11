@@ -135,7 +135,7 @@ type nazoratsTabProps = {
 	isLoading: boolean;
 };
 
-export function NazoratTab({ data, page, totalPage, onPageChange, isLoading }: nazoratsTabProps) {
+export function NazoratTab({ data, userId, page: _page, totalPage: _totalPage, onPageChange: _onPageChange, isLoading: _isLoading }: nazoratsTabProps) {
 	const { open } = useModalActions();
 	const { mutate: deleteNazorat } = useDeleteNazorat();
 

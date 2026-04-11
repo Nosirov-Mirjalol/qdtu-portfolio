@@ -9,7 +9,6 @@ import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
 import { Textarea } from "@/ui/textarea";
-import { Checkbox } from "@/ui/checkbox"; // Shadcn Checkbox ishlatsangiz bo'ladi
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -79,8 +78,10 @@ export function NashrModal({ userId }: { userId: number }) {
 			fileUrl = uploaded.url;
 		}
 
+		const { pdf, ...rest } = data;
+
 		const payload = {
-			...data,
+			...rest,
 			year: Number(data.year),
 			fileUrl,
 			userId,
